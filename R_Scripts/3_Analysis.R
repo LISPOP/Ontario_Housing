@@ -20,3 +20,4 @@ ggplot(., aes(x=Average, y=Development, col=Experimental_Group))+
   xlim(c(0,1))+
   geom_errorbar(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se))) %>% 
   labs(title="Normative Argumentation And Support For Residential Development")
+ggsave(filename="Plots/experiment_averages_point.png", width=8,  height=4)

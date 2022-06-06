@@ -1,11 +1,12 @@
 source("R_Scripts/1_data_import.R")
+library(car)
 #### This section contains transformations (e.g. recodes) and reshaping
 
 #### Experiment####
 #This folds down the four variables that distinguish the treatment group.
 lookfor(on22, "experiment")
 on22 %>%
-rename("Social"=`_v7`, "Private"=`_v8`, "Public"=`_v9`, "Control"=starts_with('SCREEN10'))->on22
+rename("Social"=`v7`, "Private"=`v8`, "Public"=`v9`, "Control"=starts_with('SCREEN10'))->on22
 #Count missing values in experimental group
 
 on22 %>% 
@@ -66,6 +67,24 @@ on22 %>% set_variable_labels(Q35_1_exp="6 Storey rental building",
                     Q35_4_exp="15 Storey condominium Tower",
                     Q35_5_exp="Single detached house",
                     Q35_6_exp="Semi-detached house")->on22
+#### Causes ####
+var_label(on22$Q80_1)
+var_label(on22$Q34_1)
+# Adjust # of surveys taken
+val_labels(on22$Q48)
+table(on22$Q48)
+on22 %>% 
+  mutate(Q48_x=car::Recode(Q48, "1=0; 2=1; 3=2; 4=3; 5=4; 6=5"))->on22
+val_labels(on22$Q48_x)
+val_labels(on22$Q48)
+table(on22$Q48_x, on22$Q48)
+on22$Q48_x
+val_labels(on22$Q48_x)<-c(`5+`=5)
+on22$Q48_x
 
-#### Spit out Recoded Variables ####
+# Non-Partisan
+on22$non_partisan<-Recode(on22$Q23, "6=1; else=0")
+val_labels(on22$non_partisan)<-c("Non-Partisan"=1, "Partisan"=0)
+
+
   
