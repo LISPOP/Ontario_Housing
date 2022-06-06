@@ -36,3 +36,4 @@ on22$Development<-factor(on22$Development, levels=c("Single detached house",
                                   "15 Storey condominium Tower"))
 m1<-lm(`Development Support` ~ Development+Experimental_Group, data=on22)
 summary(m1)
+
