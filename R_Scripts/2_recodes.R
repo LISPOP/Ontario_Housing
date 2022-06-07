@@ -178,11 +178,4 @@ on22$Q48_x
 on22$non_partisan<-Recode(on22$Q23, "6=1; else=0")
 val_labels(on22$non_partisan)<-c("Non-Partisan"=1, "Partisan"=0)
 
-lookfor(on22, "vote")
-on22 %>% 
-  select(Q7, Q8)
-#### Change Value Labels #### 
-# Set Missings for Don't knows.
-# The problem
-on22$Q3
   

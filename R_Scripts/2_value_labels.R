@@ -1,0 +1,85 @@
+source("R_Scripts/1_data_import.R")
+#Value Labels
+# For each of the batteries we identified, we have to adjust the values and value labels
+
+#### Q31
+#Step 1, check to see what we are dealing with
+# Here it is important to look for missing values
+# Double-check in the SPSS file
+on22 %>% 
+  select(starts_with("Q31")) %>% 
+  summary()
+# For each one, we subtract 1 from the value, because the original values ran from 0 to 10
+#Data frame
+on22 %>% 
+  #We are transforming variables, so we use mutate
+  mutate(
+    #across() lets us do something across each variable
+    #We can use select helpers (see ?select) to pick what to work on
+    #The ~ indicates the start of a function
+    across(starts_with("Q31"), ~
+             #The function is to subtract 1 from each variable
+             .x-1
+      )) %>% 
+  #Select the variables
+  select(starts_with("Q31")) %>% 
+  #And see if it worked
+  summary() #That worked.
+
+#Repeat to save. 
+#This is just copying and pasting
+on22 %>% 
+  mutate(
+    across(starts_with("Q31"), ~
+             .x-1
+           #Note that I am resaving over on22
+    ))->on22
+
+# Step 2, change the value labels. 
+
+on22 %>% 
+  select(starts_with("Q31")) %>% 
+val_labels()
+
+on22 %>% 
+  mutate(
+    across(starts_with("Q31"), ~
+             {
+               #Set the value labels
+               #Note, here, you want to also set a don't know, if possible
+  val_labels(.x)<-c("0 Unable to Afford"=0, "10 - Able to Afford"=10)
+ .x
+   }  )
+  )->on22
+
+#Check
+
+on22 %>% 
+  select(starts_with("Q31")) %>% 
+  val_labels()
+
+#Step 3 Create a numeric variable that runs from 0 to 1, for each item
+# Set any don't knows to the mid-point
+#Note this example does not have a don't know
+#But we can act is if ti did (some of our scales have 12,  as a don't know,
+#which will get transformed to a 11.)
+#Step 3
+#Set the midpoint
+#And Rescale in one shot. 
+#BUT WE DO NOT WANT TO OVERWRITE THE UNDERLYING VARIABLE
+# SO, THE .NAMES ARGUMENT DOES THAT. 
+
+on22 %>% 
+  mutate(
+    across(
+     starts_with("Q31"), ~{
+               scales::rescale(car::Recode(as.numeric(.x), "11=5"))
+            }, .names="{.col}_x" ))->on22
+#Check
+on22 %>% 
+  select(starts_with("Q31") & ends_with("_x")) 
+
+#Check
+on22 %>% 
+  select(starts_with("Q31") & ends_with("_x")) %>% 
+  summary()
