@@ -1,4 +1,5 @@
-source("R_Scripts/1_data_import.R")
+library(here)
+source(here("R_Scripts", "1_data_import.R"))
 #Value Labels
 # For each of the batteries we identified, we have to adjust the values and value labels
 

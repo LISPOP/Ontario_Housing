@@ -1,0 +1,42 @@
+---
+title: "Diagnostics of Variables"
+author: 
+  - "Simon J. Kiss" 
+  - "Matt Arp"
+  - "Scott Lu"
+date: '2022-06-07'
+output: pdf_document
+---
+
+```{r setup, include=FALSE, warning=F, message=F}
+knitr::opts_chunk$set(echo = T, warning=F, message=F)
+```
+
+Load the data. 
+
+```{r warning=F, message=F}
+library(here)
+library(tidyverse)
+#source("1_data_import.R")
+source(here("R_Scripts", "2_value_labels.R"))
+```
+
+## Q1
+
+```{r results="markup"}
+# Variable labels
+var_label(on22$Q1)
+#Values and Value Labels
+val_labels(on22$Q1)
+#Check all is coded properly
+table(on22$Q1, as_factor(on22$Q1))
+```
+## Q31
+
+```{r}
+on22 %>% 
+  select(starts_with("Q31") & !ends_with("_x")) %>% 
+  val_labels()
+
+```
+
