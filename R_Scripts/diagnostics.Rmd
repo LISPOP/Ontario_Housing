@@ -23,6 +23,8 @@ source(here("R_Scripts", "2_value_labels.R"))
 
 ## Q1
 
+
+
 ```{r results="markup"}
 # Variable labels
 var_label(on22$Q1)

@@ -1,89 +1,15 @@
 source("R_Scripts/1_data_import.R")
 library(car)
-#### Q31
-# Variable labels 
+#### Insider Outsider Variable
+# Combine those Q27 and Q30 into one variable: 
+# 1. Landlords (Q27) who are staying put (Q30)
+# Homeowners (Q27) who are staying put (Q30)
+# Non homeowners (Q27) who want to buy (Q30)
+# Non- homeowners (Q27)  who want to rent (Q30)
+# All others
 
-on22 %>% 
-  select(starts_with("Q31")) %>% 
-  var_label()
-#Please look in the data dictionary and provide a meaningful, systematic variable label for each one
+#Use mutate and case_when()
 
-var_label(on22$Q31_1)<-c("Affordability of $800 per month")
-# On many of the batteries of questions, there is a mismatch between the value and the value label.
-# 
-table(on22$Q31_1)
-summary(on22$Q31_1)
-val_labels(on22$Q31_1) #A 1 in the data is actually is labelled as a 0
-# It would be desirable to change the data because the survey went from 0 to 10
-# The solution. 
-# We store the standard 0 to 11 value labels in an object. 
-
-val_labels(on22$Q31_1)<-c("1"=1, "2"=2, "3"=3, "4"=4, "5"=5, "6"=6, "7"=7, "8"=8, "9"=9, "10"=10, "11"=11)
-
-# We can do this for multiple variables at once. 
-#Start with the data frame
-on22 %>% 
-  #Because we are transforming variables we use mutate
-  mutate(
-    #The command across says do the thing that follows across these variables
-    #You can specify which variables using a bunch of different convenient select helpers
-    # see ?select
-    #In this case, we will be working with all variables that start with Q31_
-    across(starts_with("Q31_"), ~
-             {
-      #Here is where we specify which labels go with which value
-      val_labels(.x)<-c("1 Unable to Afford"=1, "2"=2, "3"=3, "4"=4, "5"=5, "6"=6, "7"=7, "8"=8, "9"=9, "10"=10, "11 - Able to Afford"=11)
-    #It is necessary to return the .x
-      .x
-      }))->on22
-
-#Now test:
-on22 %>% 
-  select(starts_with("Q31_")) %>% 
-  val_labels
-
-#Then for the same battery, I would like to create a parallel set of variables that takes scales
-# everything from 0 to 1 and sets the don't  know to be the middle value. 
-# for this it is really important to look at the SPSS file to see what the don't knows are
-# If there are any!
-
-on22 %>% 
-  select(starts_with("Q31_")) %>% 
-  summary()
-#These variables go to 11, which is*not* a don't know, so it is a poor example. 
-#But if we pretended that there was a 12 which was a don't know, we would proceed as follows
-#Note, to find the midpoint, it's often helpful to just literally count on your fingers
-on22$Q31_1
-
-#load the scales library
-library(scales)
-#This code does everything
-#Data frame
-on22 %>% 
-  #we are transforming variables so we mutate
-  mutate(
-    #We are working across several variables, so we use across
-    across(
-      #We can use these select helpers to pick what we are working with 
-      # see ?select
-      #We open the function with ~{
-      starts_with("Q31_"), ~{
-        #This does two things:
-        #The Recode() takes the don't know value and sets it to the midpoint
-        #And the rescale(as.numeric() bit just transforms everything to a range of 0 to 1
-       rescale(as.numeric(Recode(.x, "12=6")))
-        #The }closes the function and the .names argument makes the new variables to have the mames
-        # of the original variable with _x and saves it back in on22
-      }, .names="{.col}_x")) ->on22
-#Check 
-names(on22)
-on22 %>% 
-  select(starts_with("Q31")) %>% 
-  summary()
-# this has to be repeated, for each battery in the data-set. 
-
-#### Q32 ####
-#### Q33a and Q80 ####
 
 #### Experiment####
 #This folds down the four variables that distinguish the treatment group.
