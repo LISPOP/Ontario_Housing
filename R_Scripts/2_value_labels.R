@@ -84,3 +84,20 @@ on22 %>%
 on22 %>% 
   select(starts_with("Q31") & ends_with("_x")) %>% 
   summary()
+
+####n Q32
+on22 %>% 
+  select(starts_with("Q32")) %>% 
+  summary()
+
+####n Q33
+on22 %>% 
+  select(starts_with("Q33")) %>% 
+  summary()
+
+on22 %>% 
+  select(starts_with("Q80")) %>% 
+  summary()
+
+
+

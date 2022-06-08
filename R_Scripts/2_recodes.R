@@ -9,7 +9,11 @@ library(car)
 # All others
 
 #Use mutate and case_when()
-
+# on22 %>% 
+#   mutate(Status=case_when(
+#     Q27=="Landlorc"&Q30=="Satying Put" ~ "Speculator",
+#     TRUE ~ "Other"
+#   ))
 
 #### Experiment####
 #This folds down the four variables that distinguish the treatment group.
