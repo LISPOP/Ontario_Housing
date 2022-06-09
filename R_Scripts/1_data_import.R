@@ -20,8 +20,8 @@ names(on22)
 
 # Spit out Most IMportant problem and hjousing
 
-look_for(on22, "most important")
-on22 %>% 
-  select(pid, Q3) %>% 
-  write.csv(., file=here("data", "most_important_problem.csv"))
+# look_for(on22, "most important")
+# on22 %>% 
+#   select(pid, Q3) %>% 
+#   write.csv(., file=here("data", "most_important_problem.csv"))
 

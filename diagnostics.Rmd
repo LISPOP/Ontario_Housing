@@ -14,24 +14,18 @@ knitr::opts_chunk$set(echo = T, warning=F, message=F)
 
 Load the data. 
 
-```{r warning=T, message=T}
+```{r warning=F, message=F}
 library(here)
 library(tidyverse)
 
 #source("1_data_import.R")
 
-#source(here("R_Scripts", "2_recodes.R"))
+source(here("R_Scripts", "2_recodes.R"))
 ```
 
-## Q1
+### Data Dictionary
 
-
-```{r}
-
-#names(on22)
-```
-
-```{r results="markup", eval=F}
+```{r results="markup"}
 
 on22 %>% 
   select(-Q37) %>% 
