@@ -1,5 +1,6 @@
 library(here)
 source(here("R_Scripts", "1_data_import.R"))
+#install.packages("modelsummary")
 #Value Labels
 # For each of the batteries we identified, we have to adjust the values and value labels
 
@@ -48,7 +49,7 @@ on22 %>%
              {
                #Set the value labels
                #Note, here, you want to also set a don't know, if possible
-  val_labels(.x)<-c("0 Unable to Afford"=0, "10 - Able to Afford"=10)
+  val_labels(.x)<-c("0 - Unable to Afford"=0, "10 - Able to Afford"=10)
  .x
    }  )
   )->on22
@@ -90,14 +91,187 @@ on22 %>%
   select(starts_with("Q32")) %>% 
   summary()
 
+on22 %>% 
+  mutate(
+     across(starts_with("Q32"), ~
+             .x-1
+    )) %>% 
+  select(starts_with("Q32")) %>% 
+  summary() 
+
+on22 %>% 
+  mutate(
+    across(starts_with("Q32"), ~
+             .x-1
+    ))->on22
+
+# Step 2, change the value labels. 
+
+on22 %>% 
+  select(starts_with("Q32")) %>% 
+  val_labels()
+
+on22 %>% 
+  mutate(
+    across(starts_with("Q32"), ~
+             {
+               val_labels(.x)<-c("0 - Not at all a cause"=0, "10 - A significant cause"=10)
+               .x
+             }  )
+  )->on22
+
+#Check
+
+on22 %>% 
+  select(starts_with("Q32")) %>% 
+  val_labels()
+
+on22 %>% 
+  mutate(
+    across(
+      starts_with("Q32"), ~{
+        scales::rescale(car::Recode(as.numeric(.x), "11=5"))
+      }, .names="{.col}_x" ))->on22
+#Check
+on22 %>% 
+  select(starts_with("Q32") & ends_with("_x")) 
+
+#Check
+on22 %>% 
+  select(starts_with("Q32") & ends_with("_x")) %>% 
+  summary()
+
 ####n Q33
 on22 %>% 
   select(starts_with("Q33")) %>% 
   summary()
 
 on22 %>% 
+  mutate(
+    across(starts_with("Q33"), ~
+             .x-1
+    )) %>% 
+  select(starts_with("Q33")) %>% 
+  summary() 
+
+on22 %>% 
+  mutate(
+    across(starts_with("Q33"), ~
+             .x-1
+    ))->on22
+
+# Step 2, change the value labels. 
+
+on22 %>% 
+  select(starts_with("Q33")) %>% 
+  val_labels()
+
+on22 %>% 
+  mutate(
+    across(starts_with("Q33"), ~
+             {
+               val_labels(.x)<-c("0 - Strongly oppose"=0, "10 - Strongly support"=10)
+               .x
+             }  )
+  )->on22
+
+#Check
+
+on22 %>% 
+  select(starts_with("Q33")) %>% 
+  val_labels()
+
+on22 %>% 
+  mutate(
+    across(
+      starts_with("Q33"), ~{
+        scales::rescale(car::Recode(as.numeric(.x), "11=5"))
+      }, .names="{.col}_x" ))->on22
+#Check
+on22 %>% 
+  select(starts_with("Q32") & ends_with("_x")) 
+
+#Check
+on22 %>% 
+  select(starts_with("Q32") & ends_with("_x")) %>% 
+  summary()
+
+
+#Q80
+on22 %>% 
   select(starts_with("Q80")) %>% 
   summary()
 
+on22 %>% 
+  mutate(
+    across(starts_with("Q80"), ~
+             .x-1
+    )) %>% 
+  select(starts_with("Q80")) %>% 
+  summary() 
+
+on22 %>% 
+  mutate(
+    across(starts_with("Q80"), ~
+             .x-1
+    ))->on22
+
+# Step 2, change the value labels. 
+
+on22 %>% 
+  select(starts_with("Q80")) %>% 
+  val_labels()
+
+on22 %>% 
+  mutate(
+    across(starts_with("Q80"), ~
+             {
+               val_labels(.x)<-c("0 - Strongly oppose"=0, "10 - Strongly support"=10)
+               .x
+             }  )
+  )->on22
+
+#Check
+
+on22 %>% 
+  select(starts_with("Q80")) %>% 
+  val_labels()
+
+on22 %>% 
+  mutate(
+    across(
+      starts_with("Q80"), ~{
+        scales::rescale(car::Recode(as.numeric(.x), "11=5"))
+      }, .names="{.col}_x" ))->on22
+#Check
+on22 %>% 
+  select(starts_with("Q80") & ends_with("_x")) 
+
+#Check
+on22 %>% 
+  select(starts_with("Q80") & ends_with("_x")) %>% 
+  summary()
+
+#Q34 Rescale
+
+on22 %>% 
+  select(starts_with("Q34")) %>% 
+  summary()
+
+on22 %>% 
+  mutate(
+    across(
+      starts_with("Q34"), ~{
+        scales::rescale(car::Recode(as.numeric(.x), "11=5"))
+      }, .names="{.col}_x" ))->on22
+
+#Check
+on22 %>% 
+  select(starts_with("Q34") & ends_with("_x")) 
+
+#Check
+on22 %>% 
+  select(starts_with("Q34") & ends_with("_x")) %>% 
+  summary()
 
 
