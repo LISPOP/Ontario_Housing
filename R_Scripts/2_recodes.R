@@ -1,4 +1,5 @@
 source("R_Scripts/1_data_import.R")
+source("R_Scripts/2_value_labels.R")
 library(car)
 #### Insider Outsider Variable
 # Combine those Q27 and Q30 into one variable: 
@@ -16,31 +17,33 @@ library(car)
 #   ))
 
 #### Experiment####
-#This folds down the four variables that distinguish the treatment group.
-lookfor(on22, "experiment")
-on22 %>%
-rename("Social"=`v7`, "Private"=`v8`, "Public"=`v9`, "Control"=starts_with('SCREEN10'))->on22
-#Count missing values in experimental group
-
-on22 %>% 
-  rowwise() %>% 
-  mutate(experimental_missings=sum(is.na(c_across(Social:Control)))) %>% 
-  ungroup()->on22
-names(on22)
+# #This folds down the four variables that distinguish the treatment group.
+# lookfor(on22, "experiment")
+# lookfor(on22, "taxes")
+# var_label(on22) %>% View()
+# on22 %>%
+# rename("Social"=`v7`, "Private"=`v8`, "Public"=`v9`, "Control"=starts_with('SCREEN10'))->on22
+# #Count missing values in experimental group
+# 
+# on22 %>% 
+#   rowwise() %>% 
+#   mutate(experimental_missings=sum(is.na(c_across(Social:Control)))) %>% 
+#   ungroup()->on22
+# names(on22)
 # on22 %>% 
 #   filter(experimental_missings==4) %>% 
 #   select(Consent2, experimental_missings, `_v7`:`SCREEN10_Experiment1_DO_Control`, ResponseId, RecordedDate)  %>% 
 #   write_csv(., file="Data/missing_experimental.csv")
 #   
-on22 %>% 
-  pivot_longer(Social:Control, names_to="Experimental_Group", values_to=c("Value")) ->on22
-on22 %>% 
-  filter(Value==1) %>% 
-  select(Experimental_Group:Value)
-#Drop the Value variable; unnecessary
-on22 %>% 
-  filter(Value==1) %>% 
-  select(-Value) ->on22
+# on22 %>% 
+#   pivot_longer(Social:Control, names_to="Experimental_Group", values_to=c("Value")) ->on22
+# on22 %>% 
+#   filter(Value==1) %>% 
+#   select(Experimental_Group:Value)
+# #Drop the Value variable; unnecessary
+# on22 %>% 
+#   filter(Value==1) %>% 
+#   select(-Value) ->on22
 
 # Currently the value labels for the experimental question run from 1 to 11; 12 is don't know
 # I'm going to set 12 to be in the  middle which is 5
