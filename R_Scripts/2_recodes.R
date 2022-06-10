@@ -9,13 +9,35 @@ library(car)
 # All others
 
 #Use mutate and case_when()
-# on22 %>% 
-#   mutate(Status=case_when(
-#     Q27=="Landlorc"&Q30=="Satying Put" ~ "Speculator",
-#     TRUE ~ "Other"
-#   ))
+#Landlords who are saying Put
+ on22 %>% 
+   mutate(Status=case_when(
+     Q28==1 & Q30==2 ~ "Speculator",
+     TRUE ~ "Other"
+   ))
 
-#### Experiment####
+#Homeowners staying put 
+ on22 %>% 
+   mutate(Status=case_when(
+     Q27==1 & Q30==2 ~ "Satisfied Homeowner",
+     TRUE ~ "Other"
+   ))
+
+#Renters who want to buy
+ on22 %>% 
+   mutate(Status=case_when(
+     Q27==2 & Q30==1 ~ "First-Time Homebuyer",
+     TRUE ~ "Other"
+   ))
+ 
+ #Renters who want to rent
+ on22 %>% 
+   mutate(Status=case_when(
+     Q27==2 & Q30==2 ~ "Satisfied renter",
+     TRUE ~ "Other"
+   ))
+ 
+ #### Experiment####
 #This folds down the four variables that distinguish the treatment group.
 lookfor(on22, "experiment")
 on22 %>%
@@ -217,3 +239,17 @@ on22 %>%
 on22 %>% 
   select(starts_with("age")) %>% 
   summary()
+
+#Swing Voter Variable
+on22 %>% 
+  mutate(Status=case_when(
+    Q6b==1 | Q6b==3 |Q6b==4 & Q8==2 | Q9==2 | Q10==2 | Q11==2 ~ "Swing Voter",
+    TRUE ~ "Other"
+  ))
+
+#Apathetic Voter Variable
+on22 %>% 
+  mutate(Status=case_when(
+    Q6a==1 & Q7==3|Q7==4 ~ "Apathetic Voter",
+    TRUE ~ "Other"
+  ))
