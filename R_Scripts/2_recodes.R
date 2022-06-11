@@ -13,8 +13,11 @@ library(car)
  on22 %>% 
    mutate(Status=case_when(
      Q28==1 & Q30==2 ~ "Speculator",
+     #Put all the separate conditions in the same mutate - case_when command, separated by a comma. 
+     Q27==1 & Q30==2 ~ "Satisfied Homeowner",
      TRUE ~ "Other"
-   ))
+     #To actually save the results one needs to reassign the results of the foregoing back into on22
+   ))->on22
 
 #Homeowners staying put 
  on22 %>% 
