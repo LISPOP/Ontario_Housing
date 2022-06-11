@@ -5,7 +5,8 @@ library(modelsummary)
 library(here)
 
 #Import
-on22<-read_sav(file=here("Data", "Housing_06_06.sav"))
+on22<-read_dta(file=here("Data/Housing_02_06_100_Percent_Complete.dta"))
+#on22<-read_sav(file=here("Data", "Housing_06_06.sav"))
 
 #filter out non-consents
 on22 %>% 
