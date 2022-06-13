@@ -260,16 +260,16 @@ on22 %>%
 lookfor(on22, "duration")
 lookfor(on22, "voting_flag")
 
-#Summary by voting_flag group
-tapply(on22$Duration__in_seconds_, on22$voting_flag, summary)
 
+# age flag
 
-#density chart of duration by voting_flag group
 on22 %>% 
-  select(Duration__in_seconds_, voting_flag) %>% 
-  ggplot(., aes(x=Duration__in_seconds_, cols=voting_flag))+
-  geom_density()+
-  scale_x_log10()+
-  facet_grid(cols=vars(voting_flag), labeller=labeller(.cols = label_both))
-  
-  
+  mutate(below18=case_when(
+    age<18~1,
+    TRUE~0
+  ))->on22
+on22 %>% 
+  mutate(above95=case_when(
+    age>94~1,
+    TRUE~0
+  ))->on22
