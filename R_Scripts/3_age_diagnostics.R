@@ -207,6 +207,7 @@ on22_matt$age<-(2022-on22_matt$DOB)
 
 ggplot(on22_jay, aes(x=age))+geom_histogram()+geom_vline(xintercept=c(18, 95))+
   labs(title="Age Distribution, OPES22, 100% Complete Stata File")
+summary(on22_jay$age)
 ggsave(filename=here("Plots","jay_stata_file_age_distribution.png"))
 
 source("R_Scripts/2_recodes.R")

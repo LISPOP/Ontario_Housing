@@ -2,6 +2,7 @@ source("R_Scripts/1_data_import.R")
 source("R_Scripts/2_value_labels.R")
 source("R_Scripts/2_variable_labels.R")
 library(car)
+
 #### Insider Outsider Variable
 # Combine those Q27 and Q30 into one variable: 
 # 1. Landlords (Q27) who are staying put (Q30)
@@ -11,26 +12,32 @@ library(car)
 # All others
 
 #Use mutate and case_when()
-# on22 %>% 
-#   mutate(Status=case_when(
-#     Q27=="Landlorc"&Q30=="Satying Put" ~ "Speculator",
-#     TRUE ~ "Other"
-#   ))
+#Landlords who are saying Put
+ on22 %>% 
+   mutate(Status=case_when(
+     Q28==1 & Q30==2 ~ "Speculator",
+     #Put all the separate conditions in the same mutate - case_when command, separated by a comma. 
+     Q27==1 & Q30==2 ~ "Satisfied Homeowner",
+     Q27==2 & Q30==1 ~ "First-Time Homebuyer",
+     Q27==2 & Q30==2 ~ "Satisfied renter",
+     TRUE ~ "Other"
+     #To actually save the results one needs to reassign the results of the foregoing back into on22
+   ))->on22
+ 
+ #### Experiment####
+ 
+ 
+#This folds down the four variables that distinguish the treatment group.
 
-#### Experiment####
-# #This folds down the four variables that distinguish the treatment group.
-# lookfor(on22, "experiment")
-# lookfor(on22, "taxes")
-# var_label(on22) %>% View()
-# on22 %>%
-# rename("Social"=`v7`, "Private"=`v8`, "Public"=`v9`, "Control"=starts_with('SCREEN10'))->on22
-# #Count missing values in experimental group
-# 
-# on22 %>% 
-#   rowwise() %>% 
-#   mutate(experimental_missings=sum(is.na(c_across(Social:Control)))) %>% 
-#   ungroup()->on22
-# names(on22)
+
+#Count missing values in experimental group
+
+on22 %>% 
+  rowwise() %>% 
+  mutate(experimental_missings=sum(is.na(c_across(Social:Control)))) %>% 
+  ungroup()->on22
+names(on22)
+
 # on22 %>% 
 #   filter(experimental_missings==4) %>% 
 #   select(Consent2, experimental_missings, `_v7`:`SCREEN10_Experiment1_DO_Control`, ResponseId, RecordedDate)  %>% 
@@ -112,124 +119,156 @@ on22$Q48_x
 on22$non_partisan<-Recode(on22$Q23, "6=1; else=0")
 val_labels(on22$non_partisan)<-c("Non-Partisan"=1, "Partisan"=0)
 
-# Age Calculation
-on22 %>% 
-  select(starts_with("DOB")) %>% 
-  summary()
-
-#Recode date of birth from qualtrics data
-on22$Q37_DO_NOT_USE
-on22 %>% 
-  mutate(
-    DOB=case_when(
-      Q37_DO_NOT_USE==4~1920,
-      Q37_DO_NOT_USE==5~1921,
-      Q37_DO_NOT_USE==7~1922,
-      Q37_DO_NOT_USE==8~1923,
-      Q37_DO_NOT_USE==9~1924,
-      Q37_DO_NOT_USE==10~1925,
-      Q37_DO_NOT_USE==11~1926,
-      Q37_DO_NOT_USE==12~1927,
-      Q37_DO_NOT_USE==13~1928,
-      Q37_DO_NOT_USE==14~1929,
-      Q37_DO_NOT_USE==15~1930,
-      Q37_DO_NOT_USE==16~1931,
-      Q37_DO_NOT_USE==17~1932,
-      Q37_DO_NOT_USE==18~1933,
-      Q37_DO_NOT_USE==19~1934,
-      Q37_DO_NOT_USE==20~1935,
-      Q37_DO_NOT_USE==21~1936,
-      Q37_DO_NOT_USE==22~1937,
-      Q37_DO_NOT_USE==23~1938,
-      Q37_DO_NOT_USE==24~1939,
-      Q37_DO_NOT_USE==25~1940,
-      Q37_DO_NOT_USE==26~1941,
-      Q37_DO_NOT_USE==27~1942,
-      Q37_DO_NOT_USE==28~1943,
-      Q37_DO_NOT_USE==29~1944,
-      Q37_DO_NOT_USE==30~1945,
-      Q37_DO_NOT_USE==31~1946,
-      Q37_DO_NOT_USE==32~1947,
-      Q37_DO_NOT_USE==33~1948,
-      Q37_DO_NOT_USE==34~1949,
-      Q37_DO_NOT_USE==35~1950,
-      Q37_DO_NOT_USE==36~1951,
-      Q37_DO_NOT_USE==37~1952,
-      Q37_DO_NOT_USE==38~1953,
-      Q37_DO_NOT_USE==39~1954,
-      Q37_DO_NOT_USE==40~1955,
-      Q37_DO_NOT_USE==41~1956,
-      Q37_DO_NOT_USE==42~1957,
-      Q37_DO_NOT_USE==43~1958,
-      Q37_DO_NOT_USE==44~1959,
-      Q37_DO_NOT_USE==45~1960,
-      Q37_DO_NOT_USE==46~1961,
-      Q37_DO_NOT_USE==47~1962,
-      Q37_DO_NOT_USE==48~1963,
-      Q37_DO_NOT_USE==49~1964,
-      Q37_DO_NOT_USE==50~1965,
-      Q37_DO_NOT_USE==51~1966,
-      Q37_DO_NOT_USE==52~1967,
-      Q37_DO_NOT_USE==53~1968,
-      Q37_DO_NOT_USE==54~1969,
-      Q37_DO_NOT_USE==55~1970,
-      Q37_DO_NOT_USE==56~1971,
-      Q37_DO_NOT_USE==57~1972,
-      Q37_DO_NOT_USE==58~1973,
-      Q37_DO_NOT_USE==59~1974,
-      Q37_DO_NOT_USE==60~1975,
-      Q37_DO_NOT_USE==61~1976,
-      Q37_DO_NOT_USE==62~1977,
-      Q37_DO_NOT_USE==63~1978,
-      Q37_DO_NOT_USE==64~1979,
-      Q37_DO_NOT_USE==65~1980,
-      Q37_DO_NOT_USE==66~1981,
-      Q37_DO_NOT_USE==67~1982,
-      Q37_DO_NOT_USE==68~1983,
-      Q37_DO_NOT_USE==69~1984,
-      Q37_DO_NOT_USE==70~1985,
-      Q37_DO_NOT_USE==71~1986,
-      Q37_DO_NOT_USE==72~1987,
-      Q37_DO_NOT_USE==73~1988,
-      Q37_DO_NOT_USE==74~1989,
-      Q37_DO_NOT_USE==75~1990,
-      Q37_DO_NOT_USE==76~1991,
-      Q37_DO_NOT_USE==77~1992,
-      Q37_DO_NOT_USE==78~1993,
-      Q37_DO_NOT_USE==79~1994,
-      Q37_DO_NOT_USE==80~1995,
-      Q37_DO_NOT_USE==81~1996,
-      Q37_DO_NOT_USE==82~1997,
-      Q37_DO_NOT_USE==83~1998,
-      Q37_DO_NOT_USE==84~1999,
-      Q37_DO_NOT_USE==85~2000,
-      Q37_DO_NOT_USE==86~2001,
-      Q37_DO_NOT_USE==87~2002,
-      Q37_DO_NOT_USE==88~2003,
-      Q37_DO_NOT_USE==89~2004,
-      Q37_DO_NOT_USE==90~2005,
-      Q37_DO_NOT_USE==91~2006,
-      Q37_DO_NOT_USE==92~2007,
-      Q37_DO_NOT_USE==93~2008
-      )
-  )->on22
-
+# # Age Calculation
+# on22 %>% 
+#   select(starts_with("DOB")) %>% 
+#   summary()
+# 
+# #Recode date of birth from qualtrics data
+# on22$Q37_DO_NOT_USE
+# 
+# on22 %>% 
+#   mutate(
+#     DOB=case_when(
+#       Q37_DO_NOT_USE==4~1920,
+#       Q37_DO_NOT_USE==5~1921,
+#       Q37_DO_NOT_USE==7~1922,
+#       Q37_DO_NOT_USE==8~1923,
+#       Q37_DO_NOT_USE==9~1924,
+#       Q37_DO_NOT_USE==10~1925,
+#       Q37_DO_NOT_USE==11~1926,
+#       Q37_DO_NOT_USE==12~1927,
+#       Q37_DO_NOT_USE==13~1928,
+#       Q37_DO_NOT_USE==14~1929,
+#       Q37_DO_NOT_USE==15~1930,
+#       Q37_DO_NOT_USE==16~1931,
+#       Q37_DO_NOT_USE==17~1932,
+#       Q37_DO_NOT_USE==18~1933,
+#       Q37_DO_NOT_USE==19~1934,
+#       Q37_DO_NOT_USE==20~1935,
+#       Q37_DO_NOT_USE==21~1936,
+#       Q37_DO_NOT_USE==22~1937,
+#       Q37_DO_NOT_USE==23~1938,
+#       Q37_DO_NOT_USE==24~1939,
+#       Q37_DO_NOT_USE==25~1940,
+#       Q37_DO_NOT_USE==26~1941,
+#       Q37_DO_NOT_USE==27~1942,
+#       Q37_DO_NOT_USE==28~1943,
+#       Q37_DO_NOT_USE==29~1944,
+#       Q37_DO_NOT_USE==30~1945,
+#       Q37_DO_NOT_USE==31~1946,
+#       Q37_DO_NOT_USE==32~1947,
+#       Q37_DO_NOT_USE==33~1948,
+#       Q37_DO_NOT_USE==34~1949,
+#       Q37_DO_NOT_USE==35~1950,
+#       Q37_DO_NOT_USE==36~1951,
+#       Q37_DO_NOT_USE==37~1952,
+#       Q37_DO_NOT_USE==38~1953,
+#       Q37_DO_NOT_USE==39~1954,
+#       Q37_DO_NOT_USE==40~1955,
+#       Q37_DO_NOT_USE==41~1956,
+#       Q37_DO_NOT_USE==42~1957,
+#       Q37_DO_NOT_USE==43~1958,
+#       Q37_DO_NOT_USE==44~1959,
+#       Q37_DO_NOT_USE==45~1960,
+#       Q37_DO_NOT_USE==46~1961,
+#       Q37_DO_NOT_USE==47~1962,
+#       Q37_DO_NOT_USE==48~1963,
+#       Q37_DO_NOT_USE==49~1964,
+#       Q37_DO_NOT_USE==50~1965,
+#       Q37_DO_NOT_USE==51~1966,
+#       Q37_DO_NOT_USE==52~1967,
+#       Q37_DO_NOT_USE==53~1968,
+#       Q37_DO_NOT_USE==54~1969,
+#       Q37_DO_NOT_USE==55~1970,
+#       Q37_DO_NOT_USE==56~1971,
+#       Q37_DO_NOT_USE==57~1972,
+#       Q37_DO_NOT_USE==58~1973,
+#       Q37_DO_NOT_USE==59~1974,
+#       Q37_DO_NOT_USE==60~1975,
+#       Q37_DO_NOT_USE==61~1976,
+#       Q37_DO_NOT_USE==62~1977,
+#       Q37_DO_NOT_USE==63~1978,
+#       Q37_DO_NOT_USE==64~1979,
+#       Q37_DO_NOT_USE==65~1980,
+#       Q37_DO_NOT_USE==66~1981,
+#       Q37_DO_NOT_USE==67~1982,
+#       Q37_DO_NOT_USE==68~1983,
+#       Q37_DO_NOT_USE==69~1984,
+#       Q37_DO_NOT_USE==70~1985,
+#       Q37_DO_NOT_USE==71~1986,
+#       Q37_DO_NOT_USE==72~1987,
+#       Q37_DO_NOT_USE==73~1988,
+#       Q37_DO_NOT_USE==74~1989,
+#       Q37_DO_NOT_USE==75~1990,
+#       Q37_DO_NOT_USE==76~1991,
+#       Q37_DO_NOT_USE==77~1992,
+#       Q37_DO_NOT_USE==78~1993,
+#       Q37_DO_NOT_USE==79~1994,
+#       Q37_DO_NOT_USE==80~1995,
+#       Q37_DO_NOT_USE==81~1996,
+#       Q37_DO_NOT_USE==82~1997,
+#       Q37_DO_NOT_USE==83~1998,
+#       Q37_DO_NOT_USE==84~1999,
+#       Q37_DO_NOT_USE==85~2000,
+#       Q37_DO_NOT_USE==86~2001,
+#       Q37_DO_NOT_USE==87~2002,
+#       Q37_DO_NOT_USE==88~2003,
+#       Q37_DO_NOT_USE==89~2004,
+#       Q37_DO_NOT_USE==90~2005,
+#       Q37_DO_NOT_USE==91~2006,
+#       Q37_DO_NOT_USE==92~2007,
+#       Q37_DO_NOT_USE==93~2008
+#       )
+#   )->on22
+# 
 
 
 #Calculating age in new variable: age
-  on22$age<-(2022-on22$DOB)
+#  on22$age<-(2022-on22$DOB)
 
 #check age
-on22 %>% 
-  select(starts_with("age")) %>% 
-  summary()
+# on22 %>% 
+#   select(starts_with("age")) %>% 
+#   summary()
 
+#Swing Voter Variable
+on22 %>% 
+  mutate(Status=case_when(
+    (Q6b==1 | Q6b==3 |Q6b==4) & (Q8==2 | Q9==2 | Q10==2 | Q11==2) ~ "Swing Voter",
+    (Q6a==1) & (Q7==3|Q7==4) ~ "Apathetic Voter",
+    TRUE ~ "Other"
+  ))->on22
+
+# Time Flag
+
+#Less than 100000 seconds?
+on22 %>% 
+  mutate(time_flag=case_when(
+    `Duration__in_seconds_`>3600 ~1,
+    TRUE ~0
+  ))->on22
 #### Odd Voting Combinations
 on22 %>% 
   mutate(voting_flag=case_when(
     #If vote intention is Liberal or reported vote is Liberal and variable won't vote against Liberal is also 1, set to 1
     (Q8==1| Q10==1) & Q12_1==1 ~ 1, 
-#Repeat for Conservatives, NDP and Greens
-  ))
+    (Q8==2| Q10==2) & Q12_2==2 ~ 1, #PC
+    (Q8==3| Q10==3) & Q12_3==3 ~ 1, #NDP
+    (Q8==4| Q10==4) & Q12_4==4 ~ 1, #GRN
+    TRUE ~ 0
+   ))->on22
 
-  
+
+on22 %>% 
+  mutate(
+    across(starts_with("voting_flag"), ~
+             {
+               val_labels(.x)<-c("Non-contradicting voters"=0, "Contradicting Voters"=1)
+               .x
+             }  )
+  )->on22
+
+lookfor(on22, "duration")
+lookfor(on22, "voting_flag")
+
