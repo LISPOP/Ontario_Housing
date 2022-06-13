@@ -53,6 +53,20 @@ var_label(on22$Q15_5)<-c("Best party for issue - Immigration and minorities")
 var_label(on22$Q15_6)<-c("Best party for issue - Economy")
 var_label(on22$Q15_7)<-c("Best party for issue - Affordable housing")
 
+#Q25
+on22 %>% 
+  select(starts_with("Q25")) %>% 
+  var_label
+
+var_label(on22$Q25)<-c("Trust of others")
+
+#Q27
+on22 %>% 
+  select(starts_with("Q27")) %>% 
+  var_label
+
+var_label(on22$Q27)<-c("Current living situation")
+
 #Q31
 on22 %>% 
   select(starts_with("Q31")) %>% 
@@ -80,3 +94,37 @@ var_label(on22$Q32_7)<-c("Causes - Low public housing investment")
 var_label(on22$Q32_8)<-c("Causes - Low rent control ")
 var_label(on22$Q32_9)<-c("Causes - Too many immigrants")
 
+#Q33a
+on22 %>% 
+  select(starts_with("Q33a")) %>% 
+  var_label()
+
+var_label(on22$Q33a_1)<-c("Support for policy - More affordable public housing")
+var_label(on22$Q33a_2)<-c("Support for policy - Taxes for owning multiple houses")
+var_label(on22$Q33a_3)<-c("Support for policy - Increasing taxes for foreign home-buyers")
+var_label(on22$Q33a_4)<-c("Support for policy - More non-single housing properties")
+var_label(on22$Q33a_5)<-c("Support for policy - Require developers to build more affordable housing")
+var_label(on22$Q33a_6)<-c("Support for policy - Add more properties to existing units")
+
+#Q80
+on22 %>% 
+  select(starts_with("Q80")) %>% 
+  var_label()
+
+var_label(on22$Q80_1)<-c("Support for policy - Reduce heritage designation laws")
+var_label(on22$Q80_2)<-c("Support for policy - Eliminate density and height restrictions")
+var_label(on22$Q80_3)<-c("Support for policy - Increase housing supply")
+var_label(on22$Q80_4)<-c("Support for policy - Government loans for new buyers")
+var_label(on22$Q80_5)<-c("Support for policy - Eliminate housing transfer taxes")
+var_label(on22$Q80_6)<-c("Support for policy - More rent control")
+
+#Q34
+on22 %>% 
+  select(starts_with("Q34")) %>% 
+  var_label()
+
+var_label(on22$Q34_1)<-c("Trade off support - More affordable public housing")
+var_label(on22$Q34_2)<-c("Trade off support - More affordable public housing")
+var_label(on22$Q34_3)<-c("Trade off support - More affordable public housing")
+var_label(on22$Q34_4)<-c("Trade off support - Provincial control over local zoning")
+var_label(on22$Q34_5)<-c("Trade off support - Reduce environmental regulations")
