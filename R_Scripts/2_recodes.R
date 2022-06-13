@@ -1,5 +1,5 @@
 source("R_Scripts/1_data_import.R")
-library(car)
+#library(car)
 #### Insider Outsider Variable
 # Combine those Q27 and Q30 into one variable: 
 # 1. Landlords (Q27) who are staying put (Q30)
@@ -246,3 +246,30 @@ on22 %>%
     (Q8==4| Q10==4) & Q12_1==4 ~ 1, #GRN
     TRUE ~ 0
    ))->on22
+
+
+on22 %>% 
+  mutate(
+    across(starts_with("voting_flag"), ~
+             {
+               val_labels(.x)<-c("Non-contradicting voters"=0, "Contradicting Voters"=1)
+               .x
+             }  )
+  )->on22
+
+lookfor(on22, "duration")
+lookfor(on22, "voting_flag")
+
+#Summary by voting_flag group
+tapply(on22$Duration__in_seconds_, on22$voting_flag, summary)
+
+
+#density chart of duration by voting_flag group
+on22 %>% 
+  select(Duration__in_seconds_, voting_flag) %>% 
+  ggplot(., aes(x=Duration__in_seconds_, cols=voting_flag))+
+  geom_density()+
+  scale_x_log10()+
+  facet_grid(cols=vars(voting_flag), labeller=labeller(.cols = label_both))
+  
+  
