@@ -273,5 +273,3 @@ on22 %>%
 on22 %>% 
   select(starts_with("Q34") & ends_with("_x")) %>% 
   summary()
-
-
