@@ -224,6 +224,12 @@ on22 %>%
   select(starts_with("age")) %>% 
   summary()
 
-
+#### Odd Voting Combinations
+on22 %>% 
+  mutate(voting_flag=case_when(
+    #If vote intention is Liberal or reported vote is Liberal and variable won't vote against Liberal is also 1, set to 1
+    (Q8==1| Q10==1) & Q12_1==1 ~ 1, 
+#Repeat for Conservatives, NDP and Greens
+  ))
 
   
