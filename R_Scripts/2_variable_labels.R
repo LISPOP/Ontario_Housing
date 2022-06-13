@@ -1,5 +1,5 @@
 library(here)
-source(here("R_Scripts", "1_data_import.R"))
+#source(here("R_Scripts", "1_data_import.R"))
 # Variable labels 
 
 on22 %>% 
@@ -7,8 +7,76 @@ on22 %>%
   var_label()
 #Please look in the data dictionary and provide a meaningful, systematic variable label for each one
 
-var_label(on22$Q31_1)<-c("Affordability of $800 per month")
 
-# 
-var_label(on22$Q32_1)<-c("Causes - Speculation")
-var_label(on22$Q32_2)<-c("Causes - Low Interest Rates")
+#Q12
+on22 %>% 
+  select(starts_with("Q12")) %>% 
+  var_label()
+var_label(on22$Q12_1)<-c("Won't vote for - Liberal")
+var_label(on22$Q12_2)<-c("Won't vote for - PC")
+var_label(on22$Q12_3)<-c("Won't vote for - NDP")
+var_label(on22$Q12_4)<-c("Won't vote for - Green")
+var_label(on22$Q12_5)<-c("Won't vote for - Another party")
+var_label(on22$Q12_6)<-c("Won't vote for - Don't know")
+var_label(on22$Q12_7)<-c("Won't vote for - Could vote for any")
+
+#Q13
+on22 %>% 
+  select(starts_with("Q13")) %>% 
+  var_label()
+
+var_label(on22$Q13_1)<-c("Feelings about party - Liberal")
+var_label(on22$Q13_2)<-c("Feelings about party - PC")
+var_label(on22$Q13_3)<-c("Feelings about party - NDP")
+var_label(on22$Q13_4)<-c("Feelings about party - Green")
+
+#Q14
+on22 %>% 
+  select(starts_with("Q14")) %>% 
+  var_label()
+
+var_label(on22$Q14_1)<-c("Feelings about leader - Doug Ford")
+var_label(on22$Q14_2)<-c("Feelings about leader - Steven Del Duca")
+var_label(on22$Q14_3)<-c("Feelings about leader - Andrea Horwath")
+var_label(on22$Q14_4)<-c("Feelings about leader - Mike Schreiner")
+
+#Q15
+on22 %>% 
+  select(starts_with("Q15")) %>% 
+  var_label()
+
+var_label(on22$Q15_1)<-c("Best party for issue - Healthcare")
+var_label(on22$Q15_2)<-c("Best party for issue - Education")
+var_label(on22$Q15_3)<-c("Best party for issue - Environment")
+var_label(on22$Q15_4)<-c("Best party for issue - Crime and justice")
+var_label(on22$Q15_5)<-c("Best party for issue - Immigration and minorities")
+var_label(on22$Q15_6)<-c("Best party for issue - Economy")
+var_label(on22$Q15_7)<-c("Best party for issue - Affordable housing")
+
+#Q31
+on22 %>% 
+  select(starts_with("Q31")) %>% 
+  var_label()
+
+var_label(on22$Q31_1)<-c("Affordability of $800 per month")
+var_label(on22$Q31_2)<-c("Affordability of $1200 per month")
+var_label(on22$Q31_3)<-c("Affordability of $1600 per month")
+var_label(on22$Q31_4)<-c("Affordability of $2000 per month")
+var_label(on22$Q31_5)<-c("Affordability of $2400 per month")
+var_label(on22$Q31_6)<-c("Affordability of $2800 per month")
+
+#Q32
+on22 %>% 
+  select(starts_with("Q32")) %>% 
+  var_label()
+
+var_label(on22$Q32_1)<-c("Causes - Investor speculation")
+var_label(on22$Q32_2)<-c("Causes - Low interest rates")
+var_label(on22$Q32_3)<-c("Causes - Environmental protections")
+var_label(on22$Q32_4)<-c("Causes - Municipal red tape")
+var_label(on22$Q32_5)<-c("Causes - NIMBYs")
+var_label(on22$Q32_6)<-c("Causes - Urban sprawl")
+var_label(on22$Q32_7)<-c("Causes - Low public housing investment")
+var_label(on22$Q32_8)<-c("Causes - Low rent control ")
+var_label(on22$Q32_9)<-c("Causes - Too many immigrants")
+

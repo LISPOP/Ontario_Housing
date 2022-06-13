@@ -1,5 +1,6 @@
-
+source("R_Scripts/1_data_import.R")
 source("R_Scripts/2_value_labels.R")
+source("R_Scripts/2_variable_labels.R")
 library(car)
 #### Insider Outsider Variable
 # Combine those Q27 and Q30 into one variable: 
