@@ -231,13 +231,18 @@ on22 %>%
 #Swing Voter Variable
 on22 %>% 
   mutate(Status=case_when(
-    Q6b==1 | Q6b==3 |Q6b==4 & Q8==2 | Q9==2 | Q10==2 | Q11==2 ~ "Swing Voter",
+    (Q6b==1 | Q6b==3 |Q6b==4) & (Q8==2 | Q9==2 | Q10==2 | Q11==2) ~ "Swing Voter",
+    (Q6a==1) & (Q7==3|Q7==4) ~ "Apathetic Voter",
     TRUE ~ "Other"
   ))->on22
 
-#Apathetic Voter Variable
+#### Odd Voting Combinations
 on22 %>% 
-  mutate(Status=case_when(
-    Q6a==1 & Q7==3|Q7==4 ~ "Apathetic Voter",
-    TRUE ~ "Other"
-  ))->on22
+  mutate(voting_flag=case_when(
+    #If vote intention is Liberal or reported vote is Liberal and variable won't vote against Liberal is also 1, set to 1
+    (Q8==1| Q10==1) & Q12_1==1 ~ 1, 
+    (Q8==2| Q10==2) & Q12_1==2 ~ 1, #PC
+    (Q8==3| Q10==3) & Q12_1==3 ~ 1, #NDP
+    (Q8==4| Q10==4) & Q12_1==4 ~ 1, #GRN
+    TRUE ~ 0
+   ))->on22
