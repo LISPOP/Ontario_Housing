@@ -15,31 +15,16 @@ library(car)
      Q28==1 & Q30==2 ~ "Speculator",
      #Put all the separate conditions in the same mutate - case_when command, separated by a comma. 
      Q27==1 & Q30==2 ~ "Satisfied Homeowner",
+     Q27==2 & Q30==1 ~ "First-Time Homebuyer",
+     Q27==2 & Q30==2 ~ "Satisfied renter",
      TRUE ~ "Other"
      #To actually save the results one needs to reassign the results of the foregoing back into on22
    ))->on22
-
-#Homeowners staying put 
- on22 %>% 
-   mutate(Status=case_when(
-     Q27==1 & Q30==2 ~ "Satisfied Homeowner",
-     TRUE ~ "Other"
-   ))
-
-#Renters who want to buy
- on22 %>% 
-   mutate(Status=case_when(
-     Q27==2 & Q30==1 ~ "First-Time Homebuyer",
-     TRUE ~ "Other"
-   ))
  
- #Renters who want to rent
  on22 %>% 
-   mutate(Status=case_when(
-     Q27==2 & Q30==2 ~ "Satisfied renter",
-     TRUE ~ "Other"
-   ))
- 
+   select(starts_with("")) %>% 
+   summary()
+
  #### Experiment####
 #This folds down the four variables that distinguish the treatment group.
 lookfor(on22, "experiment")
@@ -248,11 +233,11 @@ on22 %>%
   mutate(Status=case_when(
     Q6b==1 | Q6b==3 |Q6b==4 & Q8==2 | Q9==2 | Q10==2 | Q11==2 ~ "Swing Voter",
     TRUE ~ "Other"
-  ))
+  ))->on22
 
 #Apathetic Voter Variable
 on22 %>% 
   mutate(Status=case_when(
     Q6a==1 & Q7==3|Q7==4 ~ "Apathetic Voter",
     TRUE ~ "Other"
-  ))
+  ))->on22
