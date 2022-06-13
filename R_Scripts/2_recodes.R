@@ -232,6 +232,12 @@ on22 %>%
 on22 %>% 
   mutate(Status=case_when(
     (Q6b==1 | Q6b==3 |Q6b==4) & (Q8==2 | Q9==2 | Q10==2 | Q11==2) ~ "Swing Voter",
+    TRUE ~ "Other"
+  ))->on22
+    
+#Apathetic Voter Variable
+    on22 %>% 
+      mutate(Status=case_when(   
     (Q6a==1) & (Q7==3|Q7==4) ~ "Apathetic Voter",
     TRUE ~ "Other"
   ))->on22
