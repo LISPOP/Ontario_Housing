@@ -15,7 +15,8 @@ table(as_factor(on22$Q10), as_factor(on22$Q12_1))
 #Tables can be easily exported as html file using kable() and save_kable()
 
 # (https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html#Getting_Started)
-
+#How many contradictory voters are there?
+table(as_factor(on22$voting_flag))
 
 #Summary by voting_flag group
 tapply(on22$Duration__in_seconds_, on22$voting_flag, summary)
@@ -65,6 +66,13 @@ on22 %>%
   summarize(avg=mean(Duration__in_seconds_))
 
 table(on22$voting_flag, on22$time_flag_1_hour)
-on22 %>% 
-  group_by(voting_flag) %>% 
-  summarize(avg=mean(Duration__in_seconds_))
+
+library(modelsummary)
+
+  datasummary(as_factor(voting_flag)*(mean)~Duration__in_seconds_, data=on22, output="Tables/contradictory_voters_duration.html")
+# 
+# on22 %>% 
+#   select(psid, Q8, Q10, starts_with("Q12_"), voting_flag) %>% 
+#   filter(voting_flag==1) %>% 
+#   as_factor() %>% 
+#   write_csv("Data/contradictory_voters.csv")

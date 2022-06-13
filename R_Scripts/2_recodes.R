@@ -258,7 +258,11 @@ on22 %>%
     (Q8==4| Q10==4) & Q12_4==4 ~ 1, #GRN
     TRUE ~ 0
    ))->on22
-
+names(on22)
+on22 %>% 
+  select(psid, Q8, Q10, starts_with("Q12_"), voting_flag) %>% 
+  filter(voting_flag==1) %>% 
+  View()
 
 on22 %>% 
   mutate(
