@@ -126,12 +126,7 @@ on22 %>%
   select(starts_with("Q32")) %>% 
   val_labels()
 
-on22 %>% 
-  mutate(
-    across(
-      starts_with("Q32"), ~{
-        scales::rescale(car::Recode(as.numeric(.x), "11=5"))
-      }, .names="{.col}_x" ))->on22
+
 #Check
 on22 %>% 
   select(starts_with("Q32") & ends_with("_x")) 

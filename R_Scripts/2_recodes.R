@@ -95,16 +95,24 @@ on22 %>% set_variable_labels(Q35_1_exp="6 Storey rental building",
 # repeat the above process 
 # Currently the value labels for the cause question run from 1 to 11; 12 is don't know
 # I'm going to set 12 to be in the  middle which is 5
+names(on22)
 on22 %>% 
-  mutate(across(starts_with('Q32_'),~(car::Recode(.x, "12=6")), .names="{.col}_cause")) %>%
-  mutate(across(ends_with('_cause'), ~scales::rescale(as.numeric(.x)))) ->on22
+  mutate(across(starts_with("Q32"), ~scales::rescale(car::Recode(as.numeric(.x), "11=5")))) ->on22
+#Check
+on22 %>% 
+  select(starts_with("Q32"))
   #select(ends_with('_cause')) ->on22
+
 # ## This needs to be filled in for each new variable created
 # on22 %>% set_variable_labels(Q32_1_cause="Speculation by Investors", 
 #                              Q32_2_cause="Low Interest Rates", 
 #                              Q32_3_cause="Environmental rules limiting construction",
 #                              )->on22
 # Adjust # of surveys taken
+
+on22 %>% 
+  select(starts_with("Q32_")) %>% 
+  View()
 
 on22 %>% 
   mutate(Q48_x=car::Recode(Q48, "1=0; 2=1; 3=2; 4=3; 5=4; 6=5"))->on22
@@ -277,4 +285,5 @@ lookfor(on22, "incom")
 on22 %>% 
   mutate(income_digits=unlist(map(.$Q42, nchar)))->on22
 on22$income_digits
-
+on22 %>% 
+  select(starts_with(""))
