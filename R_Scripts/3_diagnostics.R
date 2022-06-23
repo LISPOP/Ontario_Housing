@@ -76,3 +76,11 @@ library(modelsummary)
 #   filter(voting_flag==1) %>% 
 #   as_factor() %>% 
 #   write_csv("Data/contradictory_voters.csv")
+
+
+
+on22 %>% 
+  filter(!is.na(Q42)) %>% 
+  ggplot(., aes(x=Q42))+geom_histogram()+facet_wrap(~as.factor(income_digits), scales="free_x", ncol=4)
+ggsave(filename=here("Plots", "income_reported_n_digits.png"), width=10, height=3)
+  

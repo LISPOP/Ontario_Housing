@@ -259,10 +259,7 @@ on22 %>%
     TRUE ~ 0
    ))->on22
 names(on22)
-on22 %>% 
-  select(psid, Q8, Q10, starts_with("Q12_"), voting_flag) %>% 
-  filter(voting_flag==1) %>% 
-  View()
+
 
 on22 %>% 
   mutate(
@@ -275,4 +272,9 @@ on22 %>%
 
 lookfor(on22, "duration")
 lookfor(on22, "voting_flag")
+#How many respondents digits
+lookfor(on22, "incom")
+on22 %>% 
+  mutate(income_digits=unlist(map(.$Q42, nchar)))->on22
+on22$income_digits
 
