@@ -89,7 +89,7 @@ on22 %>%
 ####n Q32
 on22 %>% 
   select(starts_with("Q32")) %>% 
-  summary()
+summary()
 
 on22 %>% 
   mutate(
@@ -97,13 +97,21 @@ on22 %>%
              .x-1
     )) %>% 
   select(starts_with("Q32")) %>% 
-  summary() 
+summary()
 
 on22 %>% 
   mutate(
     across(starts_with("Q32"), ~
              .x-1
     ))->on22
+#Check
+on22 %>% 
+  mutate(
+    across(starts_with("Q32"), ~
+             .x-1
+    )) %>% 
+  select(starts_with("Q32")) %>% 
+  summary()
 
 # Step 2, change the value labels. 
 
@@ -115,11 +123,18 @@ on22 %>%
   mutate(
     across(starts_with("Q32"), ~
              {
-               val_labels(.x)<-c("0 - Not at all a cause"=0, "10 - A significant cause"=10)
+               val_labels(.x)<-c("0 - Not at all a cause"=0, "10 - A significant cause"=10, "11 - Don't Know"=11)
                .x
              }  )
   )->on22
 
+on22 %>% 
+  select(starts_with("Q32")) %>% 
+  summary() 
+
+on22 %>% 
+  select(starts_with("Q32")) %>% 
+  View()
 #Check
 
 on22 %>% 

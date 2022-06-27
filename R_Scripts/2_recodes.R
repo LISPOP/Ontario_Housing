@@ -97,10 +97,15 @@ on22 %>% set_variable_labels(Q35_1_exp="6 Storey rental building",
 # I'm going to set 12 to be in the  middle which is 5
 names(on22)
 on22 %>% 
-  mutate(across(starts_with("Q32"), ~scales::rescale(car::Recode(as.numeric(.x), "11=5")))) ->on22
+  mutate(
+    across(starts_with("Q32"), ~scales::rescale(car::Recode(as.numeric(.x), "11=5")), .names="{.col}_x")) ->on22
+
 #Check
 on22 %>% 
   select(starts_with("Q32"))
+on22 %>% 
+  select(starts_with("Q32")) %>% 
+  View()
   #select(ends_with('_cause')) ->on22
 
 # ## This needs to be filled in for each new variable created
