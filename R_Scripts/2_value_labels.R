@@ -1,5 +1,5 @@
 library(here)
-#source(here("R_Scripts", "1_data_import.R"))
+source(here("R_Scripts", "1_data_import.R"))
 #install.packages("modelsummary")
 #Value Labels
 # For each of the batteries we identified, we have to adjust the values and value labels
@@ -60,6 +60,9 @@ on22 %>%
   select(starts_with("Q31")) %>% 
   val_labels()
 
+on22 %>% 
+  select(starts_with("Q31")) %>% 
+  summary()
 #Step 3 Create a numeric variable that runs from 0 to 1, for each item
 # Set any don't knows to the mid-point
 #Note this example does not have a don't know
@@ -104,12 +107,8 @@ on22 %>%
     across(starts_with("Q32"), ~
              .x-1
     ))->on22
-#Check
+
 on22 %>% 
-  mutate(
-    across(starts_with("Q32"), ~
-             .x-1
-    )) %>% 
   select(starts_with("Q32")) %>% 
   summary()
 
@@ -141,7 +140,13 @@ on22 %>%
   select(starts_with("Q32")) %>% 
   val_labels()
 
-
+# Rescale Q32
+on22 %>% 
+  mutate(
+    across(
+      starts_with("Q32"), ~{
+        scales::rescale(car::Recode(as.numeric(.x), "11=5"))
+      }, .names="{.col}_x" ))->on22
 #Check
 on22 %>% 
   select(starts_with("Q32") & ends_with("_x")) 

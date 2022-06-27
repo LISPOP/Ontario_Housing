@@ -103,9 +103,9 @@ on22 %>%
 #Check
 on22 %>% 
   select(starts_with("Q32"))
-on22 %>% 
-  select(starts_with("Q32")) %>% 
-  View()
+# on22 %>% 
+#   select(starts_with("Q32")) %>% 
+#   View()
   #select(ends_with('_cause')) ->on22
 
 # ## This needs to be filled in for each new variable created
