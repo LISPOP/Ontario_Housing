@@ -14,7 +14,7 @@ library(car)
 #Use mutate and case_when()
 #Landlords who are saying Put
  on22 %>% 
-   mutate(Status=case_when(
+   mutate(Housing_Status=case_when(
      Q28==1 & Q30==2 ~ "Speculator",
      #Put all the separate conditions in the same mutate - case_when command, separated by a comma. 
      Q27==1 & Q30==2 ~ "Satisfied Homeowner",
@@ -23,7 +23,10 @@ library(car)
      TRUE ~ "Other"
      #To actually save the results one needs to reassign the results of the foregoing back into on22
    ))->on22
- 
+
+#Reordering Housing_Status variable  
+on22$Housing_Status<-factor(on22$Housing_Status, levels=c("First-Time Homebuyer", "Satisfied Homeowner", "Satisfied renter", "Speculator", "Other"))
+
  #### Experiment####
  
  
