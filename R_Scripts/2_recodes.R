@@ -1,6 +1,7 @@
 source("R_Scripts/1_data_import.R")
 source("R_Scripts/2_value_labels.R")
 source("R_Scripts/2_variable_labels.R")
+
 library(car)
 
 #### Insider Outsider Variable
@@ -46,15 +47,15 @@ names(on22)
 #   select(Consent2, experimental_missings, `_v7`:`SCREEN10_Experiment1_DO_Control`, ResponseId, RecordedDate)  %>% 
 #   write_csv(., file="Data/missing_experimental.csv")
 #   
-# on22 %>% 
-#   pivot_longer(Social:Control, names_to="Experimental_Group", values_to=c("Value")) ->on22
-# on22 %>% 
-#   filter(Value==1) %>% 
-#   select(Experimental_Group:Value)
-# #Drop the Value variable; unnecessary
-# on22 %>% 
-#   filter(Value==1) %>% 
-#   select(-Value) ->on22
+on22 %>%
+  pivot_longer(Social:Control, names_to="Experimental_Group", values_to=c("Value")) ->on22
+on22 %>%
+  filter(Value==1) %>%
+  select(Experimental_Group:Value)
+#Drop the Value variable; unnecessary
+on22 %>%
+  filter(Value==1) %>%
+  select(-Value) ->on22
 
 # Currently the value labels for the experimental question run from 1 to 11; 12 is don't know
 # I'm going to set 12 to be in the  middle which is 5
@@ -94,33 +95,88 @@ on22 %>% set_variable_labels(Q35_1_exp="6 Storey rental building",
                     Q35_4_exp="15 Storey condominium Tower",
                     Q35_5_exp="Single detached house",
                     Q35_6_exp="Semi-detached house")->on22
+#### Rescale Q31
+# Set any don't knows to the mid-point
+#Note this example does not have a don't know
+#But we can act is if ti did (some of our scales have 12,  as a don't know,
+#which will get transformed to a 11.)
+#Step 3
+#Set the midpoint
+#And Rescale in one shot. 
+#BUT WE DO NOT WANT TO OVERWRITE THE UNDERLYING VARIABLE
+# SO, THE .NAMES ARGUMENT DOES THAT. 
+
+on22 %>% 
+  mutate(
+    across(
+      starts_with("Q31"), ~{
+        scales::rescale(car::Recode(as.numeric(.x), "11=5"))
+      }, .names="{.col}_x" ))->on22
+
+
+
+
 #### Causes ####
 # repeat the above process 
 # Currently the value labels for the cause question run from 1 to 11; 12 is don't know
 # I'm going to set 12 to be in the  middle which is 5
-names(on22)
+
 on22 %>% 
   mutate(
     across(starts_with("Q32"), ~scales::rescale(car::Recode(as.numeric(.x), "11=5")), .names="{.col}_x")) ->on22
+on22 %>% 
+  select(ends_with("_x")) %>% 
+  var_label()
+#Assign variable labels
 
 #Check
 on22 %>% 
   select(starts_with("Q32"))
-# on22 %>% 
-#   select(starts_with("Q32")) %>% 
-#   View()
-  #select(ends_with('_cause')) ->on22
 
-# ## This needs to be filled in for each new variable created
-# on22 %>% set_variable_labels(Q32_1_cause="Speculation by Investors", 
-#                              Q32_2_cause="Low Interest Rates", 
-#                              Q32_3_cause="Environmental rules limiting construction",
-#                              )->on22
-# Adjust # of surveys taken
+#### Rescale Q33
+#Check
 
 on22 %>% 
-  select(starts_with("Q32_")) %>% 
-  View()
+  select(starts_with("Q33")) %>% 
+  val_labels()
+
+on22 %>% 
+  mutate(
+    across(
+      starts_with("Q33"), ~{
+        scales::rescale(car::Recode(as.numeric(.x), "11=5"))
+      }, .names="{.col}_x" ))->on22
+
+#### Rescale Q80
+on22 %>% 
+  mutate(
+    across(
+      starts_with("Q80"), ~{
+        scales::rescale(car::Recode(as.numeric(.x), "11=5"))
+      }, .names="{.col}_x" ))->on22
+
+#### Rescale Q34
+on22 %>% 
+  mutate(
+    across(
+      starts_with("Q34"), ~{
+        scales::rescale(car::Recode(as.numeric(.x), "11=5"))
+      }, .names="{.col}_x" ))->on22
+
+#Set Variable labels
+var_label(on22$Q32_1_x)<-c("Investor speculation")
+var_label(on22$Q32_2_x)<-c("Low interest rates")
+var_label(on22$Q32_3_x)<-c("Environmental protections")
+var_label(on22$Q32_4_x)<-c("Municipal red tape")
+var_label(on22$Q32_5_x)<-c("NIMBYs")
+var_label(on22$Q32_6_x)<-c("Urban sprawl")
+var_label(on22$Q32_7_x)<-c("Low public housing investment")
+var_label(on22$Q32_8_x)<-c("Low rent control ")
+var_label(on22$Q32_9_x)<-c("Too many immigrants")
+
+
+# Adjust # of surveys taken
+
 
 on22 %>% 
   mutate(Q48_x=car::Recode(Q48, "1=0; 2=1; 3=2; 4=3; 5=4; 6=5"))->on22
@@ -293,5 +349,9 @@ lookfor(on22, "incom")
 on22 %>% 
   mutate(income_digits=unlist(map(.$Q42, nchar)))->on22
 on22$income_digits
-on22 %>% 
-  select(starts_with(""))
+
+#Renter variabvle
+
+#Causes by renter/non-renter dummy variable
+on22$renter<-ifelse(on22$Q27==2,1,0)
+val_labels(on22$renter)<-c("Renter"=1, "Non-Renter"=0)

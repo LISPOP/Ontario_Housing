@@ -63,31 +63,6 @@ on22 %>%
 on22 %>% 
   select(starts_with("Q31")) %>% 
   summary()
-#Step 3 Create a numeric variable that runs from 0 to 1, for each item
-# Set any don't knows to the mid-point
-#Note this example does not have a don't know
-#But we can act is if ti did (some of our scales have 12,  as a don't know,
-#which will get transformed to a 11.)
-#Step 3
-#Set the midpoint
-#And Rescale in one shot. 
-#BUT WE DO NOT WANT TO OVERWRITE THE UNDERLYING VARIABLE
-# SO, THE .NAMES ARGUMENT DOES THAT. 
-
-on22 %>% 
-  mutate(
-    across(
-     starts_with("Q31"), ~{
-               scales::rescale(car::Recode(as.numeric(.x), "11=5"))
-            }, .names="{.col}_x" ))->on22
-#Check
-on22 %>% 
-  select(starts_with("Q31") & ends_with("_x")) 
-
-#Check
-on22 %>% 
-  select(starts_with("Q31") & ends_with("_x")) %>% 
-  summary()
 
 ####n Q32
 on22 %>% 
@@ -131,30 +106,12 @@ on22 %>%
   select(starts_with("Q32")) %>% 
   summary() 
 
-on22 %>% 
-  select(starts_with("Q32")) %>% 
-  View()
+
 #Check
 
 on22 %>% 
   select(starts_with("Q32")) %>% 
   val_labels()
-
-# Rescale Q32
-on22 %>% 
-  mutate(
-    across(
-      starts_with("Q32"), ~{
-        scales::rescale(car::Recode(as.numeric(.x), "11=5"))
-      }, .names="{.col}_x" ))->on22
-#Check
-on22 %>% 
-  select(starts_with("Q32") & ends_with("_x")) 
-
-#Check
-on22 %>% 
-  select(starts_with("Q32") & ends_with("_x")) %>% 
-  summary()
 
 ####n Q33
 on22 %>% 
@@ -190,26 +147,7 @@ on22 %>%
              }  )
   )->on22
 
-#Check
 
-on22 %>% 
-  select(starts_with("Q33")) %>% 
-  val_labels()
-
-on22 %>% 
-  mutate(
-    across(
-      starts_with("Q33"), ~{
-        scales::rescale(car::Recode(as.numeric(.x), "11=5"))
-      }, .names="{.col}_x" ))->on22
-#Check
-on22 %>% 
-  select(starts_with("Q32") & ends_with("_x")) 
-
-#Check
-on22 %>% 
-  select(starts_with("Q32") & ends_with("_x")) %>% 
-  summary()
 
 
 #Q80
@@ -252,39 +190,4 @@ on22 %>%
   select(starts_with("Q80")) %>% 
   val_labels()
 
-on22 %>% 
-  mutate(
-    across(
-      starts_with("Q80"), ~{
-        scales::rescale(car::Recode(as.numeric(.x), "11=5"))
-      }, .names="{.col}_x" ))->on22
-#Check
-on22 %>% 
-  select(starts_with("Q80") & ends_with("_x")) 
 
-#Check
-on22 %>% 
-  select(starts_with("Q80") & ends_with("_x")) %>% 
-  summary()
-
-#Q34 Rescale
-
-on22 %>% 
-  select(starts_with("Q34")) %>% 
-  summary()
-
-on22 %>% 
-  mutate(
-    across(
-      starts_with("Q34"), ~{
-        scales::rescale(car::Recode(as.numeric(.x), "11=5"))
-      }, .names="{.col}_x" ))->on22
-
-#Check
-on22 %>% 
-  select(starts_with("Q34") & ends_with("_x")) 
-
-#Check
-on22 %>% 
-  select(starts_with("Q34") & ends_with("_x")) %>% 
-  summary()
