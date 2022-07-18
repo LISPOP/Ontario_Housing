@@ -94,6 +94,15 @@ var_label(on22$Q32_7)<-c("Causes - Low public housing investment")
 var_label(on22$Q32_8)<-c("Causes - Low rent control ")
 var_label(on22$Q32_9)<-c("Causes - Too many immigrants")
 
+var_label(on22$Q32_1_x)<-c("Causes - Investor speculation")
+var_label(on22$Q32_2_x)<-c("Causes - Low interest rates")
+var_label(on22$Q32_3_x)<-c("Causes - Environmental protections")
+var_label(on22$Q32_4_x)<-c("Causes - Municipal red tape")
+var_label(on22$Q32_5_x)<-c("Causes - NIMBYs")
+var_label(on22$Q32_6_x)<-c("Causes - Urban sprawl")
+var_label(on22$Q32_7_x)<-c("Causes - Low public housing investment")
+var_label(on22$Q32_8_x)<-c("Causes - Low rent control ")
+var_label(on22$Q32_9_x)<-c("Causes - Too many immigrants")
 #Q33a
 on22 %>% 
   select(starts_with("Q33a")) %>% 
@@ -105,6 +114,13 @@ var_label(on22$Q33a_3)<-c("Support for policy - Increasing taxes for foreign hom
 var_label(on22$Q33a_4)<-c("Support for policy - More non-single housing properties")
 var_label(on22$Q33a_5)<-c("Support for policy - Require developers to build more affordable housing")
 var_label(on22$Q33a_6)<-c("Support for policy - Add more properties to existing units")
+
+var_label(on22$Q33a_1_x)<-c("Support for policy - More affordable public housing")
+var_label(on22$Q33a_2_x)<-c("Support for policy - Taxes for owning multiple houses")
+var_label(on22$Q33a_3_x)<-c("Support for policy - Increasing taxes for foreign home-buyers")
+var_label(on22$Q33a_4_x)<-c("Support for policy - More non-single housing properties")
+var_label(on22$Q33a_5_x)<-c("Support for policy - Require developers to build more affordable housing")
+var_label(on22$Q33a_6_x)<-c("Support for policy - Add more properties to existing units")
 
 #Q80
 on22 %>% 
@@ -118,6 +134,13 @@ var_label(on22$Q80_4)<-c("Support for policy - Government loans for new buyers")
 var_label(on22$Q80_5)<-c("Support for policy - Eliminate housing transfer taxes")
 var_label(on22$Q80_6)<-c("Support for policy - More rent control")
 
+var_label(on22$Q80_1_x)<-c("Support for policy - Reduce heritage designation laws")
+var_label(on22$Q80_2_x)<-c("Support for policy - Eliminate density and height restrictions")
+var_label(on22$Q80_3_x)<-c("Support for policy - Increase housing supply")
+var_label(on22$Q80_4_x)<-c("Support for policy - Government loans for new buyers")
+var_label(on22$Q80_5_x)<-c("Support for policy - Eliminate housing transfer taxes")
+var_label(on22$Q80_6_x)<-c("Support for policy - More rent control")
+
 #Q34
 on22 %>% 
   select(starts_with("Q34")) %>% 
@@ -128,3 +151,10 @@ var_label(on22$Q34_2)<-c("Trade off support - More affordable public housing")
 var_label(on22$Q34_3)<-c("Trade off support - More affordable public housing")
 var_label(on22$Q34_4)<-c("Trade off support - Provincial control over local zoning")
 var_label(on22$Q34_5)<-c("Trade off support - Reduce environmental regulations")
+
+var_label(on22$Q34_1_x)<-c("Trade off support - More affordable public housing")
+var_label(on22$Q34_2_x)<-c("Trade off support - More affordable public housing")
+var_label(on22$Q34_3_x)<-c("Trade off support - More affordable public housing")
+var_label(on22$Q34_4_x)<-c("Trade off support - Provincial control over local zoning")
+var_label(on22$Q34_5_x)<-c("Trade off support - Reduce environmental regulations")
+

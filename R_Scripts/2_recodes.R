@@ -1,6 +1,6 @@
 source("R_Scripts/1_data_import.R")
 source("R_Scripts/2_value_labels.R")
-source("R_Scripts/2_variable_labels.R")
+
 
 library(car)
 
@@ -162,17 +162,6 @@ on22 %>%
       starts_with("Q34"), ~{
         scales::rescale(car::Recode(as.numeric(.x), "11=5"))
       }, .names="{.col}_x" ))->on22
-
-#Set Variable labels
-var_label(on22$Q32_1_x)<-c("Investor speculation")
-var_label(on22$Q32_2_x)<-c("Low interest rates")
-var_label(on22$Q32_3_x)<-c("Environmental protections")
-var_label(on22$Q32_4_x)<-c("Municipal red tape")
-var_label(on22$Q32_5_x)<-c("NIMBYs")
-var_label(on22$Q32_6_x)<-c("Urban sprawl")
-var_label(on22$Q32_7_x)<-c("Low public housing investment")
-var_label(on22$Q32_8_x)<-c("Low rent control ")
-var_label(on22$Q32_9_x)<-c("Too many immigrants")
 
 
 # Adjust # of surveys taken
@@ -355,3 +344,4 @@ on22$income_digits
 #Causes by renter/non-renter dummy variable
 on22$renter<-ifelse(on22$Q27==2,1,0)
 val_labels(on22$renter)<-c("Renter"=1, "Non-Renter"=0)
+source("R_Scripts/2_variable_labels.R")
