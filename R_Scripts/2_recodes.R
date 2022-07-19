@@ -12,6 +12,10 @@ library(car)
 # Non- homeowners (Q27)  who want to rent (Q30)
 # All others
 
+#Recoding Q6b to simplify party names
+on22 %>%
+recode(Q6b, "1 = Liberal; 2 = PC; 3 = NDP; 4 = Green")
+
 #Use mutate and case_when()
 #Landlords who are saying Put
  on22 %>% 
