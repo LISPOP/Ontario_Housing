@@ -64,9 +64,8 @@ group_by(Housing_Status, variable) %>%
   geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip() +
   labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")
 
-on22$renter
 on22 %>% 
-  mutate(renter=fct_relevel(renter, "renter")) %>% 
+  mutate(renter=fct_relevel(as_factor(renter), "renter")) %>% 
   select(Q32_1_x:Q32_9_x, renter) %>% 
   pivot_longer(., cols=-renter, names_to=c("variable")) %>% 
   group_by(renter, variable) %>% 
@@ -79,21 +78,22 @@ on22 %>%
   geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip() +
   labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")
 
-on22$Q23
 on22 %>% 
-  mutate(Q23=fct_relevel(Q23, "Liberal")) %>% 
+  mutate(Q23=fct_relevel(as_factor(Q23), "Liberal")) %>% 
   select(Q32_1_x:Q32_9_x, Q23) %>% 
   pivot_longer(., cols=-Q23, names_to=c("variable")) %>% 
   group_by(Q23, variable) %>% 
   filter(value!="NA") %>% 
-  filter(Q23!=5) %>% #Filter out R's that identify as "Other" 
-  filter(Q23!=6) %>%# Filter out R's that identify as "None of these"
+  filter(Q23!="Another party (please specify)") %>% #Filter out R's that identify as "Other" 
+  filter(Q23!="None of these") %>%# Filter out R's that identify as "None of these"
   summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., cause_var_labels) %>% 
   mutate(label=str_remove_all(label, "Causes - ")) %>% 
   ggplot(., aes(x=fct_reorder(label, average), y=average, col=Q23))+geom_point()+ylim(c(0,1))+
   geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip() +
-  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")
+  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")+
+  scale_color_manual(name="", labels=c("Liberal","New Democrat","Progressive Conservative","Green"), values=c("#D71920","#F37021","#1A4782","#3D9B35"))
+
 
 #### Solutions
 on22 %>% 
@@ -120,7 +120,7 @@ on22 %>%
 
 #Solutions by renter/non-renter dummy variable
 on22 %>% 
-  mutate(renter=fct_relevel(renter, "renter")) %>% 
+  mutate(renter=fct_relevel(as_factor(renter), "renter")) %>% 
   select(Q33a_1_x:Q80_6_x, renter) %>% 
   pivot_longer(., cols=-renter, names_to=c("variable")) %>% 
   group_by(renter, variable) %>% 
@@ -134,16 +134,19 @@ on22 %>%
   labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Policies to address housing cost increase", width=60), x="")
 
 #Solutions by ideology
-mutate(Q23=fct_relevel(Q23, "Liberal")) %>% 
+on22 %>% 
+  mutate(Q23=fct_relevel(as_factor(Q23), "Liberal")) %>% 
   select(Q33a_1_x:Q80_6_x, Q23) %>% 
   pivot_longer(., cols=-Q23, names_to=c("variable")) %>% 
   group_by(Q23, variable) %>% 
   filter(value!="NA") %>% 
-  filter(Q23!=5) %>% #Filter out R's that identify as "Other" 
-  filter(Q23!=6) %>%# Filter out R's that identify as "None of these"
+  filter(Q23!="Another party (please specify)") %>% #Filter out R's that identify as "Other" 
+  filter(Q23!="None of these") %>%# Filter out R's that identify as "None of these"
   summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., solution_var_labels) %>% 
   mutate(label=str_remove_all(label, "Support for policy - ")) %>% 
   ggplot(., aes(x=fct_reorder(label, average), y=average, col=Q23))+geom_point()+ylim(c(0,1))+
   geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip() +
-  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Policies to address housing cost increase", width=60), x="")
+  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Policies to address housing cost increase", width=60), x="")+
+  scale_color_manual(name="", labels=c("Liberal","New Democrat","Progressive Conservative","Green"), values=c("#D71920","#F37021","#1A4782","#3D9B35"))
+
