@@ -1,4 +1,15 @@
 source("R_Scripts/4_Analysis.R")
+#### Experiment
+lookfor(on22, "social")
+theme_set(theme_minimal())
+on22 %>% 
+  select(ends_with('_exp')) %>% 
+  var_label()->experimental_variable_labels
+experimental_variable_labels
+on22 %>%
+  rename_with(~ unlist(experimental_variable_labels), ends_with('_exp'))->on22
+names(on22)
+
 on22 %>% 
   pivot_longer(., cols="6 Storey rental building":"Semi-detached house", names_to="Development", values_to="Development Support") ->on22
 on22 %>% 
