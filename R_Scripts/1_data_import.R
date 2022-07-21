@@ -23,6 +23,9 @@ on22 %>%
 on22 %>% 
   select(-contains("_DO_"))->on22
 names(on22)
+#Filter out v1 variables
+on22 %>% 
+  select(-matches("^v[0-9]"))->on22
 
 #Look for variables
 library(labelled)
@@ -35,3 +38,4 @@ names(on22)
 # on22 %>% 
 #   select(pid, Q3) %>% 
 #   write.csv(., file=here("data", "most_important_problem.csv"))
+nrow(on22)

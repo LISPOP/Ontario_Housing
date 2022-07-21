@@ -1,6 +1,6 @@
 source("R_Scripts/1_data_import.R")
 source("R_Scripts/2_value_labels.R")
-
+nrow(on22)
 
 library(car)
 
@@ -13,9 +13,15 @@ library(car)
 # All others
 
 #Recoding Q6b to simplify party names
-on22 %>%
-recode(Q6b, "1 = Liberal; 2 = PC; 3 = NDP; 4 = Green")
-
+on22$Vote<-Recode(as.numeric(on22$Q6b, "1='Liberal'; 2='PC' ; 3='NDP' ; 4='Green'"))
+on22 %>% 
+  mutate(Vote=case_when(
+    Q6b==1~"PC",
+    Q6b==  2~"Liberal",
+    Q6b==3~"NDP",
+    Q6b==4~"Green"
+  ))->on22
+on22$Vote<-factor(on22$Vote, levels=c("PC", "Liberal", "NDP", "Green"))
 #Use mutate and case_when()
 #Landlords who are saying Put
  on22 %>% 
@@ -348,4 +354,6 @@ on22$income_digits
 #Causes by renter/non-renter dummy variable
 on22$renter<-ifelse(on22$Q27==2,1,0)
 val_labels(on22$renter)<-c("Renter"=1, "Non-Renter"=0)
+nrow(on22)
 source("R_Scripts/2_variable_labels.R")
+nrow(on22)
