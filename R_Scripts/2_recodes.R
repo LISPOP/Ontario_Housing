@@ -22,6 +22,16 @@ on22 %>%
     Q6b==4~"Green"
   ))->on22
 on22$Vote<-factor(on22$Vote, levels=c("PC", "Liberal", "NDP", "Green"))
+
+# Making partisanship variable for self-identifying partisans
+on22 %>%
+  mutate(partisanship=case_when(
+    Q23 == 1 & Q24 <3 ~ "Liberal",
+    Q23 == 2 & Q24 <3  ~ "NDP",
+    Q23 == 3 & Q24 <3 ~ "PC",
+    Q23 == 4 & Q24 <3 ~ "Green"
+  ))->on22
+
 #Use mutate and case_when()
 #Landlords who are saying Put
  on22 %>% 
