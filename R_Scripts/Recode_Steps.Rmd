@@ -9,6 +9,13 @@ output: html_document
 
 This document describes what has been done to the original variables produced for the 2022 Ontario Provincial Election Study
 
+# Party names
+This variable uses Q6b to simplify party names and shorten them. These are:
+- PC
+- Liberal
+- NDP
+- Green
+
 ## Variables Q31_, Q32,
 
 Matt, can you describe what we did here, where we subtracted 1 from each variable? and why we did that
@@ -31,7 +38,14 @@ These variables are transformed versions of the same variable without the suffix
 ## Abstain Variable
 
 ## Partisanship
-This variable has been constructed from Q23 which asks whether a person identiifes with an Ontario provincial party and Q24, how strongly they identify with that. It means 
+This variable has been constructed from Q23 which asks whether a person identifies with an Ontario provincial party and Q24, how strongly they identify with that. 
+If they satisfy the conditions, they are labeled as a partisan. Categories are: 
+- PC
+- Liberal
+- NDP
+- Green
+- Independent
+
 
 ## Experimental Group Variable
 This variable describe which experimental treatment the respondent was exposed to. Values include: 

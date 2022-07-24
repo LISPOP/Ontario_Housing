@@ -37,7 +37,7 @@ on22 %>%
   ))->on22
 on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberals", "Green", "Independent"))
 #Use mutate and case_when()
-#Landlords who are saying Put
+#Landlords who are staying Put
  on22 %>% 
    mutate(Housing_Status=case_when(
      Q28==1 & Q30==2 ~ "Speculator",
