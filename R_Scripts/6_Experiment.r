@@ -22,3 +22,8 @@ on22 %>%
   geom_errorbar(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se))) %>% 
   labs(title="Normative Argumentation And Support For Residential Development")
 ggsave(filename="Plots/experiment_averages_point.png", width=8,  height=4)
+
+on22 %>% 
+  select(Experimental_Group, Development, `Development Support`, Housing_Status) %>% 
+  nest(-Development) %>% 
+  mutate(model=map(data, function (x)))

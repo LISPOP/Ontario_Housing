@@ -158,3 +158,5 @@ var_label(on22$Q34_3_x)<-c("Trade off support - More affordable public housing")
 var_label(on22$Q34_4_x)<-c("Trade off support - Provincial control over local zoning")
 var_label(on22$Q34_5_x)<-c("Trade off support - Reduce environmental regulations")
 
+#Partisaship
+var_label(on22$partisanship)<-c("R partisanship, Ontario, includes only very and fairly strongly partisans")

@@ -1,0 +1,45 @@
+---
+title: "List of Recodes"
+author: "Simon J. Kiss"
+date: '2022-07-24'
+output: html_document
+---
+
+# Introduction 
+
+This document describes what has been done to the original variables produced for the 2022 Ontario Provincial Election Study
+
+## Variables Q31_, Q32,
+
+Matt, can you describe what we did here, where we subtracted 1 from each variable? and why we did that
+
+## Variables ending with _x
+
+These variables are transformed versions of the same variable without the suffix `_x`. These variables have been transformed: 
+
+1. Don't know response were set to a middle category, to increase sample size
+2. Rescaled from 0 to 1. 
+
+## Vote Variable
+
+## Renter Vote Variable
+
+## Housing Status
+
+## Swing Variable
+
+## Abstain Variable
+
+## Partisanship
+This variable has been constructed from Q23 which asks whether a person identiifes with an Ontario provincial party and Q24, how strongly they identify with that. It means 
+
+## Experimental Group Variable
+This variable describe which experimental treatment the respondent was exposed to. Values include: 
+
+- Control
+- Social
+- Private
+- Public
+
+The full text of the treatment is available in the data dictariony. This value was taken from the dichotomous variables Q35_1_exp through Q35_4_exp. 
+

@@ -21,7 +21,18 @@ on22 %>%
     Q6b==3~"NDP",
     Q6b==4~"Green"
   ))->on22
-on22$Vote<-factor(on22$Vote, levels=c("PC", "Liberal", "NDP", "Green"))
+on22$Vote<-factor(on22$Vote, levels=c("PC",  "NDP","Liberal",  "Green"))
+
+# Making partisanship variable for self-identifying partisans
+on22 %>%
+  mutate(partisanship=case_when(
+    Q23 == 1 & Q24 <3 ~ "Liberal",
+    Q23 == 2 & Q24 <3  ~ "NDP",
+    Q23 == 3 & Q24 <3 ~ "PC",
+    Q23 == 4 & Q24 <3 ~ "Green", 
+      TRUE ~ "Independent"
+  ))->on22
+on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberals", "Green", "Independent"))
 #Use mutate and case_when()
 #Landlords who are saying Put
  on22 %>% 
@@ -304,12 +315,22 @@ val_labels(on22$non_partisan)<-c("Non-Partisan"=1, "Partisan"=0)
 #   summary()
 
 #Swing Voter Variable
+var_label(on22$Q11)
+on22$Q8
 on22 %>% 
-  mutate(Status=case_when(
+  mutate(Swing=case_when(
     (Q6b==1 | Q6b==3 |Q6b==4) & (Q8==2 | Q9==2 | Q10==2 | Q11==2) ~ "Swing Voter",
-    (Q6a==1) & (Q7==3|Q7==4) ~ "Apathetic Voter",
     TRUE ~ "Other"
   ))->on22
+
+on22$Swing<-factor(on22$Swing, levels=c("Swing", "Other"))
+on22 %>% 
+  mutate(Abstain=case_when(
+    (Q6a==1) & (Q7==3|Q7==4) ~ "Apathetic Voter",
+    Q7==6~ NA_character_,
+    TRUE ~ "Other"
+  ))->on22
+on22$Swing<-factor(on22$Swing, levels=c("Apathetic", "Other"))
 
 # Time Flag
 
