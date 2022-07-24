@@ -3,4 +3,5 @@
 library(here)
 source("R_Scripts/2_recodes.R")
 write_sav(on22, path=here("Data", paste0("opes22_",Sys.Date(), ".sav")))
+file.copy(here('data', str_extract(list.files(path="data"), "^opes22_2022-.+[0-9].sav?")), to="/Users/skiss/OneDrive - Wilfrid Laurier University/LISPOP/Surveys/Housing_Survey/Data")
 
