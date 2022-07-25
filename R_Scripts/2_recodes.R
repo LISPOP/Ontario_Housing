@@ -382,14 +382,3 @@ nrow(on22)
 source("R_Scripts/2_variable_labels.R")
 nrow(on22)
 
-#Set variable names
-
-on22 %>% set_variable_labels(non_partisan="Partisanship", 
-                             renter="Renter",
-                             Q31_1_x="$800/month",
-                             Q31_2_x="$1200/month",
-                             Q31_3_x="$1600/month",
-                             Q31_4_x="$2000/month",
-                             Q31_5_x="$2400/month",
-                             Q31_6_x="$2800/month",
-                             Vote="Party voted for")->on22

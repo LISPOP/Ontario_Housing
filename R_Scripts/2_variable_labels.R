@@ -160,3 +160,15 @@ var_label(on22$Q34_5_x)<-c("Trade off support - Reduce environmental regulations
 
 #Partisaship
 var_label(on22$partisanship)<-c("R partisanship, Ontario, includes only very and fairly strongly partisans")
+
+#Set variable names
+
+on22 %>% set_variable_labels(non_partisan="R is Non Partisan", 
+                             renter="R is a renter",
+                             Q31_1_x="$800/month",
+                             Q31_2_x="$1200/month",
+                             Q31_3_x="$1600/month",
+                             Q31_4_x="$2000/month",
+                             Q31_5_x="$2400/month",
+                             Q31_6_x="$2800/month",
+                             Vote="Party voted for")->on22
