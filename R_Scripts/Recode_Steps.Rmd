@@ -18,7 +18,10 @@ This variable uses Q6b to simplify party names and shorten them. These are:
 
 ## Variables Q31_, Q32,
 
-Matt, can you describe what we did here, where we subtracted 1 from each variable? and why we did that
+Q31_: Qualtrics categorized responses from 1 to 11, which were transformed to 0-10 by subtracting 1 from each value.
+Q32_: Qualtrics categorized responses from 1 to 12, with 12 being the "Don't Know" responses. The data was transformed to a 0-11 scale before shifting the 11 (DK values) to be added to the bin of "5" values. The new variables were output with a "_x" at the end.
+Q33a_: Qualtrics categorized responses from 1 to 12, with 12 being the "Don't Know" responses. The data was transformed to a 0-11 scale before shifting the 11 (DK values) to be added to the bin of "5" values. The new variables were output with a "_x" at the end.
+Q80_: Qualtrics categorized responses from 1 to 12, with 12 being the "Don't Know" responses. The data was transformed to a 0-11 scale before shifting the 11 (DK values) to be added to the bin of "5" values. The new variables were output with a "_x" at the end.
 
 ## Variables ending with _x
 
@@ -32,6 +35,13 @@ These variables are transformed versions of the same variable without the suffix
 ## Renter Vote Variable
 
 ## Housing Status
+
+Respondents were divided into 5 groups:
+-Speculator (Landlords who plan to stay where they are)
+-First-Time homebuyer (Renters who plan to purchase a new home or condominium)
+-Satisfied renter (Renters who plan to stay where they are)
+-Satisfied owner (Owners who plan to stay where they are)
+-Other (everyone else)
 
 ## Swing Variable
 
