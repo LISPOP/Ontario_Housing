@@ -32,7 +32,7 @@ on22 %>%
     Q23 == 1 & Q24 <3 ~ "Liberal",
     Q23 == 2 & Q24 <3  ~ "NDP",
     Q23 == 3 & Q24 <3 ~ "PC",
-    Q23 == 4 & Q24 <3 ~ "Green"
+    Q23 == 4 & Q24 <3 ~ "Green",
       TRUE ~ "Independent"
   ))->on22
 on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberals", "Green", "Independent"))
@@ -373,6 +373,7 @@ on22 %>%
   mutate(income_digits=unlist(map(.$Q42, nchar)))->on22
 on22$income_digits
 
+#Conservative Dummy Variable
 #Renter variabvle
 
 #Causes by renter/non-renter dummy variable
@@ -381,4 +382,6 @@ val_labels(on22$renter)<-c("Renter"=1, "Non-Renter"=0)
 nrow(on22)
 source("R_Scripts/2_variable_labels.R")
 nrow(on22)
+
+
 
