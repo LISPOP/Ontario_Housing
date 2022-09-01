@@ -179,4 +179,3 @@ on22 %>% set_variable_labels(non_partisan="R is Non Partisan",
                              Q31_5_x="$2400/month",
                              Q31_6_x="$2800/month",
                              Vote="Party voted for")->on22
-on22$
