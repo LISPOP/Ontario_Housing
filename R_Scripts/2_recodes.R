@@ -374,7 +374,22 @@ on22 %>%
 on22$income_digits
 
 #Conservative Dummy Variable
+
+lookfor(on22, "vote")
+on22$PC<-Recode(on22$Vote, "'PC'='PC'; else='Other'", levels=c("Other", "PC"))
+#Degree
+lookfor(on22, "degree")
+on22$Q39
+on22$Degree<-Recode(as.numeric(on22$Q39), "9:11='Degree'; else='No degree'", levels=c("No degree", "Degree"))
+lookfor(on22, "urban")
+on22$Density<-as_factor(on22$Q41)
+levels(on22$Density)<-c("Suburban", "Urban", "Rural")
 #Renter variabvle
+levels(on22$Housing_Status)<-c("Satisfied Homeowner", "First-Time Homebuyer", "Speculator", "Satisfied Renter", "Other")
+on22$Renter<-Recode(on22$Housing_Status, "'Satisfied Renter'='Satisfied Renter'; else='Other'", levels=c("Other", "Satisfied Renter"))
+on22$`First Time Buyer`<-Recode(on22$Housing_Status, "'First-Time Homebuyer'='First-Time Homebuyer'; else='Other'", levels=c("Other", "First-Time Homebuyer"))
+on22$`Homeowner`<-Recode(on22$Housing_Status, "'Satisfied Homeowner'='Satisfied Homeowner'; else='Other'", levels=c("Other", "Satisfied Homeowner"))
+on22$`Speculator`<-Recode(on22$Housing_Status, "'Speculator'='Speculator'; else='Other'", levels=c("Other", "Speculator"))
 
 #Causes by renter/non-renter dummy variable
 on22$renter<-ifelse(on22$Q27==2,1,0)
