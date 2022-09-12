@@ -22,6 +22,8 @@ cause_var_labels$label<-str_remove_all(cause_var_labels$label, "Causes - ")
 #Check what has happened
 cause_var_labels
 on22$Housing_Status
+on22$Housing_Status<-factor(on22$Housing_Status, levels=c("First-Time Homebuyer", "Speculator", "Satisfied Homeowner", "Satisfied Renter", "Other"))
+
 #Now the graph
 on22 %>% 
   #Change the Housing STatus variable so that First Time Homebuyers is first
