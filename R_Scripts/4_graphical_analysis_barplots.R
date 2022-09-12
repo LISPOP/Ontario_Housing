@@ -21,7 +21,7 @@ cause_var_labels#Note that the variable name is stored in variable and the actua
 cause_var_labels$label<-str_remove_all(cause_var_labels$label, "Causes - ")
 #Check what has happened
 cause_var_labels
-on22$Housing_Status
+on22$Housing_Status<-factor(on22$Housing_Status, levels=c("First-Time Homebuyer", "Speculator", "Satisfied Homeowner", "Satisfied Renter", "Other"))
 #Now the graph
 on22 %>% 
   #Change the Housing STatus variable so that First Time Homebuyers is first
@@ -36,16 +36,29 @@ on22 %>%
 group_by(Housing_Status, variable) %>% 
   filter(value!="NA") %>% 
   filter(Housing_Status!="Other") %>% 
-  summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
+mutate(Agree=case_when(
+  value>0.5~1,
+  TRUE~ 0
+)) %>% # summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
   #this is the merge
   #It joins what came above in the pipe with the cause_var_labels object
   #Because both have variables `variable` It automatically merges on that variable
   left_join(., cause_var_labels) %>% 
+  group_by(Housing_Status, variable, label, Agree) %>% 
+  summarize(n=n()) %>% 
+  mutate(Percent=n/sum(n)*100) %>% 
+  filter(Agree==1) %>% 
+  ggplot(., aes(y=fct_reorder(label, Percent), x=Percent, fill=Housing_Status))+
+  geom_col(position="dodge")+geom_vline(xintercept=50, linetype=2)+labs(y="Cause", x="Percent Agreeing")
+  
+
 #And graph
   ggplot(., aes(x=fct_reorder(label, average), y=average, col=Housing_Status))+ylim(c(0,1))+
-  geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), position=position_jitter(width=0.25))+coord_flip()+
+  geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip()+
+  geom_jitter()+
   labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")
-
+?geom_pointrange
+#Causes by Rental Status
 on22 %>% 
   mutate(renter=fct_relevel(as_factor(renter), "Renter")) %>% 
   select(Q32_1_x:Q32_9_x, renter) %>% 

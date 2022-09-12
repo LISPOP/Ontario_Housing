@@ -151,6 +151,12 @@ on22 %>%
 on22 %>% 
   select(ends_with("_x")) %>% 
   var_label()
+table(on22$Q32_1, on22$Q32_1_x)
+lookfor(on22, "rent")
+table(on22$Q32_8, on22$Housing_Status)
+on22 %>% 
+  group_by(Housing_Status) %>% 
+  summarize(Average=mean(Q32_8_x, na.rm=T))
 #Assign variable labels
 
 #Check
