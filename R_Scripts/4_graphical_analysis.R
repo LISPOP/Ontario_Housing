@@ -57,36 +57,27 @@ on22 %>%
   filter(!is.na(renter)) %>% 
   summarize(average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., cause_var_labels) %>% 
-  ggplot(., aes(y=fct_reorder(label, average), x=average, col=as_factor(renter)))+
-  geom_point()+
-  xlim(c(0,1))+
-  geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+
-  labs(y="1=A significant cause\n 0=Not a cause at all", 
-       title=str_wrap("Causes of housing cost increase", 
-                      width=60), x="", col="Renter")
-  #scale_x_discrete(labels = c("Underinvestment in \npublic affordable housing","Speculation by investors",  "Limited rent control","Excessive foreign \nimmigration to ontario","Urban sprawl","Low interest rates","Municipal red tape","Neighbourhood opposition","Environmental protection"))+
-
+  ggplot(., aes(x=fct_reorder(label, average), y=average, col=renter))+ylim(c(0,1))+
+  geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), position=position_jitter(width=0.25))+coord_flip()+
+  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")
+#scale_x_discrete(labels = c("Underinvestment in \npublic affordable housing","Speculation by investors",  "Limited rent control","Excessive foreign \nimmigration to ontario","Urban sprawl","Low interest rates","Municipal red tape","Neighbourhood opposition","Environmental protection"))+
 
 #Causes by Partisanship
 on22 %>% 
+  #mutate(renter=fct_relevel(as_factor(partisanship), "Partisanship")) %>% 
   #Pick the variables working with
-  select(Q32_1_x:Q32_9_x, Q23) %>% 
+  select(Q32_1_x:Q32_9_x, partisanship) %>% 
   #pivot them longer, except for the Sample variable
-  pivot_longer(., cols=-Q23,names_to=c("variable")) %>% 
-  group_by(Q23, variable) %>% 
-  filter(value!="NA") %>% 
-  filter(Q23!=5) %>% #Filter out R's that identify as "Other" 
-  filter(Q23!=6) %>%# Filter out R's that identify as "None of these"
-  summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
+  pivot_longer(., cols=-partisanship,names_to=c("variable")) %>% 
+  group_by(partisanship, variable) %>% 
+  filter(partisanship!="NA") %>% 
+  summarize(average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., cause_var_labels) %>% 
-  ggplot(., aes(x=reorder(label, -average), y=average, col=as.factor(Q23)))+geom_point()+ylim(c(0,1))+
-  geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip() +
+  ggplot(., aes(x=fct_reorder(label, average), y=average, col=partisanship))+ylim(c(0,1))+
+  geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), position=position_jitter(width=0.25))+coord_flip()+
   labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")
-  #scale_x_discrete(labels = c("Underinvestment in \npublic affordable housing","Speculation by investors", "Limited rent control","Excessive foreign \nimmigration to ontario","Urban sprawl","Low interest rates","Municipal red tape","Neighbourhood opposition","Environmental protection"))+
-  #scale_color_manual(name="", labels=c("Liberal","New Democrat","Progressive Conservative","Green"), values=c("#D71920","#F37021","#1A4782","#3D9B35"))
 
 names(on22)
-
 
 #### Solutions ####
 on22 %>% 
@@ -107,9 +98,9 @@ on22 %>%
   summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., solution_var_labels) %>% 
   mutate(label=str_remove_all(label, "Support for policy - ")) %>% 
-  ggplot(., aes(x=fct_reorder(label, average), y=average, col=Housing_Status))+geom_point()+ylim(c(0,1))+
-  geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip() +
-  labs(y="1=Strongly support, 0=Strongly Oppose", title=str_wrap("Policies to address housing cost increase", width=60), x="")
+  ggplot(., aes(x=fct_reorder(label, average), y=average, col=Housing_Status))+ylim(c(0,1))+
+  geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), position=position_jitter(width=0.25))+coord_flip()+
+  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")
 
 #Solutions by renter/non-renter dummy variable
 on22 %>% 
@@ -122,24 +113,24 @@ on22 %>%
   summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., solution_var_labels) %>% 
   mutate(label=str_remove_all(label, "Support for policy - ")) %>% 
-  ggplot(., aes(x=fct_reorder(label, average), y=average, col=renter))+geom_point()+ylim(c(0,1))+
-  geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip() +
-  labs(y="1=Strongly Support\n 0=Strongly Oppose", col="Renter/Owner", title=str_wrap("Policies to address housing cost increase", width=60), x="")
+  ggplot(., aes(x=fct_reorder(label, average), y=average, col=renter))+ylim(c(0,1))+
+  geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), position=position_jitter(width=0.25))+coord_flip()+
+  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")
+
 #Solutiosn By Partisanship
 on22 %>% 
   #Pick the variables working with
-  select(Q33a_1_x:Q80_6_x, Q23) %>% 
+  select(Q33a_1_x:Q80_6_x, partisanship) %>% 
   #pivot them longer, except for the Sample variable
-  pivot_longer(., cols=-Q23, names_to=c("variable")) %>% 
-  group_by(Q23, variable) %>% 
+  pivot_longer(., cols=-partisanship, names_to=c("variable")) %>% 
+  group_by(partisanship, variable) %>% 
   filter(!is.na(value)) %>% 
-  filter(Q23!=5) %>% #Filter out R's that identify as "Other" 
-  filter(Q23!=6) %>%# Filter out R's that identify as "None of these"
+  filter(partisanship!=5) %>% #Filter out R's that identify as "Other" 
+  filter(partisanship!=6) %>%# Filter out R's that identify as "None of these"
   summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., solution_var_labels) %>% 
-  ggplot(., aes(y=fct_reorder(label, average), x=average, col=fct_relevel(as_factor(Q23), "Progressive Conservative",  "New Democrat","Liberal", "Green")))+geom_point()+xlim(c(0,1))+
-  geom_errorbar(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), width=0)+
-  labs(x="1=Strongly Support\n 0=Strongly Oppose", col="Party", title=str_wrap("Support For Policies", width=60), y="Issue")+
-  scale_color_manual(values=c("darkblue", "orange", "darkred", "darkgreen"))+theme(legend.position = "bottom")
+  ggplot(., aes(x=fct_reorder(label, average), y=average, col=partisanship))+ylim(c(0,1))+
+  geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), position=position_jitter(width=0.25))+coord_flip()+
+  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")
 
 

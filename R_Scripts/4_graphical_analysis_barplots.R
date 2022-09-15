@@ -50,107 +50,107 @@ mutate(Agree=case_when(
   filter(Agree==1) %>% 
   ggplot(., aes(y=fct_reorder(label, Percent), x=Percent, fill=Housing_Status))+
   geom_col(position="dodge")+geom_vline(xintercept=50, linetype=2)+labs(y="Cause", x="Percent Agreeing")
-  
 
-#And graph
-  ggplot(., aes(x=fct_reorder(label, average), y=average, col=Housing_Status))+ylim(c(0,1))+
-  geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip()+
-  geom_jitter()+
-  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")
-?geom_pointrange
-#Causes by Rental Status
+##CAUSES BY RENTING STATUS
 on22 %>% 
+  #Change the Housing STatus variable so that First Time Renter is first
   mutate(renter=fct_relevel(as_factor(renter), "Renter")) %>% 
+  #select what you're working with; in this case the batch of cause variables and housing status
   select(Q32_1_x:Q32_9_x, renter) %>% 
-  #pivot them longer, except for the Sample variable
   pivot_longer(., cols=-renter, names_to=c("variable")) %>% 
   group_by(renter, variable) %>% 
-  filter(!is.na(renter)) %>% 
-  summarize(average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(), se=sd/sqrt(n)) %>% 
-  left_join(., cause_var_labels) %>% 
-  ggplot(., aes(y=fct_reorder(label, average), x=average, col=as_factor(renter)))+
-  geom_point()+
-  xlim(c(0,1))+
-  geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+
-  labs(y="1=A significant cause\n 0=Not a cause at all", 
-       title=str_wrap("Causes of housing cost increase", 
-                      width=60), x="", col="Renter")
-  #scale_x_discrete(labels = c("Underinvestment in \npublic affordable housing","Speculation by investors",  "Limited rent control","Excessive foreign \nimmigration to ontario","Urban sprawl","Low interest rates","Municipal red tape","Neighbourhood opposition","Environmental protection"))+
-
-
-#Causes by Partisanship
-on22 %>% 
-  #Pick the variables working with
-  select(Q32_1_x:Q32_9_x, Q23) %>% 
-  #pivot them longer, except for the Sample variable
-  pivot_longer(., cols=-Q23,names_to=c("variable")) %>% 
-  group_by(Q23, variable) %>% 
   filter(value!="NA") %>% 
-  filter(Q23!=5) %>% #Filter out R's that identify as "Other" 
-  filter(Q23!=6) %>%# Filter out R's that identify as "None of these"
-  summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
+  filter(renter!="Other") %>% 
+  mutate(Agree=case_when(
+    value>0.5~1,
+    TRUE~ 0)) %>% 
   left_join(., cause_var_labels) %>% 
-  ggplot(., aes(x=reorder(label, -average), y=average, col=as.factor(Q23)))+geom_point()+ylim(c(0,1))+
-  geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip() +
-  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")
-  #scale_x_discrete(labels = c("Underinvestment in \npublic affordable housing","Speculation by investors", "Limited rent control","Excessive foreign \nimmigration to ontario","Urban sprawl","Low interest rates","Municipal red tape","Neighbourhood opposition","Environmental protection"))+
-  #scale_color_manual(name="", labels=c("Liberal","New Democrat","Progressive Conservative","Green"), values=c("#D71920","#F37021","#1A4782","#3D9B35"))
+  group_by(renter, variable, label, Agree) %>% 
+  summarize(n=n()) %>% 
+  mutate(Percent=n/sum(n)*100) %>% 
+  filter(Agree==1) %>% 
+  ggplot(., aes(y=fct_reorder(label, Percent), x=Percent, fill=renter))+
+  geom_col(position="dodge")+geom_vline(xintercept=50, linetype=2)+labs(y="Cause", x="Percent Agreeing")
 
-names(on22)
-
-
-#### Solutions ####
+##CAUSES BY PARTISANSHIP
 on22 %>% 
-  select(Q33a_1_x:Q80_6_x) %>% 
-  look_for()->solution_var_labels
-#Inspect
-solution_var_labels$label<=str_remove_all(solution_var_labels$label, "Support for policy - ")
-#Note that the variable name is stored in variable and the actual label is stored in label
-
-#Solutions by insider/outsider
+  mutate(renter=fct_relevel(as_factor(partisanship), "Partisanship")) %>% 
+  select(Q32_1_x:Q32_9_x, partisanship) %>% 
+  pivot_longer(., cols=-partisanship, names_to=c("variable")) %>% 
+  group_by(partisanship, variable) %>% 
+  filter(value!="NA") %>% 
+  filter(partisanship!="Other") %>% 
+  mutate(Agree=case_when(
+    value>0.5~1,
+    TRUE~ 0)) %>% 
+  left_join(., cause_var_labels) %>% 
+  group_by(partisanship, variable, label, Agree) %>% 
+  summarize(n=n()) %>% 
+  mutate(Percent=n/sum(n)*100) %>% 
+  filter(Agree==1) %>% 
+  ggplot(., aes(y=fct_reorder(label, Percent), x=Percent, fill=partisanship))+
+  geom_col(position="dodge")+geom_vline(xintercept=50, linetype=2)+labs(y="Cause", x="Percent Agreeing")
+  
+#### Solutions ####
+##Housing Status
 on22 %>% 
   mutate(Housing_Status=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
   select(Q33a_1_x:Q80_6_x, Housing_Status) %>% 
   pivot_longer(., cols=-Housing_Status, names_to=c("variable")) %>% 
   group_by(Housing_Status, variable) %>% 
   filter(value!="NA") %>% 
-  filter(Housing_Status!="Other") %>%
-  summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
+  filter(Housing_Status!="Other") %>% 
+  mutate(Agree=case_when(
+    value>0.5~1,
+    TRUE~ 0
+  )) %>% 
   left_join(., solution_var_labels) %>% 
-  mutate(label=str_remove_all(label, "Support for policy - ")) %>% 
-  ggplot(., aes(x=fct_reorder(label, average), y=average, col=Housing_Status))+geom_point()+ylim(c(0,1))+
-  geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip() +
-  labs(y="1=Strongly support, 0=Strongly Oppose", title=str_wrap("Policies to address housing cost increase", width=60), x="")
+  mutate(label=str_remove_all(label, "Support for policy - ")) %>%
+  group_by(Housing_Status, variable, label, Agree) %>% 
+  summarize(n=n()) %>% 
+  mutate(Percent=n/sum(n)*100) %>% 
+  filter(Agree==1) %>% 
+  ggplot(., aes(y=fct_reorder(label, Percent), x=Percent, fill=Housing_Status))+
+  geom_col(position="dodge")+geom_vline(xintercept=50, linetype=2)+labs(y="Support for Policy", x="Percent Agreeing")
 
-#Solutions by renter/non-renter dummy variable
+##RENTING STATUS
 on22 %>% 
+  #Change the Housing STatus variable so that First Time Renter is first
   mutate(renter=fct_relevel(as_factor(renter), "Renter")) %>% 
+  #select what you're working with; in this case the batch of cause variables and housing status
   select(Q33a_1_x:Q80_6_x, renter) %>% 
   pivot_longer(., cols=-renter, names_to=c("variable")) %>% 
   group_by(renter, variable) %>% 
   filter(value!="NA") %>% 
-  filter(renter!="NA") %>%
-  summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
+  filter(renter!="Other") %>% 
+  mutate(Agree=case_when(
+    value>0.5~1,
+    TRUE~ 0)) %>% 
   left_join(., solution_var_labels) %>% 
-  mutate(label=str_remove_all(label, "Support for policy - ")) %>% 
-  ggplot(., aes(x=fct_reorder(label, average), y=average, col=renter))+geom_point()+ylim(c(0,1))+
-  geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip() +
-  labs(y="1=Strongly Support\n 0=Strongly Oppose", col="Renter/Owner", title=str_wrap("Policies to address housing cost increase", width=60), x="")
-#Solutiosn By Partisanship
+  mutate(label=str_remove_all(label, "Support for policy - ")) %>%
+  group_by(renter, variable, label, Agree) %>% 
+  summarize(n=n()) %>% 
+  mutate(Percent=n/sum(n)*100) %>% 
+  filter(Agree==1) %>% 
+  ggplot(., aes(y=fct_reorder(label, Percent), x=Percent, fill=renter))+
+  geom_col(position="dodge")+geom_vline(xintercept=50, linetype=2)+labs(y="Support for Policy", x="Percent Agreeing")
+
+##PARTISANSHIP
 on22 %>% 
-  #Pick the variables working with
-  select(Q33a_1_x:Q80_6_x, Q23) %>% 
-  #pivot them longer, except for the Sample variable
-  pivot_longer(., cols=-Q23, names_to=c("variable")) %>% 
-  group_by(Q23, variable) %>% 
-  filter(!is.na(value)) %>% 
-  filter(Q23!=5) %>% #Filter out R's that identify as "Other" 
-  filter(Q23!=6) %>%# Filter out R's that identify as "None of these"
-  summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
+  mutate(renter=fct_relevel(as_factor(partisanship), "Partisanship")) %>% 
+  select(Q33a_1_x:Q80_6_x, partisanship) %>% 
+  pivot_longer(., cols=-partisanship, names_to=c("variable")) %>% 
+  group_by(partisanship, variable) %>% 
+  filter(value!="NA") %>% 
+  filter(partisanship!="Other") %>% 
+  mutate(Agree=case_when(
+    value>0.5~1,
+    TRUE~ 0)) %>% 
   left_join(., solution_var_labels) %>% 
-  ggplot(., aes(y=fct_reorder(label, average), x=average, col=fct_relevel(as_factor(Q23), "Progressive Conservative",  "New Democrat","Liberal", "Green")))+geom_point()+xlim(c(0,1))+
-  geom_errorbar(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), width=0)+
-  labs(x="1=Strongly Support\n 0=Strongly Oppose", col="Party", title=str_wrap("Support For Policies", width=60), y="Issue")+
-  scale_color_manual(values=c("darkblue", "orange", "darkred", "darkgreen"))+theme(legend.position = "bottom")
-
-
+  mutate(label=str_remove_all(label, "Support for policy - ")) %>%
+  group_by(partisanship, variable, label, Agree) %>% 
+  summarize(n=n()) %>% 
+  mutate(Percent=n/sum(n)*100) %>% 
+  filter(Agree==1) %>% 
+  ggplot(., aes(y=fct_reorder(label, Percent), x=Percent, fill=partisanship))+
+  geom_col(position="dodge")+geom_vline(xintercept=50, linetype=2)+labs(y="Cause", x="Percent Agreeing")
