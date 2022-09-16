@@ -133,4 +133,4 @@ on22 %>%
   geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), position=position_jitter(width=0.25))+coord_flip()+
   labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")
 
-
+table(on22$partisanship)

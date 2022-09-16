@@ -65,23 +65,23 @@ on22 %>%
   #scale_x_discrete(labels = c("Underinvestment in \npublic affordable housing","Speculation by investors",  "Limited rent control","Excessive foreign \nimmigration to ontario","Urban sprawl","Low interest rates","Municipal red tape","Neighbourhood opposition","Environmental protection"))+
 
 
-#Causes by Partisanship
-on22 %>% 
-  #Pick the variables working with
-  select(Q32_1_x:Q32_9_x, Q23) %>% 
-  #pivot them longer, except for the Sample variable
-  pivot_longer(., cols=-Q23,names_to=c("variable")) %>% 
-  group_by(Q23, variable) %>% 
-  filter(value!="NA") %>% 
-  filter(Q23!=5) %>% #Filter out R's that identify as "Other" 
-  filter(Q23!=6) %>%# Filter out R's that identify as "None of these"
-  summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
-  left_join(., cause_var_labels) %>% 
-  ggplot(., aes(x=reorder(label, -average), y=average, col=as.factor(Q23)))+geom_point()+ylim(c(0,1))+
-  geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip() +
-  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")
-  #scale_x_discrete(labels = c("Underinvestment in \npublic affordable housing","Speculation by investors", "Limited rent control","Excessive foreign \nimmigration to ontario","Urban sprawl","Low interest rates","Municipal red tape","Neighbourhood opposition","Environmental protection"))+
-  #scale_color_manual(name="", labels=c("Liberal","New Democrat","Progressive Conservative","Green"), values=c("#D71920","#F37021","#1A4782","#3D9B35"))
+# #Causes by Partisanship
+# on22 %>% 
+#   #Pick the variables working with
+#   select(Q32_1_x:Q32_9_x, Q23) %>% 
+#   #pivot them longer, except for the Sample variable
+#   pivot_longer(., cols=-Q23,names_to=c("variable")) %>% 
+#   group_by(Q23, variable) %>% 
+#   filter(value!="NA") %>% 
+#   filter(Q23!=5) %>% #Filter out R's that identify as "Other" 
+#   filter(Q23!=6) %>%# Filter out R's that identify as "None of these"
+#   summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
+#   left_join(., cause_var_labels) %>% 
+#   ggplot(., aes(x=reorder(label, -average), y=average, col=as.factor(Q23)))+geom_point()+ylim(c(0,1))+
+#   geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip() +
+#   labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")
+#   #scale_x_discrete(labels = c("Underinvestment in \npublic affordable housing","Speculation by investors", "Limited rent control","Excessive foreign \nimmigration to ontario","Urban sprawl","Low interest rates","Municipal red tape","Neighbourhood opposition","Environmental protection"))+
+#   #scale_color_manual(name="", labels=c("Liberal","New Democrat","Progressive Conservative","Green"), values=c("#D71920","#F37021","#1A4782","#3D9B35"))
 
 names(on22)
 
@@ -123,7 +123,8 @@ on22 %>%
   ggplot(., aes(x=fct_reorder(label, average), y=average, col=renter))+geom_point()+ylim(c(0,1))+
   geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip() +
   labs(y="1=Strongly Support\n 0=Strongly Oppose", col="Renter/Owner", title=str_wrap("Policies to address housing cost increase", width=60), x="")
-#Solutiosn By Partisanship
+#Solutiosn By Provincial Partisanship
+
 on22 %>% 
   #Pick the variables working with
   select(Q33a_1_x:Q80_6_x, Q23) %>% 
@@ -134,7 +135,8 @@ on22 %>%
   filter(Q23!=5) %>% #Filter out R's that identify as "Other" 
   filter(Q23!=6) %>%# Filter out R's that identify as "None of these"
   summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
-  left_join(., solution_var_labels) %>% 
+  left_join(. , solution_var_labels) %>% 
+  mutate(label=str_remove_all(label, "Support for policy - ")) %>% 
   ggplot(., aes(y=fct_reorder(label, average), x=average, col=fct_relevel(as_factor(Q23), "Progressive Conservative",  "New Democrat","Liberal", "Green")))+geom_point()+xlim(c(0,1))+
   geom_errorbar(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), width=0)+
   labs(x="1=Strongly Support\n 0=Strongly Oppose", col="Party", title=str_wrap("Support For Policies", width=60), y="Issue")+

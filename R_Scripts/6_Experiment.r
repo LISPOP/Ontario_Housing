@@ -11,7 +11,14 @@ on22 %>%
 names(on22)
 
 on22 %>% 
-  pivot_longer(., cols="6 Storey rental building":"Semi-detached house", names_to="Development", values_to="Development Support") ->on22
+  pivot_longer(., cols="6 Storey rental building":"Semi-detached house", 
+               names_to="Development", values_to="Development Support") ->on22
+on22$Development<-factor(on22$Development, levels=c("6 Storey rental building", 
+                                                    "15 Storey rental tower", 
+                                                    "6 Storey condominium building", 
+                                                    "15 Storey condominium Tower", 
+                                                    "Single detached house", 
+                                                    "Semi-detached house"))
 on22 %>% 
   select(Experimental_Group, Development, `Development Support`) %>% 
   group_by(Experimental_Group, Development) %>% 
@@ -23,7 +30,4 @@ on22 %>%
   labs(title="Normative Argumentation And Support For Residential Development")
 ggsave(filename="Plots/experiment_averages_point.png", width=8,  height=4)
 
-on22 %>% 
-  select(Experimental_Group, Development, `Development Support`, Housing_Status) %>% 
-  nest(-Development) %>% 
-  mutate(model=map(data, function (x)))
+

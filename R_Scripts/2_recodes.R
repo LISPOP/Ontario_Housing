@@ -35,7 +35,7 @@ on22 %>%
     Q23 == 4 & Q24 <3 ~ "Green",
       TRUE ~ "Independent"
   ))->on22
-on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberals", "Green", "Independent"))
+on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberal", "Green", "Independent"))
 #Use mutate and case_when()
 #Landlords who are staying Put
  on22 %>% 
