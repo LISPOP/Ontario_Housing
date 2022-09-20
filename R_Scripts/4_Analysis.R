@@ -2,6 +2,15 @@ source("R_Scripts/2_recodes.R")
 #Install wlucolrs if necessary
 #remotes::install_github("sjkiss/wlucolors")
 library(wlucolors)
+
+#Quick crosstab of Housing STatus and Density
+
+library(janitor)
+on22 %>% 
+  tabyl(Density, Housing_Status) %>% 
+  adorn_percentages("row") %>% 
+  adorn_ns()
+table(on22$Housing_Status)
 #### Causes ####
 # We have to take the variable labels  in the original cause variables and match them to the ones that end in _x
 # 
@@ -47,15 +56,15 @@ group_by(Housing_Status, variable) %>%
 
 #Causes by Rental Status
 on22 %>% 
-  mutate(renter=fct_relevel(as_factor(renter), "Renter")) %>% 
-  select(Q32_1_x:Q32_9_x, renter) %>% 
+  mutate(Renter=fct_relevel(as_factor(Renter), "Renter")) %>% 
+  select(Q32_1_x:Q32_9_x, Renter) %>% 
   #pivot them longer, except for the Sample variable
-  pivot_longer(., cols=-renter, names_to=c("variable")) %>% 
-  group_by(renter, variable) %>% 
-  filter(!is.na(renter)) %>% 
+  pivot_longer(., cols=-Renter, names_to=c("variable")) %>% 
+  group_by(Renter, variable) %>% 
+  filter(!is.na(Renter)) %>% 
   summarize(average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., cause_var_labels) %>% 
-  ggplot(., aes(y=fct_reorder(label, average), x=average, col=as_factor(renter)))+
+  ggplot(., aes(y=fct_reorder(label, average), x=average, col=as_factor(Renter)))+
   geom_point()+
   xlim(c(0,1))+
   geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+
@@ -109,18 +118,18 @@ on22 %>%
   geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip() +
   labs(y="1=Strongly support, 0=Strongly Oppose", title=str_wrap("Policies to address housing cost increase", width=60), x="")
 
-#Solutions by renter/non-renter dummy variable
+#Solutions by Renter/non-Renter dummy variable
 on22 %>% 
-  mutate(renter=fct_relevel(as_factor(renter), "Renter")) %>% 
-  select(Q33a_1_x:Q80_6_x, renter) %>% 
-  pivot_longer(., cols=-renter, names_to=c("variable")) %>% 
-  group_by(renter, variable) %>% 
+  mutate(Renter=fct_relevel(as_factor(Renter), "Renter")) %>% 
+  select(Q33a_1_x:Q80_6_x, Renter) %>% 
+  pivot_longer(., cols=-Renter, names_to=c("variable")) %>% 
+  group_by(Renter, variable) %>% 
   filter(value!="NA") %>% 
-  filter(renter!="NA") %>%
+  filter(Renter!="NA") %>%
   summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., solution_var_labels) %>% 
   mutate(label=str_remove_all(label, "Support for policy - ")) %>% 
-  ggplot(., aes(x=fct_reorder(label, average), y=average, col=renter))+geom_point()+ylim(c(0,1))+
+  ggplot(., aes(x=fct_reorder(label, average), y=average, col=Renter))+geom_point()+ylim(c(0,1))+
   geom_errorbar(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), width=0)+coord_flip() +
   labs(y="1=Strongly Support\n 0=Strongly Oppose", col="Renter/Owner", title=str_wrap("Policies to address housing cost increase", width=60), x="")
 #Solutiosn By Provincial Partisanship

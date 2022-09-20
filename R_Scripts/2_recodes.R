@@ -2,6 +2,7 @@ source("R_Scripts/1_data_import.R")
 source("R_Scripts/2_value_labels.R")
 nrow(on22)
 
+
 library(car)
 
 #### Insider Outsider Variable
@@ -37,6 +38,17 @@ on22 %>%
   ))->on22
 on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberal", "Green", "Independent"))
 #Use mutate and case_when()
+table(on22$Q28)
+var_label(on22$Q28)
+var_label(on22$Q30)
+
+lookfor(on22, "rent")
+on22$Q27
+table(as_factor(on22$Q27), as_factor(on22$Q28))
+on22$Q27
+on22$Q30
+table(as_factor(on22$Q27), as_factor(on22$Q30))
+
 #Landlords who are staying Put
  on22 %>% 
    mutate(Housing_Status=case_when(
@@ -45,10 +57,19 @@ on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberal", "G
      Q27==1 & Q30==2 ~ "Satisfied Homeowner",
      Q27==2 & Q30==1 ~ "First-Time Homebuyer",
      Q27==2 & Q30==2 ~ "Satisfied renter",
+     Q27==3 & Q30==2 ~ "First-Time Homebuyer",
+     Q27==4 & Q30==2 ~ "First-Time Homebuyer",
      TRUE ~ "Other"
      #To actually save the results one needs to reassign the results of the foregoing back into on22
    ))->on22
-
+ val_labels(on22$Q27)
+table(on22$Housing_Status, as_factor(on22$Q27))
+on22 %>% 
+  select(Housing_Status, Q27, Q28, Q30) %>% 
+  as_factor() %>% 
+  filter(Housing_Status=="Other") %>% 
+  View()
+  
 #Reordering Housing_Status variable  
 on22$Housing_Status<-factor(on22$Housing_Status, levels=c("First-Time Homebuyer", "Satisfied Homeowner", "Satisfied renter", "Speculator", "Other"))
 
@@ -393,14 +414,20 @@ levels(on22$Density)<-c("Suburban", "Urban", "Rural")
 #Renter variabvle
 levels(on22$Housing_Status)<-c("Satisfied Homeowner", "First-Time Homebuyer", "Speculator", "Satisfied Renter", "Other")
 on22$Renter<-Recode(on22$Housing_Status, "'Satisfied Renter'='Satisfied Renter'; else='Other'", levels=c("Other", "Satisfied Renter"))
-on22$`First Time Buyer`<-Recode(on22$Housing_Status, "'First-Time Homebuyer'='First-Time Homebuyer'; else='Other'", levels=c("Other", "First-Time Homebuyer"))
+on22$`First_Time_Buyer`<-Recode(on22$Housing_Status, "'First-Time Homebuyer'='First-Time Homebuyer'; else='Other'", levels=c("Other", "First-Time Homebuyer"))
 on22$`Homeowner`<-Recode(on22$Housing_Status, "'Satisfied Homeowner'='Satisfied Homeowner'; else='Other'", levels=c("Other", "Satisfied Homeowner"))
 on22$`Speculator`<-Recode(on22$Housing_Status, "'Speculator'='Speculator'; else='Other'", levels=c("Other", "Speculator"))
 
 #Causes by renter/non-renter dummy variable
-on22$renter<-ifelse(on22$Q27==2,1,0)
-val_labels(on22$renter)<-c("Renter"=1, "Non-Renter"=0)
+# on22$renter<-ifelse(on22$Q27==2,1,0)
+# val_labels(on22$renter)<-c("Renter"=1, "Non-Renter"=0)
 nrow(on22)
+
+#Create upper case postal code
+
+on22%>% 
+  mutate(postal_code=str_to_upper(Q47))->postal_code
+
 source("R_Scripts/2_variable_labels.R")
 nrow(on22)
 

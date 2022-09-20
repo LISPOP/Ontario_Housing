@@ -164,13 +164,13 @@ var_label(on22$partisanship)<-c("R partisanship, Ontario, includes only very and
 #Set variable names
 
 on22 %>% set_variable_labels(non_partisan="R is Non Partisan", 
-                             renter="R is a renter",
+                             #renter="R is a renter",
                              Renter="R is a satisfied Renter",
                              PC="R voted Progressive Conservative in 2022",
                              Degree="R has at least a bachelor",
                              Speculator="R is a landlord, speculator",
                              Density="Rs built environment, Suburban as reference level",
-                             `First Time Buyer`="R is a first time homebuyer",
+                             `First_Time_Buyer`="R is a first time homebuyer",
                              Homeowner="R is a satisfied homeowner, not looking to purchase",
                              Q31_1_x="$800/month",
                              Q31_2_x="$1200/month",
