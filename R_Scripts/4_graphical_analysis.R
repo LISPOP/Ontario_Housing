@@ -2,7 +2,8 @@ source("R_Scripts/2_recodes.R")
 #Install wlucolrs if necessary
 #remotes::install_github("sjkiss/wlucolors")
 library(wlucolors)
-theme_set(theme_classic())
+theme_set(theme_classic(base_size=16))
+
 #### Causes ####
 # We have to take the variable labels  in the original cause variables and match them to the ones that end in _x
 # 
@@ -24,6 +25,18 @@ cause_var_labels
 on22$Housing_Status
 on22$Housing_Status<-factor(on22$Housing_Status, levels=c("First-Time Homebuyer", "Speculator", "Satisfied Homeowner", "Satisfied Renter", "Other"))
 
+#Raw Cause Scores
+
+on22 %>% 
+  select(Q32_1_x:Q32_9_x) %>% 
+  pivot_longer(cols=everything(),names_to="variable") %>% 
+  left_join(cause_var_labels, by="variable") %>% 
+  group_by(label) %>% 
+  summarize(Average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(),se=sd/sqrt(n)) %>% 
+  ggplot(., aes(x=Average, y=fct_reorder(label, Average)))+geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)))+
+  labs(x="Score (0=Not at all a Cause, 1=A significant Cause)", y="Cause")+
+  xlim(c(0,1))+geom_vline(xintercept=0.5, linetype=2)
+ggsave(filename=here("Plots", "causes_house_price_increase.png"), width=10, height=4)
 #Now the graph
 on22 %>% 
   #Change the Housing STatus variable so that First Time Homebuyers is first
@@ -46,13 +59,13 @@ group_by(Housing_Status, variable) %>%
 #And graph
   ggplot(., aes(x=fct_reorder(label, average), y=average, col=Housing_Status))+ylim(c(0,1))+
   geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), position=position_jitter(width=0.25))+coord_flip()+
-  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")+geom_hline(yintercept=0.5, linetype=2)
+  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=100), x="")+geom_hline(yintercept=0.5, linetype=2)
 
 #Save the above plot out into the "PLots" Subdirectory
 #Inspect the graph above to try to discern what it is about and provide a meaningful filename
 #No spaces
 #Feel free to fiddle with the dimensions (they are in in ches) to get the best graph
-ggsave(filename=here("Plots", "causes_by_housing_status.png"), width=6, height=4)
+ggsave(filename=here("Plots", "causes_by_housing_status.png"), width=10, height=4)
 
 on22 %>% 
   mutate(Renter=Renter) %>% 
@@ -65,9 +78,9 @@ on22 %>%
   left_join(., cause_var_labels) %>% 
   ggplot(., aes(x=fct_reorder(label, average), y=average, col=Renter))+ylim(c(0,1))+
   geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), position=position_jitter(width=0.25))+coord_flip()+
-  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")+geom_hline(yintercept=0.5, linetype=2)
+  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=100), x="")+geom_hline(yintercept=0.5, linetype=2)
 #scale_x_discrete(labels = c("Underinvestment in \npublic affordable housing","Speculation by investors",  "Limited rent control","Excessive foreign \nimmigration to ontario","Urban sprawl","Low interest rates","Municipal red tape","Neighbourhood opposition","Environmental protection"))+
-ggsave(filename=here("Plots", "causes_by_Renter_dichotomous.png"), width=6, height=4)
+ggsave(filename=here("Plots", "causes_by_Renter_dichotomous.png"), width=10, height=4)
 
 #Causes by Partisanship
 on22 %>% 
@@ -83,12 +96,15 @@ on22 %>%
   ggplot(., aes(x=fct_reorder(label, average), y=average, col=partisanship))+ylim(c(0,1))+
   geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), position=position_jitter(width=0.25))+coord_flip()+
   scale_color_manual(values=c("blue", "orange", "darkred", "darkgreen", "black"))+
-  labs(color="Partisanship",y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")+geom_hline(yintercept=0.5, linetype=2)
-ggsave(filename=here("Plots", "causes_by_provincial_partisanship.png"), width=6, height=4)
+  labs(color="Partisanship",y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=100), x="")+geom_hline(yintercept=0.5, linetype=2)
+ggsave(filename=here("Plots", "causes_by_provincial_partisanship.png"), width=10, height=4)
 
 names(on22)
 
 #### Solutions ####
+
+#Raw Solutions Scores
+
 on22 %>% 
   select(Q33a_1_x:Q80_6_x) %>% 
   look_for()->solution_var_labels
@@ -97,6 +113,15 @@ solution_var_labels$label<-str_remove_all(solution_var_labels$label, "Support fo
 solution_var_labels
 #Note that the variable name is stored in variable and the actual label is stored in label
 
+on22 %>% 
+  select(Q33a_1_x:Q80_6_x) %>% 
+  pivot_longer(cols=everything(),names_to="variable") %>% 
+  left_join(solution_var_labels, by="variable") %>% 
+  group_by(label) %>% 
+  summarize(Average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(),se=sd/sqrt(n)) %>% 
+  ggplot(., aes(x=Average, y=fct_reorder(label, Average)))+geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)))+
+  labs(x="Score (0=Strongly Oppose, 1=Strongly Support)", y="Solution")+xlim(c(0,1))+geom_vline(xintercept=0.5, linetype=2)
+ggsave(filename=here("Plots", "solution_house_price_increase.png"), width=10, height=4)
 #Solutions by insider/outsider
 on22 %>% 
   mutate(Housing_Status=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
@@ -111,8 +136,8 @@ on22 %>%
   ggplot(., aes(x=fct_reorder(label, average), y=average, col=Housing_Status))+ylim(c(0,1))+
   geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), position=position_jitter(width=0.25))+coord_flip()+
  # scale_color_manual(values=c("blue", "orange", "darkred", "darkgreen", "black"))+
-  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")+geom_hline(yintercept=0.5, linetype=2)
-ggsave(filename=here("Plots", "solutions_by_housing_status.png"), width=6, height=4)
+  labs(y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=100), x="")+geom_hline(yintercept=0.5, linetype=2)
+ggsave(filename=here("Plots", "solutions_by_housing_status.png"), width=10, height=4)
 
 #Solutions by Renter/non-Renter dummy variable
 on22 %>% 
@@ -126,8 +151,8 @@ on22 %>%
   mutate(label=str_remove_all(label, "Support for policy - ")) %>% 
   ggplot(., aes(x=fct_reorder(label, average), y=average, col=Renter))+ylim(c(0,1))+
   geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), position=position_jitter(width=0.25))+coord_flip()+
-  labs(col="Renter", y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=60), x="")
-ggsave(filename=here("Plots", "solutions_by_Renter_dichotomous.png"), width=6, height=4)
+  labs(col="Renter", y="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=100), x="")
+ggsave(filename=here("Plots", "solutions_by_Renter_dichotomous.png"), width=10, height=4)
 
 #Solutiosn By Partisanship
 on22 %>% 
@@ -142,10 +167,10 @@ on22 %>%
   summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., solution_var_labels) %>% 
   ggplot(., aes(x=fct_reorder(label, average), y=average, col=partisanship))+ylim(c(0,1))+
-  geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), position=position_jitter(width=0.25))+coord_flip()+
+  geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)))+coord_flip()+
   scale_color_manual(values=c("blue", "orange", "darkred", "darkgreen", "black"))+
-  labs(color="Partisanship",y="1=Strongly support\n 0=Strongly Oppose", title=str_wrap("Support for housing policies", width=60), x="")+geom_hline(yintercept=0.5, linetype=2)
-ggsave(filename=here("Plots", "solutions_by_provincial_partisanship.png"), width=6, height=4)
+  labs(color="Partisanship",y="1=Strongly support\n 0=Strongly Oppose", title=str_wrap("Support for housing policies", width=100), x="")+geom_hline(yintercept=0.5, linetype=2)
+ggsave(filename=here("Plots", "solutions_by_provincial_partisanship.png"), width=10, height=4)
 
 on22 %>% 
   #Pick the variables working with
@@ -158,24 +183,28 @@ left_join(., solution_var_labels) %>%
 mutate(label=str_remove_all(label, "Support for policy - ")) %>% 
   filter(!is.na(Density)) %>% 
   ggplot(., aes(x=Average, y=fct_reorder(label, Average), col=Density))+
-  geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)))
-ggsave(filename=here("Plots", "solutions_by_density.png"), width=6, height=4)
+  geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)))+
+  labs(color="Density",x="1=Strongly support\n 0=Strongly Oppose", title=str_wrap("Support for housing policies", width=100), y="Solution")+
+  geom_vline(xintercept=0.5, linetype=2)+
+  xlim(c(0,1))
 
-
-on22 %>% 
-  #Pick the variables working with
-  select(Q33a_1_x:Q80_6_x, Density, Housing_Status) %>% 
-  #pivot them longer, except for the Sample variable
-  pivot_longer(., cols=-c(Density, Housing_Status), names_to=c("variable")) %>% 
-  group_by(Density, Housing_Status,variable) %>% 
-  summarize(Average=mean(value, na.rm=T), n=n(), sd=sd(value, na.rm=T), se=sd/sqrt(n)) %>% 
-  left_join(., solution_var_labels) %>% 
-  mutate(label=str_remove_all(label, "Support for policy - ")) %>% 
-  filter(Housing_Status!="Other") %>% 
-  filter(!is.na(Density)) %>% 
-  ggplot(., aes(x=Average, y=fct_reorder(label, Average), col=Housing_Status))+
-  facet_grid(~Density)+
-  geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)), size=0.5)
 ggsave(filename=here("Plots", "solutions_by_density.png"), width=10, height=4)
 
-
+# 
+# on22 %>% 
+#   #Pick the variables working with
+#   select(Q33a_1_x:Q80_6_x, Density) %>% 
+#   #pivot them longer, except for the Sample variable
+#   pivot_longer(., cols=-c(Density), names_to=c("variable")) %>% 
+#   group_by(Density, variable) %>% 
+#   summarize(Average=mean(value, na.rm=T), n=n(), sd=sd(value, na.rm=T), se=sd/sqrt(n)) %>% 
+#   left_join(., solution_var_labels) %>% 
+#   mutate(label=str_remove_all(label, "Support for policy - ")) %>% 
+#   #filter(Housing_Status!="Other") %>% 
+#   filter(!is.na(Density)) %>% 
+#   ggplot(., aes(x=Average, y=fct_reorder(label, Average), col=Density))+
+#  # facet_grid(~Density)+
+#   geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)), size=0.5)
+# ggsave(filename=here("Plots", "solutions_by_density.png"), width=10, height=4)
+# 
+# 

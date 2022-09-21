@@ -1,7 +1,7 @@
 source("R_Scripts/4_graphical_analysis.R")
 #### Experiment
 lookfor(on22, "social")
-theme_set(theme_minimal())
+theme_set(theme_minimal(base_size=16))
 on22 %>% 
   select(ends_with('_exp')) %>% 
   var_label()->experimental_variable_labels
@@ -27,10 +27,9 @@ on22 %>%
   #geom_point()+
   xlim(c(0,1))+
   scale_y_discrete(limits=rev) +
-  geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)), position=position_jitter(width=0.15)) +
+  geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)), position=position_jitter(height=0.25)) +
   labs(title="Normative Argumentation And Support For Residential Development")+
   geom_vline(xintercept=0.5, linetype=2)
-  
 ggsave(filename="Plots/experiment_averages_point.png", width=8,  height=4)
 
 on22 %>% 
