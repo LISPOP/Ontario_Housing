@@ -8,7 +8,9 @@ write_sav(on22, path=here("Data", paste0("opes22_",Sys.Date(), ".sav")))
 
 #### Move Graphs over to Dropbox####
 #Move all graphs over to Results folder
-file.copy(here("Plots", list.files("Plots")), to="~OneDrive - Wilfrid Laurier University/LISPOP/Surveys/Housing_Survey/Plots")
+file.copy(here("Plots", list.files("Plots")), to="~OneDrive - Wilfrid Laurier University/LISPOP/Surveys/Housing_Survey/Plots", overwrite=T)
+here("Plots", list.files("Plots"))
+?file.copy
 #Move CJPH Plots over to CJPH subfolder
 # cjph_plots<-here("Plots", list.files("Plots"))
 # file.copy(cjph_plots[str_detect(cjph_plots, "cjph")], to="~/Dropbox/Public_Health/CJPH/Plots", overwrite=T)

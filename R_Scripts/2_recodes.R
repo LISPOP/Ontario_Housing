@@ -28,6 +28,7 @@ on22$Vote<-factor(on22$Vote, levels=c("PC", "Liberal", "NDP", "Green"))
 
 
 # Making partisanship variable for self-identifying partisans
+table(on22$)
 on22 %>%
   mutate(partisanship=case_when(
     Q23 == 1 & Q24 <3 ~ "Liberal",
@@ -427,9 +428,19 @@ nrow(on22)
 
 on22%>% 
   mutate(postal_code=str_to_upper(Q47))->postal_code
-
+#Cognitive 
+lookfor(on22, "interest")
+lookfor(on22, "provincial")
+summary(on22$Q4_1)
+on22$Q5_1
+on22 %>% 
+  mutate(cognitive_non_partisan=case_when(
+    Q4_1 >5 & Q23==6~"Cognitive Non-Partisan",
+    TRUE ~ "Other"
+  ))->on22
+table(on22$cognitive_non_partisan)
 source("R_Scripts/2_variable_labels.R")
-nrow(on22)
+
 
 
 
