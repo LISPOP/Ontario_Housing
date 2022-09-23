@@ -28,7 +28,7 @@ on22$Vote<-factor(on22$Vote, levels=c("PC", "Liberal", "NDP", "Green"))
 
 
 # Making partisanship variable for self-identifying partisans
-table(on22$)
+
 on22 %>%
   mutate(partisanship=case_when(
     Q23 == 1 & Q24 <3 ~ "Liberal",

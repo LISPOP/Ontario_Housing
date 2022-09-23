@@ -218,5 +218,44 @@ on22 %>%
   summarize(Average=mean(value, na.rm=T), n=n(), sd=sd(value, na.rm=T), se=sd/sqrt(n)) %>% 
   ggplot(., aes(x=Average, y=fct_reorder(label, Average), col=cognitive_non_partisan))+geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)))
 
+on22 %>% 
+  select(Q34_1_x:Q34_5_x) %>% 
+  look_for()->trade_off_var_labels
+
+#Get rid of the Trade off support now
+trade_off_var_labels$label<-str_remove_all(trade_off_var_labels$label, "Trade off support - ")
+## Raw Trade-Offs
+
+trade_off_var_labels
+on22 %>% 
+  select(Q34_1_x:Q34_5_x) %>% 
+  pivot_longer(., cols=everything(), names_to="variable", values_to=c("Support"))  %>% 
+group_by(variable) %>% 
+  summarize(Average=mean(Support, na.rm=T), n=n(), sd=sd(Support, na.rm=T), se=sd/sqrt(n)) %>% 
+   left_join(., trade_off_var_labels) %>% 
+  ggplot(., aes(x=Average, y=label)) +
+  geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)))+
+  labs(x="Score", y="Trade-Off")
+
+on22 %>% 
+  mutate(Housing_Status=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
+  select(Q34_1_x:Q34_5_x, Housing_Status) %>% 
+  pivot_longer(., cols=-Housing_Status, names_to=c("variable")) %>% 
+  group_by(Housing_Status, variable) %>% 
+  filter(value!="NA") %>% 
+  filter(Housing_Status!="Other") %>%
+  summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
+  left_join(., trade_off_var_labels) %>% 
+  #mutate(label=str_remove_all(label, "Trade off support - ")) %>% 
+  ggplot(., aes(y=fct_reorder(variable, average), x=average, col=Housing_Status))+
+  geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)))+
+  labs(x="Support for Trade off (0 = Pro-Housing Choice 1=Anti-Housing Choice ", title=str_wrap("Trade-off questions", width=60), col="Housing Situation", y="")+xlim(c(0,1))
+#####This line is now superfluous! This is the cool way that you had come up with to add meaningflu 
+# variable labels. But I kinda preferred the way of pulling the variable labels
+#into the objects solution_var_labels, trade_off_var_labels and then merging them. We do 
+#That now in the lines above. 
+ # scale_y_discrete(labels=c("Q34_1_x"= "Increased public investment in affordable housing", "Q34_2_x"="Increased public investment in affordable housing", "Q34_3_x"= "Increased public investment in affordable housing", "Q34_4_x"="Provincial control over local zoning regulations", "Q34_5_x"="Reducing environmental regulations to promote the building of homes"))
+
+
 
   
