@@ -2,15 +2,20 @@
 #It is only to be run when substantial recodes have been conducted
 library(here)
 source("R_Scripts/2_recodes.R")
-write_sav(on22, path=here("Data", paste0("opes22_",Sys.Date(), ".sav")))
-#file.copy(here('data', str_extract(list.files(path="data"), "^opes22_2022-.+[0-9].sav?")), to="/Users/skiss/OneDrive - Wilfrid Laurier University/LISPOP/Surveys/Housing_Survey/Data")
+names(on22)
+write_sav(on22, 
+          path=here(
+            "Data", paste0("opes22_",Sys.Date(), ".sav")
+            )
+          )
+file.copy(here('data', str_extract(list.files(path="data"), "^opes22_2022-.+[0-9].sav?")), to="/Users/skiss/OneDrive - Wilfrid Laurier University/LISPOP/Surveys/Housing_Survey/Data")
 
 
 #### Move Graphs over to Dropbox####
 #Move all graphs over to Results folder
 file.copy(here("Plots", list.files("Plots")), to="~OneDrive - Wilfrid Laurier University/LISPOP/Surveys/Housing_Survey/Plots", overwrite=T)
 here("Plots", list.files("Plots"))
-?file.copy
+
 #Move CJPH Plots over to CJPH subfolder
 # cjph_plots<-here("Plots", list.files("Plots"))
 # file.copy(cjph_plots[str_detect(cjph_plots, "cjph")], to="~/Dropbox/Public_Health/CJPH/Plots", overwrite=T)

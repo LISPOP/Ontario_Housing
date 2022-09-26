@@ -6,14 +6,24 @@ library(here)
 
 #Import
 on22<-read_dta(file=here("Data/Housing_02_06_100_Percent_Complete.dta"))
+#Merge with the geocoded file
 
+on22_geocoded<-read_sav(file=here("Data/opes22_2022-09-25-geocoded.sav"))
+names(on22_geocoded)
+on22_geocoded %>% 
+  select(ResponseId, FSA:pop_density)->on22_geocoded
 #on22<-read_sav(file=here("Data", "Housing_06_06.sav"))
+names(on22_geocoded)
 
-
+on22 %>% 
+  left_join(., on22_geocoded)->on22
+names(on22)
 #filter out non-consents
 on22 %>% 
   filter(Consent2<2)->on22
-
+#Filter out non-Ontario
+on22 %>% 
+  filter(PR==35)->on22
 #Clean Underscores before names
 names(on22)<-str_remove_all(names(on22), "^_")
 #Rename Experimental Group variables
@@ -39,3 +49,4 @@ names(on22)
 #   select(pid, Q3) %>% 
 #   write.csv(., file=here("data", "most_important_problem.csv"))
 nrow(on22)
+names(on22)

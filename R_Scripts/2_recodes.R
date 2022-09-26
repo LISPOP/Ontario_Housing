@@ -1,5 +1,7 @@
 source("R_Scripts/1_data_import.R")
+names(on22)
 source("R_Scripts/2_value_labels.R")
+names(on22)
 nrow(on22)
 
 
@@ -65,12 +67,12 @@ table(as_factor(on22$Q27), as_factor(on22$Q30))
    ))->on22
  val_labels(on22$Q27)
 table(on22$Housing_Status, as_factor(on22$Q27))
-on22 %>% 
-  select(Housing_Status, Q27, Q28, Q30) %>% 
-  as_factor() %>% 
-  filter(Housing_Status=="Other") %>% 
-  View()
-  
+# on22 %>% 
+#   select(Housing_Status, Q27, Q28, Q30) %>% 
+#   as_factor() %>% 
+#   filter(Housing_Status=="Other") %>% 
+#   View()
+#   
 #Reordering Housing_Status variable  
 on22$Housing_Status<-factor(on22$Housing_Status, levels=c("First-Time Homebuyer", "Satisfied Homeowner", "Satisfied renter", "Speculator", "Other"))
 
@@ -427,7 +429,18 @@ nrow(on22)
 #Create upper case postal code
 
 on22%>% 
-  mutate(postal_code=str_to_upper(Q47))->postal_code
+  mutate(postal_code=str_to_upper(Q47))->on22
+
+
+on22$region<-str_sub(on22$postal_code, end=1L)
+on22$region
+table(on22$Density, on22$region)
+on22$region<-Recode(on22$region, "'K'='Eastern Ontario' ;
+'L'='Central Ontario' ; 
+       'M'='Metropolitan Toronto'; 'N'='SW Ontario' ; 'P'='Northern Ontario' ; else='Other' ", 
+       levels=c("Metropolitan Toronto", "Central Ontario", "SW Ontario", "Eastern Ontario", "Other"),
+       as.factor=T)
+
 #Cognitive 
 lookfor(on22, "interest")
 lookfor(on22, "provincial")
@@ -439,8 +452,11 @@ on22 %>%
     TRUE ~ "Other"
   ))->on22
 table(on22$cognitive_non_partisan)
+
+
 source("R_Scripts/2_variable_labels.R")
 
 
 
 
+names(on22)

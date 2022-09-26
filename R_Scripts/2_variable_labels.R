@@ -172,6 +172,7 @@ on22 %>% set_variable_labels(non_partisan="R is Non Partisan",
                              Density="Rs built environment, Suburban as reference level",
                              `First_Time_Buyer`="R is a first time homebuyer",
                              Homeowner="R is a satisfied homeowner, not looking to purchase",
+                             Housing_Status="Rs Housing Status",
                              Q31_1_x="$800/month",
                              Q31_2_x="$1200/month",
                              Q31_3_x="$1600/month",
@@ -179,3 +180,4 @@ on22 %>% set_variable_labels(non_partisan="R is Non Partisan",
                              Q31_5_x="$2400/month",
                              Q31_6_x="$2800/month",
                              Vote="Party voted for")->on22
+

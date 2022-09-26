@@ -1,4 +1,5 @@
 source("R_Scripts/2_recodes.R")
+names(on22)
 #Install wlucolrs if necessary
 #remotes::install_github("sjkiss/wlucolors")
 library(wlucolors)
@@ -66,6 +67,24 @@ group_by(Housing_Status, variable) %>%
 #No spaces
 #Feel free to fiddle with the dimensions (they are in in ches) to get the best graph
 ggsave(filename=here("Plots", "causes_by_housing_status.png"), width=10, height=4)
+
+
+#Now the graph
+on22 %>% 
+  #Change the Housing STatus variable so that First Time Homebuyers is first
+  #mutate(Housing_Status=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
+  #select what you're working with; in this case the batch of cause variables and housing status
+  select(Q32_1_x:Q32_9_x,region) %>% 
+   pivot_longer(., cols=-region, names_to=c("variable")) %>%
+  filter(region!="Other") %>% 
+  group_by(region, variable) %>% 
+  summarize(average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(), se=sd/sqrt(n)) %>% 
+   left_join(., cause_var_labels) %>% 
+  #And graph
+  ggplot(., aes(y=fct_reorder(label, average), x=average, col=region))+xlim(c(0,1))+
+  geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_jitter(height=0.25))+
+  labs(x="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=100), x="
+       ")+geom_vline(xintercept=0.5, linetype=2)
 
 on22 %>% 
   mutate(Renter=Renter) %>% 
@@ -256,6 +275,8 @@ on22 %>%
 #That now in the lines above. 
  # scale_y_discrete(labels=c("Q34_1_x"= "Increased public investment in affordable housing", "Q34_2_x"="Increased public investment in affordable housing", "Q34_3_x"= "Increased public investment in affordable housing", "Q34_4_x"="Provincial control over local zoning regulations", "Q34_5_x"="Reducing environmental regulations to promote the building of homes"))
 
+
+#### Causes by Region
 
 
   
