@@ -8,12 +8,13 @@ write_sav(on22,
             "Data", paste0("opes22_",Sys.Date(), ".sav")
             )
           )
-file.copy(here('data', str_extract(list.files(path="data"), "^opes22_2022-.+[0-9].sav?")), to="/Users/skiss/OneDrive - Wilfrid Laurier University/LISPOP/Surveys/Housing_Survey/Data")
-
+file.copy(here('Data', str_extract(list.files(path="Data"), "^opes22_2022-.+[0-9].sav?")), to="/Users/skiss/OneDrive - Wilfrid Laurier University/LISPOP/Surveys/Housing_Survey/Data")
+on22$hh_less_than_30
+on22$
 
 #### Move Graphs over to Dropbox####
 #Move all graphs over to Results folder
-file.copy(here("Plots", list.files("Plots")), to="~OneDrive - Wilfrid Laurier University/LISPOP/Surveys/Housing_Survey/Plots", overwrite=T)
+file.copy(here("Plots", list.files("Plots")), to="/Users/skiss/OneDrive - Wilfrid Laurier University/LISPOP/Surveys/Housing_Survey/Plots", overwrite=T)
 here("Plots", list.files("Plots"))
 
 #Move CJPH Plots over to CJPH subfolder

@@ -26,7 +26,7 @@ on22 %>%
   ))->on22
 
 on22$Vote<-factor(on22$Vote, levels=c("PC", "Liberal", "NDP", "Green"))
-
+names(on22)
 
 
 # Making partisanship variable for self-identifying partisans
@@ -67,6 +67,7 @@ table(as_factor(on22$Q27), as_factor(on22$Q30))
    ))->on22
  val_labels(on22$Q27)
 table(on22$Housing_Status, as_factor(on22$Q27))
+names(on22)
 # on22 %>% 
 #   select(Housing_Status, Q27, Q28, Q30) %>% 
 #   as_factor() %>% 
@@ -104,7 +105,7 @@ on22 %>%
 on22 %>%
   filter(Value==1) %>%
   select(-Value) ->on22
-
+names(on22)
 # Currently the value labels for the experimental question run from 1 to 11; 12 is don't know
 # I'm going to set 12 to be in the  middle which is 5
   on22 %>% 
@@ -161,7 +162,7 @@ on22 %>%
         scales::rescale(car::Recode(as.numeric(.x), "11=5"))
       }, .names="{.col}_x" ))->on22
 
-
+names(on22)
 
 
 #### Causes ####
@@ -233,7 +234,7 @@ on22$Q48_x
 # Non-Partisan
 on22$non_partisan<-Recode(on22$Q23, "6=1; else=0")
 val_labels(on22$non_partisan)<-c("Non-Partisan"=1, "Partisan"=0)
-
+names(on22)
 # # Age Calculation
 # on22 %>% 
 #   select(starts_with("DOB")) %>% 
@@ -366,7 +367,7 @@ on22 %>%
 on22$Swing<-factor(on22$Swing, levels=c("Apathetic", "Other"))
 
 # Time Flag
-
+names(on22)
 #Less than 100000 seconds?
 on22 %>% 
   mutate(time_flag=case_when(
@@ -402,7 +403,7 @@ lookfor(on22, "incom")
 on22 %>% 
   mutate(income_digits=unlist(map(.$Q42, nchar)))->on22
 on22$income_digits
-
+names(on22)
 #Conservative Dummy Variable
 
 lookfor(on22, "vote")
@@ -425,7 +426,7 @@ on22$`Speculator`<-Recode(on22$Housing_Status, "'Speculator'='Speculator'; else=
 # on22$renter<-ifelse(on22$Q27==2,1,0)
 # val_labels(on22$renter)<-c("Renter"=1, "Non-Renter"=0)
 nrow(on22)
-
+names(on22)
 #Create upper case postal code
 
 on22%>% 
@@ -453,7 +454,7 @@ on22 %>%
   ))->on22
 table(on22$cognitive_non_partisan)
 
-
+names(on22)
 source("R_Scripts/2_variable_labels.R")
 
 

@@ -276,7 +276,67 @@ on22 %>%
  # scale_y_discrete(labels=c("Q34_1_x"= "Increased public investment in affordable housing", "Q34_2_x"="Increased public investment in affordable housing", "Q34_3_x"= "Increased public investment in affordable housing", "Q34_4_x"="Provincial control over local zoning regulations", "Q34_5_x"="Reducing environmental regulations to promote the building of homes"))
 
 
-#### Causes by Region
+#### Causes by Density
+on22$CSDTYPE
 
+table(on22$CSDTYPE)
+  on22 %>% 
+    ggplot(., aes(x=pop_2021))+geom_histogram()+facet_grid(~CSDTYPE)
+table(on22$CSDNAME)
+on22 %>% 
+  select(cause_var_labels$variable, pop_density) %>% 
+  pivot_longer(., -pop_density, names_to=c("variable")) %>% 
+  left_join(., cause_var_labels) %>% 
+  ggplot(., aes(x=log(pop_density), y=value))+geom_point()+
+  facet_wrap(~label, scales="free_y")+geom_smooth(method="lm")
+  ggplot(., aes(x=pop_density))+geom_histogram()
 
+  on22 %>% 
+    select(solution_var_labels$variable, pop_density) %>% 
+    pivot_longer(., -pop_density, names_to=c("variable")) %>% 
+    left_join(., solution_var_labels) %>% 
+    ggplot(., aes(x=log(pop_density), y=value))+geom_point()+
+    facet_wrap(~label, scales="free_y")+geom_smooth(method="lm")
+  ggplot(., aes(x=pop_density))+geom_histogram()
   
+#Cause by Ownership Costs
+cause_var_labels
+on22 %>% 
+select(cause_var_labels$variable, median_monthly_mortgage, median_monthly_rent) %>% 
+  pivot_longer(., -c(median_monthly_mortgage, median_monthly_rent)) %>% 
+  pivot_longer(., c(median_monthly_mortgage, median_monthly_rent), 
+               names_to = c("Payment"), values_to=c("Cost")) %>% 
+  left_join(., cause_var_labels, by=c("name"="variable")) %>% 
+  ggplot(., aes(x=Cost, y=value,  col=Payment))+
+  geom_point(size=0.25) +facet_wrap(~label, scales="free_x")+geom_smooth(method="lm")
+?fct_reorder
+ggsave(filename=here(""))
+on22 %>% 
+  select(solution_var_labels$variable, median_monthly_mortgage, median_monthly_rent) %>% 
+  pivot_longer(., -c(median_monthly_mortgage, median_monthly_rent)) %>% 
+  pivot_longer(., c(median_monthly_mortgage, median_monthly_rent), 
+               names_to = c("Payment"), values_to=c("Cost")) %>% 
+  left_join(., solution_var_labels, by=c("name"="variable")) %>% 
+  ggplot(., aes(x=Cost, y=value,  col=Payment))+
+  geom_point(size=0.25) +facet_wrap(~label, scales="free_x")+geom_smooth(method="lm")
+
+cause_var_labels
+on22 %>% 
+  select(cause_var_labels$variable, income_digits) %>% 
+  pivot_longer(., -c(income_digits)) %>% 
+  #pivot_longer(., c(median_monthly_mortgage, median_monthly_rent), 
+        #       names_to = c("Payment"), values_to=c("Cost")) %>% 
+  left_join(., cause_var_labels, by=c("name"="variable")) %>% 
+  ggplot(., aes(x=income_digits, y=value))+
+  geom_point(size=0.25) +facet_wrap(~label, scales="free_x")+geom_smooth(method="lm")
+
+cause_var_labels
+on22 %>% 
+  select(solution_var_labels$variable, income_digits) %>% 
+  pivot_longer(., -c(income_digits)) %>% 
+  # pivot_longer(., c(median_monthly_mortgage, median_monthly_rent), 
+  #              names_to = c("Payment"), values_to=c("Cost")) %>% 
+  left_join(., solution_var_labels, by=c("name"="variable")) %>% 
+  ggplot(., aes(x=income_digits, y=value))+
+  geom_point(size=0.25) +facet_wrap(~label, scales="free_x")+geom_smooth(method="lm")
+
