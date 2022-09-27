@@ -53,11 +53,12 @@ on22$Q30
 table(as_factor(on22$Q27), as_factor(on22$Q30))
 
 #Landlords who are staying Put
+on22$Q28
  on22 %>% 
    mutate(Housing_Status=case_when(
-     Q28==1 & Q30==2 ~ "Speculator",
      #Put all the separate conditions in the same mutate - case_when command, separated by a comma. 
-     Q27==1 & Q30==2 ~ "Satisfied Homeowner",
+     Q27==1 & Q30==2 & Q28==2~ "Satisfied Homeowner",
+     Q27==1  & Q28==1~ "Speculator",
      Q27==2 & Q30==1 ~ "First-Time Homebuyer",
      Q27==2 & Q30==2 ~ "Satisfied renter",
      Q27==3 & Q30==2 ~ "First-Time Homebuyer",
@@ -455,9 +456,34 @@ on22 %>%
 table(on22$cognitive_non_partisan)
 
 names(on22)
+
+### Combine attitude to affordable housing and homeownership status
+
+lookfor(on22, "affordable")
+lookfor(on22, "own")
 source("R_Scripts/2_variable_labels.R")
+on22 %>% 
+  mutate(own_affordable=case_when(
+    Q27==1 &  Q21==3 ~ "Pro-Affordable Housing Homeowner",
+    Q27==1 & Q21<3 ~ "Anti-Affordable Housing Homeowner",
+    Q27>1 & Q21==3 ~ "Pro-Affordable Housing Non-Homeowner",
+    Q27>1 & Q21 <3 ~ "Anti-Affordable Housing Non-Homeowner"
+  ))->on22
+table(on22$own_affordable)
+on22$Q21
+on22$affordable<-Recode(as.numeric(on22$Q21), "1:2='conservative_housing' ; 
+                        3='liberal_housing'", 
+                        levels=c("liberal_housing", 
+                              "conservative_housing"))
+
+
+table(on22$Homeowner, as_factor(on22$Q27))
+
+on22$own_affordable<-factor(on22$own_affordable, levels=c("Pro-Affordable Housing Homeowner", 
+       "Anti-Affordable Housing Homeowner",
+       "Pro-Affordable Housing Non-Homeowner",
+       "Anti-Affordable Housing Non-Homeowner"))
 
 
 
 
-names(on22)

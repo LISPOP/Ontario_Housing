@@ -44,3 +44,29 @@ on22 %>%
   summarize(n=n(), Average=mean(`Development Support`, na.rm=T), sd=sd(`Development Support`, na.rm=T), se=sd/sqrt(n))  %>% 
 pivot_wider(., names_from="Experimental_Group", values_from=c("Average"), id_cols=c("Development")) %>% 
   mutate(Percent_change=across(Private:Social, ~.x/Control))
+
+
+#Estimate Average Support By Homeowners - Ideology
+
+on22 %>% 
+  select(Experimental_Group, Development, own_affordable, `Development Support`) %>% 
+  group_by(Experimental_Group, Development, own_affordable) %>% 
+  filter(!is.na(own_affordable)) %>% 
+  summarize(Average=mean(`Development Support`, na.rm=T)) %>% 
+  ungroup() %>% 
+  pivot_wider(data=., id_cols=c(Development, own_affordable), 
+              names_from=c("Experimental_Group"), values_from=c("Average")) %>% 
+  mutate(across(Private:Social, ~ (.x / Control)*100, .names="{.col}_percent_control")) %>% 
+  pivot_longer(7:9) %>% 
+  ggplot(., aes(x=value, y=Development, col=name))+geom_point()+facet_grid(~own_affordable)+geom_vline(xintercept=100, linetype=2)
+
+on22 %>% 
+  select(Experimental_Group, Development, own_affordable, `Development Support`) %>% 
+  group_by(Experimental_Group, Development, own_affordable) %>% 
+  filter(!is.na(own_affordable)) %>% 
+  summarize(Average=mean(`Development Support`, na.rm=T)) %>% 
+  filter(own_affordable=="Pro-Affordable Housing Homeowner") %>% View()
+  ggplot(., aes(x=Average, y=Development, col=Experimental_Group))+geom_point()+facet_grid(~own_affordable)+
+scale_y_discrete(limits=rev)
+  
+  

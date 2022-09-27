@@ -152,10 +152,12 @@ on22 %>%
   summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., solution_var_labels) %>% 
   mutate(label=str_remove_all(label, "Support for policy - ")) %>% 
-  ggplot(., aes(x=fct_reorder(label, average), y=average, col=Housing_Status))+ylim(c(0,1))+
-  geom_pointrange(aes(ymin=average-(1.96*se), ymax=average+(1.96*se)), position=position_jitter(width=0.25))+coord_flip()+
+  ggplot(., aes(y=fct_reorder(label, average), x=average, col=Housing_Status))+
+  xlim(c(0,1))+
+  geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_jitter(height=0.25))+
  # scale_color_manual(values=c("blue", "orange", "darkred", "darkgreen", "black"))+
-  labs(x="Score (0=Strongly Oppose, 1=Strongly Support)", title=str_wrap("Solutions To Address Housing Price Increase",60), y="Solution")  geom_hline(yintercept=0.5, linetype=2)
+  labs(x="Score (0=Strongly Oppose, 1=Strongly Support)", title=str_wrap("Solutions To Address Housing Price Increase",60), y="Solution")+
+  geom_vline(xintercept=0.5, linetype=2)
 ggsave(filename=here("Plots", "solutions_by_housing_status.png"), width=10, height=4)
 
 #Solutions by Renter/non-Renter dummy variable

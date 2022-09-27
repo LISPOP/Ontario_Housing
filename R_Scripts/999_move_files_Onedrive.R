@@ -9,8 +9,7 @@ write_sav(on22,
             )
           )
 file.copy(here('Data', str_extract(list.files(path="Data"), "^opes22_2022-.+[0-9].sav?")), to="/Users/skiss/OneDrive - Wilfrid Laurier University/LISPOP/Surveys/Housing_Survey/Data")
-on22$hh_less_than_30
-on22$
+
 
 #### Move Graphs over to Dropbox####
 #Move all graphs over to Results folder
