@@ -317,7 +317,7 @@ on22 %>%
   geom_vline(xintercept=0.5, linetype=2)+
   guides(col=guide_legend(nrow=2))+
   theme(legend.position = "bottom")
-ggsave(filename=here("Plots", "solutions_by_size.png"), width=10, height=4)
+ggsave(filename=here("Plots", "solutions_by_size.png"), width=10, height=12)
 
 
 on22 %>% 

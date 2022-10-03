@@ -532,7 +532,7 @@ on22$Size<-Recode(on22$pop_2021, "0:25000='Rural';
        500000:1020000='Large' ;
        2000000:3000000='Toronto/Ottawa'", as.factor=T, 
                   levels=c("Medium","Rural", "Small", "Large", "Toronto/Ottawa"))
-
+table(on22$Size)
 #Vote Intention
 val_labels(on22$Q7)
 val_labels(on22$Q8)

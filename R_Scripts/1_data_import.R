@@ -30,7 +30,8 @@ on22 %>%
   filter(Consent2<2)->on22
 
 #Grab Ontario Vote Results
-vote22<-data.frame(Party=c("PC", "NDP", "Liberal", "Green"), Share=c(40.82, 23.74, 23.85, 5.96))
+vote22<-data.frame(Party=c("PC", "NDP", "Liberal", "Green"), 
+                   Share=c(40.82, 23.74, 23.85, 5.96))
 #Read in Ontario costs
 # library(cancensus)
 # census_data <- get_census(dataset='CA21', 
