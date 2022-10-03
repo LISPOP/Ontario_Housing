@@ -4,7 +4,6 @@ source("R_Scripts/2_value_labels.R")
 names(on22)
 nrow(on22)
 
-
 library(car)
 
 #### Insider Outsider Variable
@@ -409,6 +408,9 @@ names(on22)
 
 lookfor(on22, "vote")
 on22$PC<-Recode(on22$Vote, "'PC'='PC'; else='Other'", levels=c("Other", "PC"))
+
+on22$PC_Vote22<-Recode(on22$Vote_Intention_Likely, "'PC'='PC' ;
+       else='Other'", levels=c("Other", "PC"))
 #Degree
 lookfor(on22, "degree")
 on22$Q39
@@ -456,7 +458,19 @@ on22 %>%
 table(on22$cognitive_non_partisan)
 
 names(on22)
-
+### Age
+on22$Over_55<-Recode(as.numeric(on22$agegrps), "5:6='Over 55' ; 1:4='Under 55'", 
+                     as.factor=T, levels=c("Under 55", "Over 55"))
+on22$Under_35<-Recode(as.numeric(on22$agegrps), "1:2='Under 35' ; 
+                      3:6='Over 36'", 
+                      as.factor=T, levels=c("Over 36","Under 35" ))
+table(on22$Over_55)
+# Make male
+on22$gender
+on22$male<-Recode(as.numeric(on22$gender), 
+                  "1='Male' ;2:3='Non-Male'", 
+                  as.factor=T,
+                  levels=c("Non-Male", "Male"))
 ### Combine attitude to affordable housing and homeownership status
 
 lookfor(on22, "affordable")
@@ -486,4 +500,53 @@ on22$own_affordable<-factor(on22$own_affordable, levels=c("Pro-Affordable Housin
 
 
 
+qplot(pop_density, geom="histogram", data=on22)
+qplot(pop_2021, geom="histogram", data=on22)
+# on22 %>% 
+#   group_by(CSDNAME) %>% 
+#   summarize(density=mean(pop_density, na.rm=T)) %>% 
+#   arrange(desc(density)) %>% 
+#   View()
+on22 %>%
+  group_by(CSDNAME) %>%
+  summarize(pop=mean(pop_2021, na.rm=T)) %>%
+  arrange(desc(pop)) 
 
+on22$Size<-Recode(on22$pop_2021, "0:99999='Small' ;
+       100000:499999='Medium';
+       500000:1020000='Large' ;
+       2000000:3000000='Toronto/Ottawa'", as.factor=T, levels=c("Medium","Small", "Large", "Toronto/Ottawa"))
+
+#Vote Intention
+val_labels(on22$Q7)
+val_labels(on22$Q8)
+on22 %>% 
+  mutate(Vote_Intention_Likely=case_when(
+   ( Q7==1|Q7==2 |Q7==5 )& Q8==1 ~ "Liberal",
+   ( Q7==1|Q7==2 |Q7==5 )& Q8==2 ~ "PC",
+   ( Q7==1|Q7==2 |Q7==5 )& Q8==3 ~ "NDP",
+   ( Q7==1|Q7==2 |Q7==5 )& Q8==4 ~ "Green",
+  ))->on22
+on22$Q7
+var_label(on22$Q9)
+table(on22$Q9)
+table(on22$Q7, on22$Q9)
+on22 %>% 
+  mutate(Vote_Intention_Unlikely=case_when(
+    ( Q7==3|Q7==4 )& Q9==1 ~ "Liberal",
+    ( Q7==3|Q7==4 )& Q9==2  ~ "PC",
+    ( Q7==3|Q7==4 )& Q9==3  ~ "NDP",
+    ( Q7==3|Q7==4 )& Q9==4  ~ "Green",
+  ))->on22
+
+on22 %>% 
+  mutate(Vote_Intention_All=case_when(
+     Q8==1 ~ "Liberal",
+    Q8==2 ~ "PC",
+   Q8==3 ~ "NDP",
+    Q8==4  ~ "Green",
+  ))->on22
+on22$Vote_Intention_Likely<-factor(on22$Vote_Intention_Likely, levels=c("PC", "Liberal", "NDP", "Green"))
+on22$Vote_Intention_Unlikely<-factor(on22$Vote_Intention_Unlikely, levels=c("PC", "Liberal", "NDP", "Green"))
+on22$Vote_Intention_All<-factor(on22$Vote_Intention_All, levels=c("PC", "Liberal", "NDP", "Green"))
+table(on22$Vote_Intention_Unlikely)

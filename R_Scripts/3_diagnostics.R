@@ -70,17 +70,32 @@ table(on22$voting_flag, on22$time_flag_1_hour)
 library(modelsummary)
 
   datasummary(as_factor(voting_flag)*(mean)~Duration__in_seconds_, data=on22, output="Tables/contradictory_voters_duration.html")
-# 
-# on22 %>% 
-#   select(psid, Q8, Q10, starts_with("Q12_"), voting_flag) %>% 
-#   filter(voting_flag==1) %>% 
-#   as_factor() %>% 
-#   write_csv("Data/contradictory_voters.csv")
-
-
 
 on22 %>% 
   filter(!is.na(Q42)) %>% 
   ggplot(., aes(x=Q42))+geom_histogram()+facet_wrap(~as.factor(income_digits), scales="free_x", ncol=4)
 ggsave(filename=here("Plots", "income_reported_n_digits.png"), width=10, height=3)
   
+#Graph of likely voters and all voters vote intention
+# on22 %>% 
+#   select(Vote_Intention_Likely:Vote_Intention_All) %>% 
+#   pivot_longer(., cols=everything()) %>% 
+#   group_by(name, value) %>% 
+#   summarize(n=n()) %>% 
+#   mutate(pct=n/sum(n)) %>% 
+#   ggplot(., aes(x=pct, y=value))+geom_col()+facet_grid(~name)
+
+#### Make table comparison of vote intention and election result 
+sample_vote<-data.frame(prop.table(table(on22$Vote_Intention_Likely))*100)
+names(sample_vote)<-c("Party" , "Share")
+
+sample_vote$Source<-c(rep("Sample", nrow(sample_vote)))
+vote22$Source<-c(rep("Election", nrow(vote22)))
+library(gt)
+library(flextable)
+rbind(sample_vote, vote22) %>% 
+  pivot_wider(., names_from=c("Source"), values_from=c("Share")) %>% 
+  rename(`Sample Share`=2, `Election Result`=3) %>% 
+flextable() %>% 
+  colformat_double(., digits=0) %>% 
+  save_as_docx(path=here("Tables", "sample_share_election_result.docx"))
