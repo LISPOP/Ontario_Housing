@@ -6,11 +6,13 @@ library(broom)
 # The point is to try to mirror the analysis set in Nall and Plumb
 on22$own_affordable<-relevel(on22$own_affordable, "Pro-Affordable Housing Non-Homeowner")
 table(on22$Homeowner, on22$Housing_Status)
-library(modelsummary)
-#Cause Regressions
-names(on22)
-library(flextable)
 
+#Load libraries necessary for this
+# Install if necessary
+library(modelsummary)
+library(flextable)
+# This section is the cause Regressions
+names(on22)
 #Make the regresssion function
 # This is where covariates can be added or subtracted
 cause_ols1<-function(x) lm(value ~ male+
@@ -20,6 +22,7 @@ cause_ols1<-function(x) lm(value ~ male+
                              Size+
                              Housing_Status+
                              Under_35+Over_55, data=x)
+
 #Now run the regression on each of the cause variables
 #Remind which are the cause variables
 cause_var_labels
@@ -108,39 +111,7 @@ names(on22)
   save_as_docx(solution_ols_table,path=here("Tables", "solution_ols_regressions.docx"))
   
   
-# Experiment Regressions
-names(on22)
-
-#Regression 1
-# support for housing developments as a function of own_affordable, gender, income and population density
-ols1<-function(x) lm(value ~ own_affordable+Degree+male+income_digits+pop_density, data=x)
-
-#Regression 2 adding in an interaction term 
-ols2<-function(x) lm(`Development Support` ~ Experimental_Group+own_affordable+
-                       Experimental_Group:own_affordable, data=x)
-
-nrow(on22)
-names(on22)
-on22$male<-Recode(as.numeric(on22$gender), "1='Male'; 2='Other'", 
-                  levels=c("Other", "Male"))
-#Regression 1 -  Effect of ideology and Homeownership status on Various policies to addres house price increases
-on22 %>% 
-  select(solution_var_labels$variable, own_affordable, male, Degree, income_digits, pop_density) %>% 
-  pivot_longer(1:12) %>% 
-  left_join(., solution_var_labels, by=c("name"="variable")) %>% 
-  nest(-label) %>% 
-  mutate(m1=map(data, ols1)) %>% 
-  mutate(tidy_m1=map(m1, tidy)) ->ols.list
-modelsummary(ols.list$m1, stars=T, 
-             title="Support for Housing Policy Solutions By Pro-Affordable Housing Homeowners")  
-modelsummary(ols.list$m2, stars=T)
-
-on22 %>% 
-  select(`Development Support`, Experimental_Group, Development, own_affordable) %>% 
-  nest(-Development) %>% 
-  mutate(m1=map(data, ols2)) %>% 
-  mutate(tidy_m1=map(m1, tidy)) ->model.list
-model.list
-modelsummary(model.list$m1, stars=T)  
-
+# What is going on with past PC voters
+m1<-  lm(on22$Q32_9_x ~ PC_Vote22, data=on22)
+m2<-lm(Q32_9_x~PC_Vote22+income_digits+Degree+male+Size, data=on22)
 

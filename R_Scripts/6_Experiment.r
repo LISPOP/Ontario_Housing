@@ -228,7 +228,7 @@ modelsummary(exp_models1$exp_ols1,
              coef_omit=c("Housing Homeowner"), stars=T, 
              output="flextable",fmt=2, coef_map=coefs_renters, gof_omit=c("AIC|BIC|F|Log.Lik|Adj.")) %>% 
   save_as_docx(., path=here("Tables", "experiment_ideology_renters.docx"))
-?modelsummary
+
 on22 %>% 
   select(Experimental_Group, own_affordable, `Development Support`) %>% 
   group_by(Experimental_Group, own_affordable) %>% 

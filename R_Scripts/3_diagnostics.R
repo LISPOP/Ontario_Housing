@@ -88,7 +88,7 @@ ggsave(filename=here("Plots", "income_reported_n_digits.png"), width=10, height=
 #### Make table comparison of vote intention and election result 
 sample_vote<-data.frame(prop.table(table(on22$Vote_Intention_Likely))*100)
 names(sample_vote)<-c("Party" , "Share")
-
+sample_vote
 sample_vote$Source<-c(rep("Sample", nrow(sample_vote)))
 vote22$Source<-c(rep("Election", nrow(vote22)))
 library(gt)

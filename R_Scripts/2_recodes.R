@@ -348,23 +348,7 @@ names(on22)
 #   select(starts_with("age")) %>% 
 #   summary()
 
-#Swing Voter Variable
-var_label(on22$Q11)
-on22$Q8
-on22 %>% 
-  mutate(Swing=case_when(
-    (Q6b==1 | Q6b==3 |Q6b==4) & (Q8==2 | Q9==2 | Q10==2 | Q11==2) ~ "Swing Voter",
-    TRUE ~ "Other"
-  ))->on22
 
-on22$Swing<-factor(on22$Swing, levels=c("Swing", "Other"))
-on22 %>% 
-  mutate(Abstain=case_when(
-    (Q6a==1) & (Q7==3|Q7==4) ~ "Apathetic Voter",
-    Q7==6~ NA_character_,
-    TRUE ~ "Other"
-  ))->on22
-on22$Swing<-factor(on22$Swing, levels=c("Apathetic", "Other"))
 
 # Time Flag
 names(on22)
@@ -404,13 +388,42 @@ on22 %>%
   mutate(income_digits=unlist(map(.$Q42, nchar)))->on22
 on22$income_digits
 names(on22)
-#Conservative Dummy Variable
+
+#Swing Voter Variable
+var_label(on22$Q11)
+on22$Q8
+var_label(on22$Q6a)
+var_label(on22$Q6b)
+
+on22 %>% 
+  mutate(Swing=case_when(
+    (Q6b==1 | Q6b==3 |Q6b==4) & (Q8==2 | Q9==2 | Q10==2 | Q11==2) ~ "Swing Voter",
+    TRUE ~ "Other"
+  ))->on22
+table(on22$Swing)
+on22$Swing<-factor(on22$Swing, levels=c("Swing Voter", "Other"))
+on22$Q7
+on22 %>% 
+  mutate(Abstain=case_when(
+    (Q6a==1) & (Q7==3|Q7==4) ~ "Apathetic Voter",
+    Q7==6~ NA_character_,
+    TRUE ~ "Other"
+  ))->on22
+on22$Abstain<-factor(on22$Abstain, levels=c("Apathetic Voter", "Other"))
+#Conservative Dummy Variables
+
+
 
 lookfor(on22, "vote")
 on22$PC<-Recode(on22$Vote, "'PC'='PC'; else='Other'", levels=c("Other", "PC"))
 
 on22$PC_Vote22<-Recode(on22$Vote_Intention_Likely, "'PC'='PC' ;
        else='Other'", levels=c("Other", "PC"))
+#This table shows PC Voters in rows and swing voters in columns
+# There are 84 Voters who voted Liberal/ NDP in the last time and voted PC this time
+table(on22$PC_Vote22,on22$Swing)
+table(on22$PC_Vote22, on22$Abstain)
+
 #Degree
 lookfor(on22, "degree")
 on22$Q39
@@ -457,7 +470,8 @@ on22 %>%
   ))->on22
 table(on22$cognitive_non_partisan)
 
-names(on22)
+
+
 ### Age
 on22$Over_55<-Recode(as.numeric(on22$agegrps), "5:6='Over 55' ; 1:4='Under 55'", 
                      as.factor=T, levels=c("Under 55", "Over 55"))
