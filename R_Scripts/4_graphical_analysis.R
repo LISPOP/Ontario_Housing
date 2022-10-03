@@ -39,7 +39,8 @@ on22 %>%
   #scale_x_continuous(breaks=c("0", "0.25", "0.5", "0.75", "1"))+
   scale_y_discrete(labels=function(x) str_wrap(x, width=20))+
   labs(x="0=Not at all a Cause\n1=A significant Cause", y="", title=str_wrap("Causes of House, Rent Price Increases", 25))+
-  xlim(c(0,1))+geom_vline(xintercept=0.5, linetype=2)+theme(axis.text.y=element_text(size=20))
+  xlim(c(0,1))+geom_vline(xintercept=0.5, linetype=2)+
+  theme(axis.text.y=element_text(size=20))
 
 ggsave(filename=here("Plots", "causes_house_price_increase.png"), width=8, height=8, dpi=300)
    #Now the graph
@@ -144,13 +145,14 @@ on22 %>%
   #pivot them longer, except for the Sample variable
   pivot_longer(., cols=-Vote_Intention_Likely,names_to=c("variable")) %>% 
   group_by(Vote_Intention_Likely, variable) %>% 
+  filter(Vote_Intention_Likely!="Green") %>% 
   filter(Vote_Intention_Likely!="NA") %>% 
   summarize(average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., cause_var_labels) %>% 
   ggplot(., aes(y=fct_reorder(label, average), x=average, col=Vote_Intention_Likely))+
   xlim(c(0,1))+
   geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), size=1.2,position=position_jitter(height=0.25))+
-  scale_color_manual(values=c("blue", "orange", "darkred", "darkgreen", "black"))+
+  scale_color_manual(values=c("blue", "darkred", "orange"))+
   scale_y_discrete(labels=function(x) str_wrap(x, 10)) +
   labs(color="Vote",x="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=100), y="")+
   geom_vline(xintercept=0.5, linetype=2)+
@@ -286,7 +288,7 @@ on22 %>%
   xlim(c(0,1))+
   geom_pointrange(size=1,aes(xmin=average-(1.96*se),
                              xmax=average+(1.96*se)))+
-  scale_color_manual(values=c("blue", "orange", "darkred"))+
+  scale_color_manual(values=c("blue",  "darkred", "orange"))+
   labs(x=str_wrap("Score (0=Strongly Oppose, 1=Strongly Support)", 30), 
        y="")+
   geom_vline(xintercept=0.5, linetype=2)+
@@ -294,6 +296,29 @@ on22 %>%
   guides(col=guide_legend(ncol=2))+
   scale_y_discrete(labels=function(x) str_wrap(x, width=30))
 ggsave(filename=here("Plots", "solutions_by_provincial_vote.png"), width=14, height=12)
+
+### Solutions by Population Size
+
+on22 %>% 
+  select(Q33a_1_x:Q80_6_x,Size) %>% 
+  pivot_longer(., cols=-Size, names_to=c("variable")) %>%
+  filter(!is.na(Size)) %>% 
+  group_by(Size, variable) %>% 
+  summarize(average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(), se=sd/sqrt(n)) %>% 
+  left_join(., solution_var_labels) %>% 
+  #And graph
+  ggplot(., aes(y=fct_reorder(label, average), x=average, col=Size))+
+  xlim(c(0,1))+
+  scale_y_discrete(labels=function(x) str_wrap(x, width=20))+
+  geom_pointrange(size=1.1,aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_jitter(height=0.25))+
+  labs(x="1=A significant cause\n 0=Not a cause at all", 
+       title=str_wrap("Solutions to housing cost increase", width=100), 
+       y="")+
+  geom_vline(xintercept=0.5, linetype=2)+
+  guides(col=guide_legend(nrow=2))+
+  theme(legend.position = "bottom")
+ggsave(filename=here("Plots", "solutions_by_size.png"), width=10, height=4)
+
 
 on22 %>% 
   #Pick the variables working with

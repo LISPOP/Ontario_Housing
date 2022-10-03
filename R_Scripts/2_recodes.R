@@ -524,12 +524,14 @@ qplot(pop_2021, geom="histogram", data=on22)
 on22 %>%
   group_by(CSDNAME) %>%
   summarize(pop=mean(pop_2021, na.rm=T)) %>%
-  arrange(desc(pop)) 
+  arrange(desc(pop)) %>% View()
 
-on22$Size<-Recode(on22$pop_2021, "0:99999='Small' ;
+on22$Size<-Recode(on22$pop_2021, "0:25000='Rural';
+25001:99999='Small' ;
        100000:499999='Medium';
        500000:1020000='Large' ;
-       2000000:3000000='Toronto/Ottawa'", as.factor=T, levels=c("Medium","Small", "Large", "Toronto/Ottawa"))
+       2000000:3000000='Toronto/Ottawa'", as.factor=T, 
+                  levels=c("Medium","Rural", "Small", "Large", "Toronto/Ottawa"))
 
 #Vote Intention
 val_labels(on22$Q7)
