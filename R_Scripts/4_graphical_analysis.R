@@ -65,8 +65,9 @@ group_by(Housing_Status, variable) %>%
   left_join(., cause_var_labels) %>% 
 #And graph
   ggplot(., aes(y=fct_reorder(label, average), x=average, col=Housing_Status))+xlim(c(0,1))+
-  geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_jitter(height=0.25))+
+  geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_jitter(height=0.25), size = 1)+
   labs(x="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=100), y="")+
+  scale_color_brewer(palette="Dark2")+
   geom_vline(xintercept=0.5, linetype=2)+
   guides(col=guide_legend(nrow=3))+
   theme(legend.position = "bottom")+
@@ -219,7 +220,8 @@ on22 %>%
   mutate(label=str_remove_all(label, "Support for policy - ")) %>% 
   ggplot(., aes(y=fct_reorder(label, average), x=average, col=Housing_Status))+
   xlim(c(0,1))+
-  geom_pointrange(size=1,aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_jitter(height=0.25))+
+  geom_pointrange(size=1,aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_jitter(height=0.25), size = 1)+
+  scale_color_brewer(palette="Dark2")+
  # scale_color_manual(values=c("blue", "orange", "darkred", "darkgreen", "black"))+
   labs(x="Score (0=Strongly Oppose, 1=Strongly Support)", 
        title="", 
@@ -287,7 +289,7 @@ on22 %>%
   ggplot(., aes(y=fct_reorder(label, average), x=average, col=Vote_Intention_Likely))+
   xlim(c(0,1))+
   geom_pointrange(size=1,aes(xmin=average-(1.96*se),
-                             xmax=average+(1.96*se)))+
+                             xmax=average+(1.96*se)),position=position_jitter(height=0.25))+
   scale_color_manual(values=c("blue",  "darkred", "orange"))+
   labs(x=str_wrap("Score (0=Strongly Oppose, 1=Strongly Support)", 30), 
        y="")+
