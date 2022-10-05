@@ -9,7 +9,9 @@ experimental_variable_labels
 on22 %>%
   rename_with(~ unlist(experimental_variable_labels), ends_with('_exp'))->on22
 names(on22)
-on22$Experimental_Group
+on22$Experimental_Group<-Recode(on22$Experimental_Group,as.factor=T, "'Control'='Control' ; 'Private'='Individual' ; 'Public'='Community';'Social'='National'", 
+levels=c("Control" ,"Individual", "Community", "National"))
+table(on22$Experimental_Group)
 names(on22)
 #This sets the data-set up for regressions in on_exp
 #This has a dataframe of     columns
@@ -39,10 +41,12 @@ on22 %>%
   #geom_point()+
   xlim(c(0,1))+
   scale_y_discrete(limits=rev) +
-  geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)), position=position_jitter(height=0.25)) +
-  labs(title="Normative Argumentation And Support For Residential Development")+
-  geom_vline(xintercept=0.5, linetype=2)
-ggsave(filename="Plots/experiment_averages_point.png", width=8,  height=4)
+  geom_pointrange(size=1.2,aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)), position=position_jitter(height=0.25)) +
+  labs(y="")+
+  geom_vline(xintercept=0.5, linetype=2)+
+  theme(legend.position = "bottom") +
+  guides(col=guide_legend(ncol=1))
+ggsave(filename="Plots/experiment_averages_point.png", width=10,  height=8)
 
 on22 %>% 
   select(Experimental_Group, Development, `Development Support`) %>% 
@@ -69,11 +73,13 @@ on22 %>%
             sd=sd(`Development Support`, na.rm=T), se=sd/sqrt(n)) %>% 
   filter(str_detect(own_affordable, "Housing Homeowner")) %>% 
   ggplot(., aes(x=Average, y=Development, col=Experimental_Group))+
-  geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)), position=position_jitter(height=0.1))+facet_wrap(~own_affordable, ncol=2)+xlim(c(0,1))+
+  geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)), position=position_jitter(height=0.1))+
+  facet_wrap(~own_affordable, ncol=2, 
+             labeller = labeller(own_affordable = label_wrap_gen(width = 25)))+xlim(c(0,1))+
   geom_vline(xintercept=0.5, linetype=2)+
   theme(legend.position="bottom")+
-  scale_y_discrete(limits=rev)+labs(y="")
-ggsave(filename=here("Plots", "Experiment_development_homeowner_prior_belief.png"), width=10, height=8)
+  scale_y_discrete(limits=rev)+labs(y="")+guides(col=guide_legend(ncol=2))
+ggsave(filename=here("Plots", "Experiment_development_homeowner_prior_belief.png"), width=12, height=8)
 theme_set(theme_minimal(base_size=22))
 on22 %>% 
   select(ends_with('_exp')) %>% 

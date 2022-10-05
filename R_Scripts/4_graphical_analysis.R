@@ -1,4 +1,6 @@
-source("R_Scripts/2_recodes.R")
+# source("R_Scripts/2_recodes.R")
+# source("R_Scripts/3_diagnostics.R")
+source("R_Scripts/1_data_import.R")
 names(on22)
 #Install wlucolrs if necessary
 #remotes::install_github("sjkiss/wlucolors")
@@ -24,8 +26,14 @@ cause_var_labels$label<-str_remove_all(cause_var_labels$label, "Causes - ")
 #Check what has happened
 cause_var_labels
 on22$Housing_Status
-on22$Housing_Status<-factor(on22$Housing_Status, levels=c("First-Time Homebuyer", "Speculator", "Satisfied Homeowner", "Satisfied Renter", "Other"))
-
+on22$Housing_Status<-factor(on22$Housing_Status, levels=c("First-Time Homebuyer", 
+                                                          "Speculator", 
+                                                          "Satisfied Homeowner", 
+                                                          "Satisfied Renter", "Other"))
+on22$Housing_Status<-Recode(on22$Housing_Status, "'First-Time Homebuyer'='Renter seeking to purchase';
+'Satisfied Homeowner'='Homeowner';
+'Satisfied Renter'='Renter not seeking to purchase'", 
+       levels=c("Homeowner", "Renter not seeking to purchase", "Renter seeking to purchase"))
 #Raw Cause Scores
 
 on22 %>% 
@@ -46,7 +54,7 @@ ggsave(filename=here("Plots", "causes_house_price_increase.png"), width=8, heigh
    #Now the graph
 on22 %>% 
   #Change the Housing STatus variable so that First Time Homebuyers is first
-  mutate(Housing_Status=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
+  #mutate(Housing_Status=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
   #select what you're working with; in this case the batch of cause variables and housing status
   select(Q32_1_x:Q32_9_x, Housing_Status) %>% 
   #pivot them longer, except for the grouping variable of interest
@@ -72,7 +80,7 @@ group_by(Housing_Status, variable) %>%
   guides(col=guide_legend(nrow=3))+
   theme(legend.position = "bottom")+
 scale_y_discrete(labels=function(x) str_wrap(x, width=20))
-ggsave(filename=here("Plots", "causes_house_price_increase_by_status.png"), width=10, height=8, dpi=300)
+ggsave(filename=here("Plots", "causes_house_price_increase_by_status.png"), width=10, height=10, dpi=300)
 
 
 #Save the above plot out into the "PLots" Subdirectory
@@ -83,7 +91,7 @@ ggsave(filename=here("Plots", "causes_by_housing_status.png"), width=10, height=
 
 
 #### By Community Size
-
+levels(on22$Size)<-c("Rural", "Small", "Medium", "Large", "Toronto/Ottawa")
 on22 %>% 
    select(Q32_1_x:Q32_9_x,Size) %>% 
    pivot_longer(., cols=-Size, names_to=c("variable")) %>%
@@ -101,7 +109,8 @@ on22 %>%
        y="")+
   geom_vline(xintercept=0.5, linetype=2)+
   guides(col=guide_legend(nrow=2))+
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom")+
+  scale_color_brewer(palette="Dark2")
  ggsave(filename=here("Plots/cause_by_community_size.png"), width=10, height=8)
 
 on22 %>% 
@@ -208,7 +217,7 @@ ggsave(filename=here("Plots/cause_by_community_size.png"))
 
 #Solutions by insider/outsider
 on22 %>% 
-  mutate(Housing_Status=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
+  #mutate(Housing_Status=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
   select(Q33a_1_x:Q80_6_x, Housing_Status) %>% 
   pivot_longer(., cols=-Housing_Status, names_to=c("variable")) %>% 
   group_by(Housing_Status, variable) %>% 
@@ -372,40 +381,78 @@ on22 %>%
   look_for()->trade_off_var_labels
 
 #Get rid of the Trade off support now
-trade_off_var_labels$label<-str_remove_all(trade_off_var_labels$label, "Trade off support - ")
 ## Raw Trade-Offs
 
-trade_off_var_labels
+trade_off_var_labels$label<-str_replace_all(trade_off_var_labels$label, " - ", "\n")
+
 on22 %>% 
   select(Q34_1_x:Q34_5_x) %>% 
   pivot_longer(., cols=everything(), names_to="variable", values_to=c("Support"))  %>% 
 group_by(variable) %>% 
-  summarize(Average=mean(Support, na.rm=T), n=n(), sd=sd(Support, na.rm=T), se=sd/sqrt(n)) %>% 
+  summarize(average=mean(Support, na.rm=T), n=n(), sd=sd(Support, na.rm=T), se=sd/sqrt(n)) %>% 
    left_join(., trade_off_var_labels) %>% 
-  ggplot(., aes(x=Average, y=label)) +
-  geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)))+
-  labs(x="Score", y="Trade-Off")
+  ggplot(., aes(y=fct_reorder(label, average), x=average))+
+  geom_pointrange(size=1.2,aes(xmin=average-(1.96*se), xmax=average+(1.96*se)))+
+  labs(x="0 = Anti-Housing Choice\n1=Pro-Housing Choice", 
+       title="",
+       col="Vote Intention", y="")+
+  xlim(c(0,1))+
+  theme(legend.position="bottom")+
+  guides(col=guide_legend(nrow=2, ncol=2))+
+  geom_vline(xintercept=0.5, linetype=2)+
+  scale_y_discrete(labels=trade_off_var_labels$label)
+ggsave(here("Plots", "trade_offs_raw.png"), width=12, height=8)
 
+#Trade-Offs By Housing Status
 on22 %>% 
-  mutate(Housing_Status=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
+  #mutate(Housing_Status=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
   select(Q34_1_x:Q34_5_x, Housing_Status) %>% 
   pivot_longer(., cols=-Housing_Status, names_to=c("variable")) %>% 
   group_by(Housing_Status, variable) %>% 
   filter(value!="NA") %>% 
   filter(Housing_Status!="Other") %>%
+  filter(Housing_Status!="Speculator") %>% 
+ summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
+  left_join(., trade_off_var_labels) %>% 
+  #mutate(label=str_remove_all(label, "Trade off support - ")) %>% 
+  ggplot(., aes(y=fct_reorder(label, average), x=average, col=Housing_Status))+
+  geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)))+
+  scale_color_brewer(palette="Dark2")+
+  labs(x="0 = Anti-Housing Choice\n1=Pro-Housing Choice", 
+       title="",
+       col="Vote Intention", y="")+
+  xlim(c(0,1))+
+  geom_vline(xintercept=0.5, linetype=2)+
+  scale_y_discrete(labels=trade_off_var_labels$label)
+#Trade-Offs by Vote
+on22 %>% 
+ # mutate(Housing_Status=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
+  select(Q34_1_x:Q34_5_x, Vote_Intention_Likely) %>% 
+  pivot_longer(., cols=-Vote_Intention_Likely, names_to=c("variable")) %>% 
+  group_by(Vote_Intention_Likely, variable) %>% 
+  filter(value!="NA") %>% 
+  filter(Vote_Intention_Likely!="Green") %>%
+  #filter(Housing_Status!="Speculator") %>% 
   summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., trade_off_var_labels) %>% 
   #mutate(label=str_remove_all(label, "Trade off support - ")) %>% 
-  ggplot(., aes(y=fct_reorder(variable, average), x=average, col=Housing_Status))+
-  geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)))+
-  labs(x="Support for Trade off (0 = Pro-Housing Choice 1=Anti-Housing Choice ", title=str_wrap("Trade-off questions", width=60), col="Housing Situation", y="")+xlim(c(0,1))
-#####This line is now superfluous! This is the cool way that you had come up with to add meaningflu 
-# variable labels. But I kinda preferred the way of pulling the variable labels
-#into the objects solution_var_labels, trade_off_var_labels and then merging them. We do 
-#That now in the lines above. 
- # scale_y_discrete(labels=c("Q34_1_x"= "Increased public investment in affordable housing", "Q34_2_x"="Increased public investment in affordable housing", "Q34_3_x"= "Increased public investment in affordable housing", "Q34_4_x"="Provincial control over local zoning regulations", "Q34_5_x"="Reducing environmental regulations to promote the building of homes"))
+  ggplot(., aes(y=fct_reorder(label, average), x=average, col=Vote_Intention_Likely))+
+  geom_pointrange(size=1.2,aes(xmin=average-(1.96*se), xmax=average+(1.96*se)))+
+  scale_color_manual(values=c("darkblue", "darkred", "orange"))+
+  labs(x="0 = Anti-Housing Choice\n1=Pro-Housing Choice", 
+       title="",
+       col="Vote Intention", y="")+
+  xlim(c(0,1))+theme(legend.position="bottom")+
+  guides(col=guide_legend(nrow=2, ncol=2))
+ggsave(here("Plots", "trade_off_vote.png"), width=10, height=8)
 
-
+# on22 %>% 
+#   select(Vote_Intention_Likely, matches("^Q34_[0-9]$")) %>% 
+#   pivot_longer(-Vote_Intention_Likely) %>% 
+#   group_by(Vote_Intention_Likely, name) %>% 
+#   summarize(avg=mean(value, na.rm=T)) %>% 
+#   arrange(name) %>% 
+#   View()
 #### Causes by Density
 on22$CSDTYPE
 
@@ -419,7 +466,7 @@ on22 %>%
   left_join(., cause_var_labels) %>% 
   ggplot(., aes(x=log(pop_density), y=value))+geom_point()+
   facet_wrap(~label, scales="free_y")+geom_smooth(method="lm")
-  ggplot(., aes(x=pop_density))+geom_histogram()
+#  ggplot(., aes(x=pop_density))+geom_histogram()
 
   on22 %>% 
     select(solution_var_labels$variable, pop_density) %>% 
@@ -427,7 +474,7 @@ on22 %>%
     left_join(., solution_var_labels) %>% 
     ggplot(., aes(x=log(pop_density), y=value))+geom_point()+
     facet_wrap(~label, scales="free_y")+geom_smooth(method="lm")
-  ggplot(., aes(x=pop_density))+geom_histogram()
+ # ggplot(., aes(x=pop_density))+geom_histogram()
   
 #Cause by Ownership Costs
 cause_var_labels
@@ -468,5 +515,6 @@ on22 %>%
   #              names_to = c("Payment"), values_to=c("Cost")) %>% 
   left_join(., solution_var_labels, by=c("name"="variable")) %>% 
   ggplot(., aes(x=income_digits, y=value))+
-  geom_point(size=0.25) +facet_wrap(~label, scales="free_x")+geom_smooth(method="lm")
+  geom_point(size=0.25) +facet_wrap(~label, scales="free_x")+
+  geom_smooth(method="lm")
 

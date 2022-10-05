@@ -3,7 +3,7 @@ library(haven)
 library(tidyverse)
 library(modelsummary)
 library(here)
-
+library(labelled)
 #Import
 on22<-read_dta(file=here("Data/Housing_02_06_100_Percent_Complete.dta"))
 #Merge with the geocoded file
@@ -85,3 +85,10 @@ names(on22)
 #clean names for SPSS export
 on22 %>% 
   rename(area_sq_km=169, region_name=168)->on22
+
+source("R_Scripts/2_recodes.R")
+source("R_Scripts/3_diagnostics.R")
+names(on22)
+on22 %>% 
+  filter(straightlining_Q32!=0)->on22
+

@@ -1,6 +1,6 @@
 #Diagnostics
 #show Histogram of age
-source("R_Scripts/2_recodes.R")
+#source("R_Scripts/2_recodes.R")
 ggplot(on22, aes(x=age))+geom_histogram()+geom_vline(xintercept=c(18, 95))+
   labs(title="Age Distribution, OPES22")
 summary(on22$age)
@@ -85,17 +85,32 @@ ggsave(filename=here("Plots", "income_reported_n_digits.png"), width=10, height=
 #   mutate(pct=n/sum(n)) %>% 
 #   ggplot(., aes(x=pct, y=value))+geom_col()+facet_grid(~name)
 
+#### Identify straightliners
+library(careless)
+on22 %>% 
+  select(matches("Q32_[0-9]$")) %>% 
+  irv(.)->straightlining_Q32
+on22$straightlining_Q32<-straightlining_Q32
+on22 %>% 
+  filter(straightlining_Q32==0) %>% 
+  select(ResponseId, matches("Q32_[0-9]$"))->straightliners_Q32
+write_csv(straightliners_Q32, file="Data/straightliners_Q32.csv")
 #### Make table comparison of vote intention and election result 
-sample_vote<-data.frame(prop.table(table(on22$Vote_Intention_Likely))*100)
-names(sample_vote)<-c("Party" , "Share")
+library(janitor)
+
+tabyl(on22$Vote_Intention_Likely, show_na=T) %>% 
+  adorn_pct_formatting() %>% 
+  adorn_totals()->sample_vote
 sample_vote
-sample_vote$Source<-c(rep("Sample", nrow(sample_vote)))
-vote22$Source<-c(rep("Election", nrow(vote22)))
-library(gt)
+#sample_vote<-data.frame(prop.table(table(on22$Vote_Intention_Likely))*100)
 library(flextable)
-rbind(sample_vote, vote22) %>% 
-  pivot_wider(., names_from=c("Source"), values_from=c("Share")) %>% 
-  rename(`Sample Share`=2, `Election Result`=3) %>% 
+names(sample_vote)<-c("Party" , "Sample n", "Sample Percent", "Percent Certain Voters")
+sample_vote %>% 
+  left_join(., vote22, by="Party") %>% 
+  rename(`Election Percent`="Share") %>% 
+  mutate(`Election Percent`=paste(`Election Percent`, "%", sep="")) %>% 
 flextable() %>% 
   colformat_double(., digits=0) %>% 
   save_as_docx(path=here("Tables", "sample_share_election_result.docx"))
+
+  

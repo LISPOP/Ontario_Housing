@@ -1,4 +1,4 @@
-source("R_Scripts/1_data_import.R")
+#source("R_Scripts/1_data_import.R")
 names(on22)
 source("R_Scripts/2_value_labels.R")
 names(on22)
@@ -211,14 +211,20 @@ on22 %>%
       }, .names="{.col}_x" ))->on22
 
 #### Rescale Q34
+on22$Q34_1
 on22 %>% 
   mutate(
     across(
       starts_with("Q34"), ~{
-        scales::rescale(car::Recode(as.numeric(.x), "11=5"))
-      }, .names="{.col}_x" ))->on22
-
-
+        scales::rescale(abs(.x-100))
+      }, .names="{.col}_x" )) ->on22
+# 
+# on22 %>%
+#   select(starts_with("Q34")) %>%
+# cor(., use="complete.obs")
+# on22 %>% 
+#   select(starts_with("Q34")) %>% 
+#   summary()
 # Adjust # of surveys taken
 
 
@@ -410,19 +416,6 @@ on22 %>%
     TRUE ~ "Other"
   ))->on22
 on22$Abstain<-factor(on22$Abstain, levels=c("Apathetic Voter", "Other"))
-#Conservative Dummy Variables
-
-
-
-lookfor(on22, "vote")
-on22$PC<-Recode(on22$Vote, "'PC'='PC'; else='Other'", levels=c("Other", "PC"))
-
-on22$PC_Vote22<-Recode(on22$Vote_Intention_Likely, "'PC'='PC' ;
-       else='Other'", levels=c("Other", "PC"))
-#This table shows PC Voters in rows and swing voters in columns
-# There are 84 Voters who voted Liberal/ NDP in the last time and voted PC this time
-table(on22$PC_Vote22,on22$Swing)
-table(on22$PC_Vote22, on22$Abstain)
 
 #Degree
 lookfor(on22, "degree")
@@ -489,7 +482,7 @@ on22$male<-Recode(as.numeric(on22$gender),
 
 lookfor(on22, "affordable")
 lookfor(on22, "own")
-source("R_Scripts/2_variable_labels.R")
+
 on22 %>% 
   mutate(own_affordable=case_when(
     Q27==1 &  Q21==3 ~ "Pro-Affordable Housing Homeowner",
@@ -562,7 +555,24 @@ on22 %>%
    Q8==3 ~ "NDP",
     Q8==4  ~ "Green",
   ))->on22
+
+#Conservative Dummy Variables
+
+
+
+lookfor(on22, "vote")
+on22$PC<-Recode(on22$Vote, "'PC'='PC'; else='Other'", levels=c("Other", "PC"))
+
+on22$PC_Vote22<-Recode(on22$Vote_Intention_Likely, "'PC'='PC' ;
+       else='Other'", levels=c("Other", "PC"))
+#This table shows PC Voters in rows and swing voters in columns
+# There are 84 Voters who voted Liberal/ NDP in the last time and voted PC this time
+table(on22$PC_Vote22,on22$Swing)
+table(on22$PC_Vote22, on22$Abstain)
+
 on22$Vote_Intention_Likely<-factor(on22$Vote_Intention_Likely, levels=c("PC", "Liberal", "NDP", "Green"))
 on22$Vote_Intention_Unlikely<-factor(on22$Vote_Intention_Unlikely, levels=c("PC", "Liberal", "NDP", "Green"))
 on22$Vote_Intention_All<-factor(on22$Vote_Intention_All, levels=c("PC", "Liberal", "NDP", "Green"))
 table(on22$Vote_Intention_Unlikely)
+
+source("R_Scripts/2_variable_labels.R")

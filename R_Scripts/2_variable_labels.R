@@ -145,19 +145,17 @@ var_label(on22$Q80_6_x)<-c("Support for policy - More rent control")
 on22 %>% 
   select(starts_with("Q34")) %>% 
   var_label()
-
-var_label(on22$Q34_1)<-c("Trade off support - More affordable public housing")
-var_label(on22$Q34_2)<-c("Trade off support - More affordable public housing")
-var_label(on22$Q34_3)<-c("Trade off support - More affordable public housing")
-var_label(on22$Q34_4)<-c("Trade off support - Provincial control over local zoning")
-var_label(on22$Q34_5)<-c("Trade off support - Reduce environmental regulations")
-
-var_label(on22$Q34_1_x)<-c("Trade off support - More affordable public housing")
-var_label(on22$Q34_2_x)<-c("Trade off support - More affordable public housing")
-var_label(on22$Q34_3_x)<-c("Trade off support - More affordable public housing")
-var_label(on22$Q34_4_x)<-c("Trade off support - Provincial control over local zoning")
-var_label(on22$Q34_5_x)<-c("Trade off support - Reduce environmental regulations")
-
+on22$Q34_1
+var_label(on22$Q34_1)<-c("Lower Taxes - Affordable public housing")
+var_label(on22$Q34_2)<-c(c("Increased Health and Education - Affordable public housing"))
+var_label(on22$Q34_3)<-c("Stable debt and deficit - Affordable public housing")
+var_label(on22$Q34_4)<-c("Local control over zoning - Provincial control over zoning")
+var_label(on22$Q34_5)<-c("Maintaining green space - Reduce environmental regulations")
+var_label(on22$Q34_1_x)<-c("Lower Taxes - Affordable public housing")
+var_label(on22$Q34_2_x)<-c(c("Increased Health and Education - Affordable public housing"))
+var_label(on22$Q34_3_x)<-c("Stable debt and deficit - Affordable public housing")
+var_label(on22$Q34_4_x)<-c("Local control over zoning - Provincial control over zoning")
+var_label(on22$Q34_5_x)<-c("Maintaining green space - Reduce environmental regulations")
 #Partisaship
 var_label(on22$partisanship)<-c("R partisanship, Ontario, includes only very and fairly strongly partisans")
 
