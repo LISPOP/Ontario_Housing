@@ -419,8 +419,8 @@ on22$`Homeowner`<-Recode(on22$Housing_Status, "'Satisfied Homeowner'='Satisfied 
 on22$`Speculator`<-Recode(on22$Housing_Status, "'Speculator'='Speculator'; else='Other'", levels=c("Other", "Speculator"))
 
 #Causes by renter/non-renter dummy variable
-# on22$renter<-ifelse(on22$Q27==2,1,0)
-# val_labels(on22$renter)<-c("Renter"=1, "Non-Renter"=0)
+on22$renter<-ifelse(on22$Q27==2,1,0)
+val_labels(on22$renter)<-c("Renter"=1, "Non-Renter"=0)
 nrow(on22)
 
 #Create upper case postal code
