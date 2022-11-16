@@ -590,13 +590,16 @@ on22$mip<-str_to_lower(on22$Q3)
 names(on22)
 on22 %>% 
   left_join(.,mip, by=c("mip"="mip"))->on22
+names(on22)
+
 #Now read in the Molly's code LABELS
 mip_categories<-read_excel(path=here("Data/mip_categories_final.xlsx"))
-names(on22)
+
+mip_categories
 on22 %>% 
   left_join(., mip_categories, by=c("mip_code"="Code Number"))->on22
 names(on22)
-
+on22$Topic<-as.factor(on22$Topic)
 #Recode parties in Q15
 on22 %>% 
   #select(starts_with("Q15")) %>% 

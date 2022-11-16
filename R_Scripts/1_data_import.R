@@ -100,7 +100,5 @@ source("R_Scripts/3_diagnostics.R")
 names(on22)
 on22 %>% 
   filter(straightlining_Q32!=0)->on22
-on22 %>% 
-  select(mip:Topic) %>% 
-  View()
+
 names(on22)

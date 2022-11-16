@@ -13,7 +13,7 @@ on22 %>%
   geom_col()+labs(y="Issue", x="Percent")
 ggsave(here("Plots", "most_important_problem.png"))
 
-lookfor(on22, "best")
+
 
 #Housng Status
 #Get var_labels
