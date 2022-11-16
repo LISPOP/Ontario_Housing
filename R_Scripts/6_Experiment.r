@@ -9,8 +9,10 @@ experimental_variable_labels
 on22 %>%
   rename_with(~ unlist(experimental_variable_labels), ends_with('_exp'))->on22
 names(on22)
-on22$Experimental_Group<-Recode(on22$Experimental_Group,as.factor=T, "'Control'='Control' ; 'Private'='Individual' ; 'Public'='Community';'Social'='National'", 
-levels=c("Control" ,"Individual", "Community", "National"))
+on22$Experimental_Group
+#on22$Experimental_Group<-Recode(on22$Experimental_Group,as.factor=T, "'Control'='Control' ; 'Private'='Individual' ; 'Public'='Community';'Social'='National'", 
+#levels=c("Control" ,"Individual", "Community", "National"))
+on22$Experimental_Group<-factor(on22$Experimental_Group, levels=c("Control", "Individual", "Community", "National"))
 table(on22$Experimental_Group)
 names(on22)
 #This sets the data-set up for regressions in on_exp
@@ -119,7 +121,7 @@ on22 %>%
   xlim(c(0,1))+
   scale_y_discrete(limits=rev) +
   geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)), position=position_jitter(height=0.25)) +
-  labs(y="")+
+  labs(y="", x="0=Strongly Oppose, 1=Strongly Support")+
   geom_vline(xintercept=0.5, linetype=2)+
   theme(legend.position="bottom")+
   guides(col=guide_legend(ncol=2))
@@ -130,14 +132,14 @@ on22 %>%
   group_by(Experimental_Group, Development) %>% 
   summarize(n=n(), Average=mean(`Development Support`, na.rm=T), sd=sd(`Development Support`, na.rm=T), se=sd/sqrt(n)) %>% 
   write_csv(., file="Experimental_means.csv")
-
+names(on22)
 on22 %>% 
   select(Experimental_Group, Development, `Development Support`) %>% 
   group_by(Experimental_Group, Development) %>% 
   summarize(n=n(), Average=mean(`Development Support`, na.rm=T), 
             sd=sd(`Development Support`, na.rm=T), se=sd/sqrt(n))  %>% 
   pivot_wider(., names_from="Experimental_Group", values_from=c("Average"), id_cols=c("Development")) %>% 
-  mutate(Percent_change=across(Private:Social, ~.x/Control))
+  mutate(Percent_change=across(Individual:National, ~.x/Control))
 
 
 #Estimate Average Support By Homeowners - Ideology
@@ -155,7 +157,8 @@ on22 %>%
   geom_vline(xintercept=0.5, linetype=2)+
   theme(legend.position="bottom")+
   guides(col=guide_legend(ncol=2))+
-  scale_y_discrete(limits=rev)+labs(y="")+xlim(c(0,1))
+  scale_y_discrete(limits=rev)+ labs(y="", x="0=Strongly Oppose, 1=Strongly Support")+
+  scale_x_continuous(labels=c("0", "0.25", "0.5", "0.75", "1"))+xlim(c(0,1))
 ggsave(filename=here("Plots", "Experiment_development_homeowner_prior_belief.png"), width=10, height=6)
 
 
@@ -169,11 +172,12 @@ on22 %>%
   ggplot(., aes(x=Average, y=Development, col=Experimental_Group))+
   geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)), position=position_jitter(height=0.1))+
   facet_wrap(~own_affordable, ncol=2, labeller=labeller(own_affordable=label_wrap_gen(width=22)))+
-  xlim(c(0,1))+
   geom_vline(xintercept=0.5, linetype=2)+
   theme(legend.position="bottom")+
   guides(col=guide_legend(ncol=2))+
-  scale_y_discrete(limits=rev)+labs(y="")
+  scale_y_discrete(limits=rev)+
+  labs(y="", x="0=Strongly Oppose, 1=Strongly Support")+
+  scale_x_continuous(labels=c("0", "0.25", "0.5", "0.75", "1"))+xlim(c(0,1))
 ggsave(filename=here("Plots", "Experiment_development_renter_prior_belief.png"), width=10, height=6)
 
 on22$own_affordable<-relevel(on22$own_affordable, "Pro-Affordable Housing Non-Homeowner")
@@ -239,3 +243,4 @@ on22 %>%
   select(Experimental_Group, own_affordable, `Development Support`) %>% 
   group_by(Experimental_Group, own_affordable) %>% 
   summarize(n=n(), avg=mean(`Development Support`, na.rm=T))
+

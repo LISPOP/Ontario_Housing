@@ -486,8 +486,7 @@ select(cause_var_labels$variable, median_monthly_mortgage, median_monthly_rent) 
   left_join(., cause_var_labels, by=c("name"="variable")) %>% 
   ggplot(., aes(x=Cost, y=value,  col=Payment))+
   geom_point(size=0.25) +facet_wrap(~label, scales="free_x")+geom_smooth(method="lm")
-?fct_reorder
-ggsave(filename=here(""))
+
 on22 %>% 
   select(solution_var_labels$variable, median_monthly_mortgage, median_monthly_rent) %>% 
   pivot_longer(., -c(median_monthly_mortgage, median_monthly_rent)) %>% 

@@ -87,7 +87,7 @@ on22$Housing_Status<-factor(on22$Housing_Status, levels=c("First-Time Homebuyer"
 
 on22 %>% 
   rowwise() %>% 
-  mutate(experimental_missings=sum(is.na(c_across(Social:Control)))) %>% 
+  mutate(experimental_missings=sum(is.na(c_across(National:Control)))) %>% 
   ungroup()->on22
 names(on22)
 
@@ -97,7 +97,7 @@ names(on22)
 #   write_csv(., file="Data/missing_experimental.csv")
 #   
 on22 %>%
-  pivot_longer(Social:Control, names_to="Experimental_Group", values_to=c("Value")) ->on22
+  pivot_longer(National:Control, names_to="Experimental_Group", values_to=c("Value")) ->on22
 on22 %>%
   filter(Value==1) %>%
   select(Experimental_Group:Value)
@@ -574,5 +574,36 @@ on22$Vote_Intention_Likely<-factor(on22$Vote_Intention_Likely, levels=c("PC", "L
 on22$Vote_Intention_Unlikely<-factor(on22$Vote_Intention_Unlikely, levels=c("PC", "Liberal", "NDP", "Green"))
 on22$Vote_Intention_All<-factor(on22$Vote_Intention_All, levels=c("PC", "Liberal", "NDP", "Green"))
 table(on22$Vote_Intention_Unlikely)
+
+#Most Important Problem
+#Read in most important problem responsesr
+library(readxl)
+#Read in the coded responses to mip done by Molly. 
+#column A is the raw response # Column B is her code
+mip<-read_excel(path=here("Data/mip.xlsx"), range="A1:B967", col_types=c("text", "numeric"))
+#Convert the mip problem in on22 to all lower case
+#Store in on22$mip
+#The on22 mip responses are now identical to the mip responses in MOlly's excel file
+on22$mip<-str_to_lower(on22$Q3)
+#Now merge on22 with the mip object
+#Using the mip variable as the key
+names(on22)
+on22 %>% 
+  left_join(.,mip, by=c("mip"="mip"))->on22
+#Now read in the Molly's code LABELS
+mip_categories<-read_excel(path=here("Data/mip_categories_final.xlsx"))
+names(on22)
+on22 %>% 
+  left_join(., mip_categories, by=c("mip_code"="Code Number"))->on22
+names(on22)
+
+#Recode parties in Q15
+on22 %>% 
+  #select(starts_with("Q15")) %>% 
+  as_factor() %>% 
+  mutate(across(.cols=starts_with("Q15"), .fns=function(x) Recode(x, "'Ontario Liberal Party'='Liberal';
+                      'Ontario New Democratic Party'='NDP' ;
+                      'Progressive Conservative Party of Ontario'='PC' ;
+                      'Green Party of Ontario'='Green'", levels=c("PC", "NDP", "Liberal", "Green"))))->on22
 
 source("R_Scripts/2_variable_labels.R")
