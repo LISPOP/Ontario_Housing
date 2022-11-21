@@ -1,5 +1,6 @@
 #source("R_Scripts/1_data_import.R")
 names(on22)
+
 source("R_Scripts/2_value_labels.R")
 names(on22)
 nrow(on22)
@@ -230,12 +231,9 @@ on22 %>%
 
 on22 %>% 
   mutate(Q48_x=car::Recode(Q48, "1=0; 2=1; 3=2; 4=3; 5=4; 6=5"))->on22
-val_labels(on22$Q48_x)
-val_labels(on22$Q48)
-table(on22$Q48_x, on22$Q48)
-on22$Q48_x
+
 val_labels(on22$Q48_x)<-c(`5+`=5)
-on22$Q48_x
+
 
 # Non-Partisan
 on22$non_partisan<-Recode(on22$Q23, "6=1; else=0")
@@ -396,10 +394,6 @@ on22$income_digits
 names(on22)
 
 #Swing Voter Variable
-var_label(on22$Q11)
-on22$Q8
-var_label(on22$Q6a)
-var_label(on22$Q6b)
 
 on22 %>% 
   mutate(Swing=case_when(
@@ -420,7 +414,8 @@ on22$Abstain<-factor(on22$Abstain, levels=c("Apathetic Voter", "Other"))
 #Degree
 lookfor(on22, "degree")
 on22$Q39
-on22$Degree<-Recode(as.numeric(on22$Q39), "9:11='Degree'; else='No degree'", levels=c("No degree", "Degree"))
+on22$Degree<-Recode(as.numeric(on22$Q39), "9:11='Degree'; else='No degree'", 
+                    levels=c("No degree", "Degree"))
 lookfor(on22, "urban")
 on22$Density<-as_factor(on22$Q41)
 levels(on22$Density)<-c("Suburban", "Urban", "Rural")

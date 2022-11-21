@@ -1,6 +1,6 @@
 source("R_Scripts/4_graphical_analysis.R")
 #### Experiment
-lookfor(on22, "social")
+#lookfor(on22, "social")
 theme_set(theme_minimal(base_size=22))
 on22 %>% 
   select(ends_with('_exp')) %>% 
@@ -62,7 +62,7 @@ on22 %>%
   summarize(n=n(), Average=mean(`Development Support`, na.rm=T), 
             sd=sd(`Development Support`, na.rm=T), se=sd/sqrt(n))  %>% 
 pivot_wider(., names_from="Experimental_Group", values_from=c("Average"), id_cols=c("Development")) %>% 
-  mutate(Percent_change=across(Private:Social, ~.x/Control))
+  mutate(Percent_change=across(Individual:National, ~.x/Control))
 
 
 #Estimate Average Support By Homeowners - Ideology

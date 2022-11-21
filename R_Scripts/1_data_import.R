@@ -70,6 +70,7 @@ names(on22)
 on22 %>%
   rename("National"=`v7`, "Individual"=`v8`, "Community"=`v9`, "Control"=starts_with('SCREEN10'))->on22
 names(on22)
+
 # Filter out DO variables
 on22 %>% 
   select(-contains("_DO_"))->on22
@@ -96,9 +97,10 @@ on22 %>%
   rename(area_sq_km=169, region_name=168)->on22
 
 source("R_Scripts/2_recodes.R")
-source("R_Scripts/3_diagnostics.R")
+
+#source("R_Scripts/3_diagnostics.R")
 names(on22)
 on22 %>% 
   filter(straightlining_Q32!=0)->on22
 
-names(on22)
+
