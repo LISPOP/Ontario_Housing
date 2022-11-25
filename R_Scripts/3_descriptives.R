@@ -33,7 +33,7 @@ on22 %>%
   filter(!is.na(Party)) %>% 
    ggplot(., aes(y=fct_rev(label), fill=fct_rev(Party), x=Percent))+geom_col(position="dodge")+
   scale_fill_manual(values=c("darkgreen", "darkred", "orange", "darkblue"))+
-  labs(y="", fill="Party", title="Issue Ownership, 2022 Ontario Election")+
+  labs(y="", fill="Party", title="Issue Ownership, 2022 Ontario Election", caption="Source: Ontario 2022 Provincial Election Study\nLaurier Institute for the Study of Public Opinion and Policy")+
   guides(fill=guide_legend(reverse=T))+
   geom_text(aes(y=label, x=Percent, label=Percent), position=position_dodge(0.9), hjust=-0.5)+
   xlim(c(0,50))+

@@ -67,9 +67,13 @@ on22 %>%
 
 table(on22$voting_flag, on22$time_flag_1_hour)
 
-library(modelsummary)
-
-  datasummary(as_factor(voting_flag)*(mean)~Duration__in_seconds_, data=on22, output="Tables/contradictory_voters_duration.html")
+library(knitr)
+on22 %>% 
+  group_by(voting_flag) %>% 
+  summarize(average=mean(Duration__in_seconds_)) %>% 
+kable() %>% 
+  kableExtra::save_kable(., file=here("Tables", "contradictory_voters_duration.html"))
+#datasummary(as_factor(voting_flag)*(mean)~Duration__in_seconds_, data=on22, output="Tables/contradictory_voters_duration.html")
 
 on22 %>% 
   filter(!is.na(Q42)) %>% 
