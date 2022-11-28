@@ -1,7 +1,6 @@
-#source("R_Scripts/1_data_import.R")
+source("R_Scripts/1_data_import.R")
 names(on22)
 
-source("R_Scripts/2_value_labels.R")
 names(on22)
 nrow(on22)
 
@@ -598,10 +597,13 @@ on22$Topic<-as.factor(on22$Topic)
 #Recode parties in Q15
 on22 %>% 
   #select(starts_with("Q15")) %>% 
-  as_factor() %>% 
-  mutate(across(.cols=starts_with("Q15"), .fns=function(x) Recode(x, "'Ontario Liberal Party'='Liberal';
+  #as_factor() %>% 
+  mutate(across(.cols=starts_with("Q15"), .fns=function(x) Recode(as_factor(x), "'Ontario Liberal Party'='Liberal';
                       'Ontario New Democratic Party'='NDP' ;
                       'Progressive Conservative Party of Ontario'='PC' ;
                       'Green Party of Ontario'='Green'", levels=c("PC", "NDP", "Liberal", "Green"))))->on22
-
+#on22 %>% select(starts_with("Q32"))
+source("R_Scripts/2_value_labels.R")
 source("R_Scripts/2_variable_labels.R")
+
+

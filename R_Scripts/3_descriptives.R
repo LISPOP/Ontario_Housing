@@ -1,5 +1,5 @@
 library(here)
-source(here("R_Scripts/1_data_import.R"))
+source(here("R_Scripts/3_diagnostics.R"))
 #### This script is for descriptive statistics and tables
 #Table of Descriptives for Housing Status
 library(janitor)

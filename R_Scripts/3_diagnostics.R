@@ -1,6 +1,6 @@
 #Diagnostics
 #show Histogram of age
-#source("R_Scripts/2_recodes.R")
+source("R_Scripts/2_recodes.R")
 ggplot(on22, aes(x=age))+geom_histogram()+geom_vline(xintercept=c(18, 95))+
   labs(title="Age Distribution, OPES22")
 summary(on22$age)
@@ -116,5 +116,10 @@ sample_vote %>%
 flextable() %>% 
   colformat_double(., digits=0) %>% 
   save_as_docx(path=here("Tables", "sample_share_election_result.docx"))
+
+## Filter out Straightliners
+names(on22)
+on22 %>% 
+  filter(straightlining_Q32!=0)->on22
 
   
