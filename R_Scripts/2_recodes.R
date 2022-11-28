@@ -604,4 +604,19 @@ on22 %>%
                       'Progressive Conservative Party of Ontario'='PC' ;
                       'Green Party of Ontario'='Green'", levels=c("PC", "NDP", "Liberal", "Green"))))->on22
 
+#Housing and Cost of Living Issues recoded
+
+on22 %>% 
+  mutate(MIP_Cost_Housing=case_when(
+    Topic=="Cost of living, living expenses / wages / Inflation" ~ "Cost of Living",
+    Topic=="Housing" ~ "Housing",
+    TRUE ~ "Other"
+  ))->on22
+table(on22$MIP_Cost_Housing)
+on22$MIP_Cost_Housing<-factor(on22$MIP_Cost_Housing, levels=c("Cost of Living", "Housing", "Other"))
+
+table(on22$Topic)
+
+
+
 source("R_Scripts/2_variable_labels.R")

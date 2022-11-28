@@ -320,7 +320,7 @@ on22 %>%
   #And graph
   ggplot(., aes(y=fct_reorder(label, average), x=average, col=Size))+
   xlim(c(0,1))+
-  scale_y_discrete(labels=function(x) str_wrap(x, width=20))+
+  scale_y_discrete(labels=function(x) str_wrap(x, width=30))+
   geom_pointrange(size=1.1,aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_jitter(height=0.25))+
   labs(x="1=A significant cause\n 0=Not a cause at all", 
        title=str_wrap("Solutions to housing cost increase", width=100), 
@@ -328,7 +328,7 @@ on22 %>%
   geom_vline(xintercept=0.5, linetype=2)+
   guides(col=guide_legend(nrow=2))+
   theme(legend.position = "bottom")
-ggsave(filename=here("Plots", "solutions_by_size.png"), width=10, height=12)
+ggsave(filename=here("Plots", "solutions_by_size.png"), width=15, height=12)
 
 
 on22 %>% 
@@ -517,3 +517,50 @@ on22 %>%
   geom_point(size=0.25) +facet_wrap(~label, scales="free_x")+
   geom_smooth(method="lm")
 
+##MIP Charts
+#Overview
+on22%>%
+  select(Topic)%>%
+  #summarize(count=n())%>%
+  filter(Topic!="NA") %>%
+  filter(Topic!="None, no issue important / too many to single out")%>%
+  filter(Topic!="Don't know / not sure / N/A")%>%
+  filter(Topic!="Other & multiple responses [not coded elsewhere]")%>%
+  ggplot(.,aes(y=Topic))+
+    geom_bar()
+
+#Causes
+on22 %>% 
+  select(Q32_1_x:Q32_9_x, MIP_Cost_Housing) %>% 
+  #pivot them longer, except for the Sample variable
+  pivot_longer(., cols=-MIP_Cost_Housing,names_to=c("variable")) %>% 
+  group_by(MIP_Cost_Housing, variable) %>% 
+  summarize(average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(), se=sd/sqrt(n)) %>% 
+  left_join(., cause_var_labels) %>% 
+  ggplot(., aes(y=fct_reorder(label, average), x=average, col=MIP_Cost_Housing))+
+  xlim(c(0,1))+
+  geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_jitter(height=0.25), size = .75)+
+  scale_color_brewer(palette="Dark2")+
+  labs(color="Most Important Problem",y="",x="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=100), x="")+
+  geom_vline(xintercept=0.5, linetype=2)+
+  theme(legend.position = "bottom")+
+  guides(col=guide_legend(nrow=3, ncol=3))
+ggsave(filename=here("Plots", "causes_by_MIP.png"), width=11, height=6)
+
+#Solutions
+on22 %>% 
+  select(Q33a_1_x:Q80_6_x,MIP_Cost_Housing) %>% 
+  pivot_longer(., cols=-MIP_Cost_Housing, names_to=c("variable")) %>%
+  group_by(MIP_Cost_Housing, variable) %>% 
+  summarize(average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(), se=sd/sqrt(n)) %>% 
+  left_join(., solution_var_labels) %>% 
+  ggplot(., aes(y=fct_reorder(label, average), x=average, col=MIP_Cost_Housing))+
+  xlim(c(0,1))+
+  geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_jitter(height=0.25), size=.75)+
+  scale_y_discrete(labels=function(x) str_wrap(x, width=30))+
+  scale_color_brewer(palette="Dark2")+
+  labs(color="Most Important Problem", y="", x="Score (0=Strongly Oppose,\n 1=Strongly Support)", title=str_wrap("Solutions To Address Housing",60))+
+  geom_vline(xintercept=0.5, linetype=2)+
+  theme(legend.position="bottom")+
+  guides(col=guide_legend(nrow=3, ncol=3))
+ggsave(filename=here("Plots", "solutions_by_MIP.png"), width=10, height=10)

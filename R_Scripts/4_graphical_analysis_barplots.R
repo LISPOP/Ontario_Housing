@@ -154,3 +154,5 @@ on22 %>%
   filter(Agree==1) %>% 
   ggplot(., aes(y=fct_reorder(label, Percent), x=Percent, fill=partisanship))+
   geom_col(position="dodge")+geom_vline(xintercept=50, linetype=2)+labs(y="Cause", x="Percent Agreeing")
+
+##MIP
