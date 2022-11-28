@@ -8,10 +8,14 @@ theme_set(theme_classic())
 on22 %>% 
   tabyl(Topic) %>% 
   arrange(., desc(valid_percent)) %>% 
-  filter(., valid_percent>0.03) %>% 
+  filter(., valid_percent>0.02) %>% 
+  filter(Topic!="None, no issue important / too many to single out")%>%
+  filter(Topic!="Don't know / not sure / N/A")%>%
+  filter(Topic!="Refused (or spoiled)")%>%
   ggplot(., aes(x=valid_percent*100, y=fct_reorder(Topic, valid_percent)))+
-  geom_col()+labs(y="Issue", x="Percent")
-ggsave(here("Plots", "most_important_problem.png"))
+  geom_col()+labs(y="Issue", x="Percent")+
+  theme(text=element_text(size=18))
+ggsave(here("Plots", "most_important_problem.png"), width=12, height=6)
 
 
 
