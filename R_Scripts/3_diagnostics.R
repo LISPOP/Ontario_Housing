@@ -94,10 +94,15 @@ library(careless)
 on22 %>% 
   select(matches("Q32_[0-9]$")) %>% 
   irv(.)->straightlining_Q32
+#Assign this variable back into on22
 on22$straightlining_Q32<-straightlining_Q32
-on22 %>% 
+#Now create a data set of the straightliners
+on22 %>%
+  #Straightliners have a score of 0 on this variable
   filter(straightlining_Q32==0) %>% 
+  #Select responseid and the Q32 variables just for proof of straightlining
   select(ResponseId, matches("Q32_[0-9]$"))->straightliners_Q32
+#Write out to csv
 write_csv(straightliners_Q32, file="Data/straightliners_Q32.csv")
 #### Make table comparison of vote intention and election result 
 library(janitor)
