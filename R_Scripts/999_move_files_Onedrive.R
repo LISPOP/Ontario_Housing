@@ -1,7 +1,7 @@
 #This saves an SPSS file
 #It is only to be run when substantial recodes have been conducted
 library(here)
-source("R_Scripts/1_data_import.R")
+source("R_Scripts/3_diagnostics.R")
 names(on22)
 write_sav(on22, 
           path=here(
