@@ -50,5 +50,17 @@ ggsave(filename=here("Plots", "best_party.png"), width=12, height=8)
 #Cross tab vote switching variable by housing status
 
 # Other stuff! Feel free to freelance. 
+on22$Q33a_6
+on22$Q80_1
+on22$Q80_2
+on22$Q80_3
+table(on22$Q80_3_y)
+on22 %>% 
+  tabyl(.,  NIMBY, Vote_Intention_Likely) %>% 
+  adorn_percentages()
+on22 %>% 
+  tabyl(.,  YIMBY, Vote_Intention_Likely, show_na=F) %>% 
+  adorn_percentages()
+
 
 

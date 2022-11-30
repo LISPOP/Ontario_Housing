@@ -623,6 +623,17 @@ table(on22$MIP_Cost_Housing)
 on22$MIP_Cost_Housing<-factor(on22$MIP_Cost_Housing, levels=c("Cost of Living", "Housing", "Other"))
 
 table(on22$Topic)
-
+on22 %>% 
+  mutate(YIMBY=case_when(
+    on22$Q80_3_y=="Support" & on22$Q33a_6_y=="Support" ~ "YIMBY",
+    TRUE ~ "Not YIMBY")
+  )->on22
+lookfor(on22, "own")
+on22 %>% 
+  mutate(NIMBY=case_when(
+    on22$Q80_3_y=="Support" & on22$Q33a_6_y=="Not Support" &Q27==1~ "NIMBY",
+    TRUE ~ "Not NIMBY")
+  )->on22
+table(on22$NIMBY)
 source("R_Scripts/2_value_labels.R")
 source("R_Scripts/2_variable_labels.R")
