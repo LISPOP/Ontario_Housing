@@ -210,6 +210,13 @@ on22 %>%
         scales::rescale(car::Recode(as.numeric(.x), "11=5"))
       }, .names="{.col}_x" ))->on22
 
+### Reocde Q33 and Q80 to categorical variable
+on22 %>% 
+  mutate(across(matches("Q33a_[0-9]$|Q80_[0-9]$"), 
+                .fns=function(x) car::Recode(as.numeric(x), 
+                                             "5:10='Support'; 0:4='Not Support'; 11='Not Support'", 
+                                             levels=c("Not Support", "Support")), .names="{.col}_y"))->on22
+
 #### Rescale Q34
 on22$Q34_1
 on22 %>% 

@@ -50,3 +50,5 @@ ggsave(filename=here("Plots", "best_party.png"), width=12, height=8)
 #Cross tab vote switching variable by housing status
 
 # Other stuff! Feel free to freelance. 
+
+
