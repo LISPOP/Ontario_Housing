@@ -145,37 +145,81 @@ on22 %>% set_variable_labels(Q35_1_exp="6 Storey rental building",
                     Q35_5_exp="Single detached house",
                     Q35_6_exp="Semi-detached house")->on22
 #### Rescale Q31
-# Set any don't knows to the mid-point
-#Note this example does not have a don't know
-#But we can act is if ti did (some of our scales have 12,  as a don't know,
-#which will get transformed to a 11.)
-#Step 3
-#Set the midpoint
-#And Rescale in one shot. 
-#BUT WE DO NOT WANT TO OVERWRITE THE UNDERLYING VARIABLE
-# SO, THE .NAMES ARGUMENT DOES THAT. 
 
+#Step 1, check to see what we are dealing with
+# Here it is important to look for missing values
+# Double-check in the SPSS file
+on22 %>% 
+  select(starts_with("Q31")) %>% 
+  summary()
+# For each one, we subtract 1 from the value, because the original values ran from 0 to 10
+#Data frame
+on22 %>% 
+  #We are transforming variables, so we use mutate
+  mutate(
+    #across() lets us do something across each variable
+    #We can use select helpers (see ?select) to pick what to work on
+    #The ~ indicates the start of a function
+    across(starts_with("Q31"), ~
+             #The function is to subtract 1 from each variable
+             .x-1
+    )) %>% 
+  #Select the variables
+  select(starts_with("Q31")) %>% 
+  #And see if it worked
+  summary() #That worked.
+
+#Repeat to save. 
+#This is just copying and pasting
 on22 %>% 
   mutate(
-    across(
-      starts_with("Q31"), ~{
-        scales::rescale(car::Recode(as.numeric(.x), "11=5"))
-      }, .names="{.col}_x" ))->on22
+    across(starts_with("Q31"), ~
+             .x-1
+           #Note that I am resaving over on22
+    ))->on22
+#Rescale Q31 to 0 to 1
+on22 %>% 
+  mutate(
+    across(matches("Q31_[0-9]$"), ~scales::rescale(as.numeric(.x)), .names="{.col}_x")
+  )->on22
 
-names(on22)
-
-
+on22 %>% 
+  select(starts_with("Q31")) %>% 
+  summary()
 #### Causes ####
 # repeat the above process 
-# Currently the value labels for the cause question run from 1 to 11; 12 is don't know
-# I'm going to set 12 to be in the  middle which is 5
+####n Q32
+on22 %>% 
+  select(starts_with("Q32")) %>% 
+  summary()
 
 on22 %>% 
   mutate(
-    across(starts_with("Q32"), ~scales::rescale(car::Recode(as.numeric(.x), "11=5")), .names="{.col}_x")) ->on22
+    across(starts_with("Q32"), ~
+             .x-1
+    )) %>% 
+  select(starts_with("Q32")) %>% 
+  summary()
+
+on22 %>% 
+  mutate(
+    across(starts_with("Q32"), ~
+             .x-1
+    ))->on22
+
+on22 %>% 
+  select(starts_with("Q32")) %>% 
+  summary()
+
+
+on22 %>% 
+  mutate(
+    across(matches("Q32_[0-9]$"), ~scales::rescale(car::Recode(as.numeric(.x), "11=5")), .names="{.col}_x")) ->on22
 on22 %>% 
   select(ends_with("_x")) %>% 
   var_label()
+
+
 table(on22$Q32_1, on22$Q32_1_x)
 lookfor(on22, "rent")
 table(on22$Q32_8, on22$Housing_Status)
@@ -198,15 +242,34 @@ on22 %>%
 on22 %>% 
   mutate(
     across(
-      starts_with("Q33"), ~{
+      matches("Q33a_[0-9]$"), ~{
         scales::rescale(car::Recode(as.numeric(.x), "11=5"))
       }, .names="{.col}_x" ))->on22
 
 #### Rescale Q80
+#Q80
+on22 %>% 
+  select(starts_with("Q80")) %>% 
+  summary()
+
+on22 %>% 
+  mutate(
+    across(matches("Q80_[0-9]$"), ~
+             .x-1
+    )) %>% 
+  select(starts_with("Q80")) %>% 
+  summary() 
+
+on22 %>% 
+  mutate(
+    across(matches("Q80_[0-9]$"), ~
+             .x-1
+    ))->on22
+#Rescale Q80
 on22 %>% 
   mutate(
     across(
-      starts_with("Q80"), ~{
+      matches("Q80_[0-9]$"), ~{
         scales::rescale(car::Recode(as.numeric(.x), "11=5"))
       }, .names="{.col}_x" ))->on22
 

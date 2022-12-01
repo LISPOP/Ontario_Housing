@@ -193,4 +193,4 @@ on22 %>% set_variable_labels(non_partisan="R is Non Partisan",
                              Vote="Party voted for", 
                              YIMBY="Support building 1.5 million homes and support abolishing single family dwelling zoning", 
                              NIMBY="Support building 1.5 million homes and oppose abolishing single family dwelling zoning")->on22
-
+names(on22)
