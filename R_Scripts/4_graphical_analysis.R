@@ -1,6 +1,6 @@
 # source("R_Scripts/2_recodes.R")
-# source("R_Scripts/3_diagnostics.R")
-source("R_Scripts/1_data_import.R")
+source("R_Scripts/3_diagnostics.R")
+#source("R_Scripts/1_data_import.R")
 names(on22)
 #Install wlucolrs if necessary
 #remotes::install_github("sjkiss/wlucolors")
