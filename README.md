@@ -14,7 +14,11 @@ This script imports the raw file obtained from Dynata
 
 2. `2_recodes.R`
 
-This script performs some basic recodes of variables to facilitate data analyses. These variables include a series of composite variables, dichotomous variables and Likert items scaled to run from 0 and 1. At the end of this script the next two scripts are called....
+This script performs some basic recodes of variables to facilitate data analyses as well as some basic processing necessities. For example, for variables Q31, Q32, Q33a, Q34 and Q80, it subtracts 1 from the value of each variable in order to match the actual scores in the survey text. Respondents were presented with scores from 0 to 10, but scores were recorded in the dataset as 1 to 11. This transformation is saved back into the original variables. 
+
+In addition, these variables are subjected to a transformation where a 'don\'t know response is set to the midpoint and then rescaled form 0 to 1. These variables are connoted with a `_x` at the end of the variable. 
+
+Additional composite and dichtomous variable recodes are also conducted e.g. likely voters, renters, homeowners, vote switchers from 2018. 
 
 3. `2_value_labels.R` and `2_variable_labels.R`
 These scripts modify and value labels and variable labels on new and old variables. The purposes of these scripts are primarily to facilitate the output of useful SPSS and Stata files for collaboration. 
