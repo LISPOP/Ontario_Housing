@@ -518,17 +518,6 @@ on22 %>%
   geom_smooth(method="lm")
 
 ##MIP Charts
-#Overview
-on22%>%
-  select(Topic)%>%
-  #summarize(count=n())%>%
-  filter(Topic!="NA") %>%
-  filter(Topic!="None, no issue important / too many to single out")%>%
-  filter(Topic!="Don't know / not sure / N/A")%>%
-  filter(Topic!="Other & multiple responses [not coded elsewhere]")%>%
-  ggplot(.,aes(y=Topic))+
-    geom_bar()
-
 #Causes
 on22 %>% 
   select(Q32_1_x:Q32_9_x, MIP_Cost_Housing) %>% 
@@ -564,3 +553,41 @@ on22 %>%
   theme(legend.position="bottom")+
   guides(col=guide_legend(nrow=3, ncol=3))
 ggsave(filename=here("Plots", "solutions_by_MIP.png"), width=10, height=10)
+
+###Spending preferences by vote intention
+
+on22 %>% 
+  select(Q16:Q21) %>% 
+  var_label()
+  var_label(on22$Q16)<-c("Spending - Education")
+  var_label(on22$Q17)<-c("Spending - Environment")
+  var_label(on22$Q18)<-c("Spending - Fighting Crime")
+  var_label(on22$Q19)<-c("Spending - Health Care")
+  var_label(on22$Q20)<-c("Spending - Social Programs")
+  var_label(on22$Q21)<-c("Spending - Affordable Housing")
+  
+  on22 %>% 
+    #Select what you are looking to work with
+    #In this case it is the batch of rescaled cause variables
+    select(Q16:Q21) %>% 
+    #Use the command look_for() in the labelled library, must be loaded!
+    #Store in something meaningful
+    look_for()->spending_var_labels
+    spending_var_labels$label<-str_remove_all(spending_var_labels$label, "Spending - ")
+  
+on22 %>% 
+  select(Q16:Q21, Vote_Intention_Likely) %>% 
+  pivot_longer(., cols=-Vote_Intention_Likely, names_to=c("variable")) %>% 
+  group_by(Vote_Intention_Likely, variable) %>% 
+  filter(Vote_Intention_Likely!="Green") %>% 
+  filter(Vote_Intention_Likely!="NA") %>% 
+  summarize(average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(), se=sd/sqrt(n)) %>% 
+  left_join(., spending_var_labels) %>% 
+  ggplot(., aes(y=label, x=average, col=Vote_Intention_Likely))+
+  xlim(c(0,1))+
+  geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), size=1.2,position=position_jitter(height=0.25))+
+  scale_color_manual(values=c("blue", "darkred", "orange"))+
+  scale_y_discrete(labels=function(x) str_wrap(x, 10)) +
+  labs(color="Vote",x="1=Spend More\n 0=Spend Less", title=str_wrap("How much should the provincial government spend on...", width=100), y="")+
+  geom_vline(xintercept=0.5, linetype=2)+
+  theme(legend.position = "bottom")+guides(col=guide_legend(nrow=2))
