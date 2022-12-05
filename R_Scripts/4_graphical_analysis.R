@@ -559,13 +559,7 @@ ggsave(filename=here("Plots", "solutions_by_MIP.png"), width=10, height=10)
 on22 %>% 
   select(Q16:Q21) %>% 
   var_label()
-  var_label(on22$Q16)<-c("Spending - Education")
-  var_label(on22$Q17)<-c("Spending - Environment")
-  var_label(on22$Q18)<-c("Spending - Fighting Crime")
-  var_label(on22$Q19)<-c("Spending - Health Care")
-  var_label(on22$Q20)<-c("Spending - Social Programs")
-  var_label(on22$Q21)<-c("Spending - Affordable Housing")
-  
+
   on22 %>% 
     #Select what you are looking to work with
     #In this case it is the batch of rescaled cause variables
@@ -573,21 +567,55 @@ on22 %>%
     #Use the command look_for() in the labelled library, must be loaded!
     #Store in something meaningful
     look_for()->spending_var_labels
+  spending_var_labels
     spending_var_labels$label<-str_remove_all(spending_var_labels$label, "Spending - ")
-  
+
 on22 %>% 
   select(Q16:Q21, Vote_Intention_Likely) %>% 
   pivot_longer(., cols=-Vote_Intention_Likely, names_to=c("variable")) %>% 
   group_by(Vote_Intention_Likely, variable) %>% 
   filter(Vote_Intention_Likely!="Green") %>% 
   filter(Vote_Intention_Likely!="NA") %>% 
-  summarize(average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(), se=sd/sqrt(n)) %>% 
+  summarize(average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(), se=sd/sqrt(n))  %>% 
   left_join(., spending_var_labels) %>% 
   ggplot(., aes(y=label, x=average, col=Vote_Intention_Likely))+
-  xlim(c(0,1))+
+ #THE VALUES HAD NOT BEEN RESCALED TO 0 AND 1
+  #SO, SETTING THE X-AXIS LABELS TO 0 AND 1 WAS THROWING A PROBLEM
+   #xlim(c(0,1))+
   geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), size=1.2,position=position_jitter(height=0.25))+
   scale_color_manual(values=c("blue", "darkred", "orange"))+
   scale_y_discrete(labels=function(x) str_wrap(x, 10)) +
   labs(color="Vote",x="1=Spend More\n 0=Spend Less", title=str_wrap("How much should the provincial government spend on...", width=100), y="")+
   geom_vline(xintercept=0.5, linetype=2)+
   theme(legend.position = "bottom")+guides(col=guide_legend(nrow=2))
+
+#I think it might be worth putting these variables in a categorical (barplot format)
+#The first few lines are identical to above
+on22 %>% 
+  select(Q16:Q21, Vote_Intention_Likely) %>% 
+  pivot_longer(., cols=-Vote_Intention_Likely, names_to=c("variable")) %>% 
+#  group_by(Vote_Intention_Likely, variable) %>% 
+  filter(Vote_Intention_Likely!="Green") %>% 
+  filter(Vote_Intention_Likely!="NA") %>% 
+  #Filter out missing values on the spending preference
+  filter(!is.na(value)) %>% 
+  #convert everything that is labelled to a factor i.e. the spending preference variable
+  as_factor() %>% 
+ # summarize(average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(), se=sd/sqrt(n))  %>% 
+  #Join with the spending labels 
+  left_join(., spending_var_labels) %>% 
+  group_by(Vote_Intention_Likely, label, value) %>% 
+  summarize(n=n()) %>% 
+  mutate(Percent=n/sum(n)) %>% 
+  ggplot(., aes(y=label, 
+                fill=value, 
+                group=value))+
+  geom_col(aes(x=Percent),position="dodge")+
+  facet_grid(~Vote_Intention_Likely) +
+   labs(fill="Spending Preference", title=str_wrap("How much should the provincial government spend on...", width=100), y="")+
+  geom_vline(xintercept=0.5, linetype=2)+
+  theme(legend.position = "bottom")+
+  guides(col=guide_legend(nrow=2))+
+  scale_x_continuous(labels=scales::percent)
+
+  
