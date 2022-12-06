@@ -564,3 +564,39 @@ on22 %>%
   theme(legend.position="bottom")+
   guides(col=guide_legend(nrow=3, ncol=3))
 ggsave(filename=here("Plots", "solutions_by_MIP.png"), width=10, height=10)
+
+#Causes
+on22 %>% 
+  select(Q32_1_x:Q32_9_x, MIP_top3) %>% 
+  #pivot them longer, except for the Sample variable
+  pivot_longer(., cols=-MIP_top3,names_to=c("variable")) %>% 
+  group_by(MIP_top3, variable) %>% 
+  summarize(average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(), se=sd/sqrt(n)) %>% 
+  left_join(., cause_var_labels) %>% 
+  ggplot(., aes(y=fct_reorder(label, average), x=average, col=MIP_top3))+
+  xlim(c(0,1))+
+  geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_jitter(height=0.25), size = .75)+
+  scale_color_brewer(palette="Dark2")+
+  labs(color="Most Important Problem",y="",x="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=100), x="")+
+  geom_vline(xintercept=0.5, linetype=2)+
+  theme(legend.position = "bottom")+
+  guides(col=guide_legend(nrow=2, ncol=2))
+ggsave(filename=here("Plots", "causes_by_MIP3.png"), width=11, height=5)
+
+#Solutions
+on22 %>% 
+  select(Q33a_1_x:Q80_6_x,MIP_top3) %>% 
+  pivot_longer(., cols=-MIP_top3, names_to=c("variable")) %>%
+  group_by(MIP_top3, variable) %>% 
+  summarize(average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(), se=sd/sqrt(n)) %>% 
+  left_join(., solution_var_labels) %>% 
+  ggplot(., aes(y=fct_reorder(label, average), x=average, col=MIP_top3))+
+  xlim(c(0,1))+
+  geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_jitter(height=0.25), size=.75)+
+  scale_y_discrete(labels=function(x) str_wrap(x, width=30))+
+  scale_color_brewer(palette="Dark2")+
+  labs(color="Most Important Problem", y="", x="Score (0=Strongly Oppose,\n 1=Strongly Support)", title=str_wrap("Solutions To Address Housing",60))+
+  geom_vline(xintercept=0.5, linetype=2)+
+  theme(legend.position="bottom")+
+  guides(col=guide_legend(nrow=2, ncol=2))
+ggsave(filename=here("Plots", "solutions_by_MIP3.png"), width=10, height=6)

@@ -685,6 +685,28 @@ on22 %>%
 table(on22$MIP_Cost_Housing)
 on22$MIP_Cost_Housing<-factor(on22$MIP_Cost_Housing, levels=c("Cost of Living", "Housing", "Other"))
 
+on22 %>% 
+  mutate(MIP_top3=case_when(
+    Topic=="Cost of living, living expenses / wages / Inflation" ~ "Cost of Living",
+    Topic=="Housing" ~ "Housing",
+    Topic=="Health care issues (non-COVID)" ~ "Health Care",
+    TRUE ~ "Other"
+  ))->on22
+table(on22$MIP_top3)
+on22$MIP_top3<-factor(on22$MIP_top3, levels=c("Cost of Living", "Housing", "Health Care", "Other"))
+
+on22 %>% 
+  mutate(MIP_top5=case_when(
+    Topic=="Cost of living, living expenses / wages / Inflation" ~ "Cost of Living",
+    Topic=="Housing" ~ "Housing",
+    Topic=="Health care issues (non-COVID)" ~ "Health Care",
+    Topic=="Environmental / ecological issues / climate change" ~ "Environment",
+    Topic=="Economy" ~ "Economy",
+    TRUE ~ "Other"
+  ))->on22
+table(on22$MIP_top5)
+on22$MIP_top5<-factor(on22$MIP_top5, levels=c("Cost of Living", "Housing", "Health Care", "Environment", "Economy", "Other"))
+
 table(on22$Topic)
 on22 %>% 
   mutate(YIMBY=case_when(

@@ -44,8 +44,14 @@ on22 %>%
   theme(legend.position="bottom")+theme(text=element_text(size=18))
 ggsave(filename=here("Plots", "best_party.png"), width=12, height=8)
 
-
+####Cross Tabs
 #Cross tab 2018 vote by 2021 vote 
+
+on22 %>% 
+  tabyl(.,  Q6b, Vote_Intention_Likely, show_na=F) %>% 
+  filter(Q6b!=5)%>% 
+  adorn_percentages("row")%>% 
+  adorn_pct_formatting()
 
 #Cross tab vote switching variable by housing status
 
@@ -62,5 +68,53 @@ on22 %>%
   tabyl(.,  YIMBY, Vote_Intention_Likely, show_na=F) %>% 
   adorn_percentages()
 
+#Age and Partisanship
+on22 %>% 
+  tabyl(.,  agegrps, Vote_Intention_Likely, show_na=F) %>% 
+  adorn_percentages("row")%>% 
+  adorn_pct_formatting()
+
+#Age and MIP
+on22 %>% 
+  tabyl(.,  agegrps, MIP_top5, show_na=F) %>% 
+  adorn_percentages("row")%>% 
+  adorn_pct_formatting()
+
+#Recoding Housing Status
+on22$Housing_Status<-factor(on22$Housing_Status, levels=c("First-Time Homebuyer", 
+                                                          "Speculator", 
+                                                          "Satisfied Homeowner", 
+                                                          "Satisfied Renter", "Other"))
+on22$Housing_Status<-Recode(on22$Housing_Status, "'First-Time Homebuyer'='Renter seeking to purchase';
+'Satisfied Homeowner'='Homeowner';
+'Satisfied Renter'='Renter not seeking to purchase'", 
+                            levels=c("Homeowner", "Renter not seeking to purchase", "Renter seeking to purchase"))
 
 
+#Age and Housing
+on22 %>% 
+  tabyl(.,  agegrps, Housing_Status, show_na=F) %>% 
+  adorn_percentages("row")%>% 
+  adorn_pct_formatting()
+
+#Housing Status and MIP
+on22 %>% 
+  tabyl(.,  Housing_Status, MIP_top5, show_na=F) %>% 
+  adorn_percentages("row")%>% 
+  adorn_pct_formatting()
+
+#MIP and Density
+on22 %>% 
+  tabyl(.,  Size, MIP_top5, show_na=F) %>% 
+  adorn_percentages("row")%>% 
+  adorn_pct_formatting()
+
+#MIP and Partisanship
+on22 %>% 
+  tabyl(.,  MIP_top5,Vote_Intention_Likely, show_na=F) %>% 
+  adorn_percentages("col")%>% 
+  adorn_pct_formatting()
+
+
+on22$agegrps
+on22$Q6b
