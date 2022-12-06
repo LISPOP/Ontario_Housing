@@ -17,6 +17,18 @@ on22 %>%
   theme(text=element_text(size=18))
 ggsave(here("Plots", "most_important_problem.png"), width=12, height=6)
 
+on22 %>% 
+  filter(!is.na(Vote_Intention_Likely)) %>% 
+  filter(Topic!="None, no issue important / too many to single out")%>%
+  filter(Topic!="Don't know / not sure / N/A")%>%
+  filter(Topic!="Refused (or spoiled)") %>% 
+  tabyl(Topic, Vote_Intention_Likely) %>% 
+  adorn_percentages() %>% 
+  adorn_ns() %>% 
+ # adorn_ns() %>% 
+ # adorn_percentages(., na.rm=T) %>% 
+  gt()
+
 
 
 #Housng Status
@@ -64,3 +76,4 @@ on22 %>%
 
 
 
+names(on22)
