@@ -536,6 +536,7 @@ on22$Under_35<-Recode(as.numeric(on22$agegrps), "1:2='Under 35' ;
                       3:6='Over 36'", 
                       as.factor=T, levels=c("Over 36","Under 35" ))
 table(on22$Over_55)
+
 # Make male
 on22$gender
 on22$male<-Recode(as.numeric(on22$gender), 

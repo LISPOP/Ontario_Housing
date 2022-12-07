@@ -127,4 +127,10 @@ names(on22)
 on22 %>% 
   filter(straightlining_Q32!=0)->on22
 
-  
+#### Diagnosting age and agegrps
+on22 %>%
+  group_by(agegrps) %>% 
+ summarize(average=mean(age, na.rm=T))
+# This looks OK. 
+prop.table(table(as_factor(on22$agegrps), on22$Housing_Status), 1)
+table(as_factor(on22$agegrps), as_factor(on22$Q27))
