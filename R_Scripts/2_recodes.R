@@ -721,5 +721,21 @@ on22 %>%
     TRUE ~ "Not NIMBY")
   )->on22
 table(on22$NIMBY)
+
+#Create new variable for housing status
+on22 %>% 
+  mutate(Housing_Status2=case_when(
+    #Put all the separate conditions in the same mutate - case_when command, separated by a comma. 
+    Q27==1 ~ "Homeowner", #Those that own
+    Q27==2 & Q30==1 ~ "Seeking to purchase", #Those that rent and want to buy 
+    Q27==3 & Q30==1 ~ "Seeking to purchase", #Those who live with fam and want to buy
+    Q27==2 & Q30==2 ~ "Not seeking to purchase", #Those who rent and want to stay
+    Q27==3 & Q30==2 ~ "Not seeking to purchase", #Those who live with fam and want to stay
+    Q27==2 & Q30==3 ~ "Not seeking to purchase", #Those who rent and want to move to another rental
+    Q27==3 & Q30==3 ~ "Not seeking to purchase", #Those who live with fam and want to move to a rental
+    TRUE ~ "Other"
+    #To actually save the results one needs to reassign the results of the foregoing back into on22
+  ))->on22
+
 source("R_Scripts/2_value_labels.R")
 source("R_Scripts/2_variable_labels.R")

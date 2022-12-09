@@ -139,16 +139,17 @@ write.table(tab1, file=here("Tables", "agegroups_by_housing_status_row_percent.t
 write.table(tab2, file=here("Tables", "agegroups_by_q27_row_percent.txt"))
 
 library(gt)
-tabyl(on22,agegrps, Housing_Status) %>% 
+tabyl(on22,agegrps, Housing_Status2) %>% 
   as_factor() %>% 
   adorn_percentages(denominator="row") %>% 
   adorn_pct_formatting(digits = 2) %>% 
   adorn_ns() %>% 
   gt()
 on22 %>% 
-  select(agegrps, Q27) %>% 
+  select(agegrps, Housing_Status2) %>%
+  filter(Housing_Status2!="Other") %>%
   as_factor() %>% 
-  tabyl(., agegrps, Q27) %>% 
+  tabyl(., agegrps, Housing_Status2, show_na=F) %>% 
   adorn_percentages(denominator="row") %>% 
   adorn_pct_formatting(digits = 2) %>% 
   adorn_ns() %>% 

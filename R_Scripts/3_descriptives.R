@@ -70,51 +70,74 @@ on22 %>%
 
 #Age and Partisanship
 on22 %>% 
-  tabyl(.,  agegrps, Vote_Intention_Likely, show_na=F) %>% 
-  adorn_percentages("row")%>% 
-  adorn_pct_formatting()
+  select(agegrps, Vote_Intention_Likely) %>%
+  as_factor() %>% 
+  tabyl(., agegrps, Vote_Intention_Likely, show_na=F) %>% 
+  adorn_percentages(denominator="row") %>% 
+  adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns() %>% 
+  gt()
 
 #Age and MIP
 on22 %>% 
-  tabyl(.,  agegrps, MIP_top5, show_na=F) %>% 
-  adorn_percentages("row")%>% 
-  adorn_pct_formatting()
-
-#Recoding Housing Status
-on22$Housing_Status<-factor(on22$Housing_Status, levels=c("First-Time Homebuyer", 
-                                                          "Speculator", 
-                                                          "Satisfied Homeowner", 
-                                                          "Satisfied Renter", "Other"))
-on22$Housing_Status<-Recode(on22$Housing_Status, "'First-Time Homebuyer'='Renter seeking to purchase';
-'Satisfied Homeowner'='Homeowner';
-'Satisfied Renter'='Renter not seeking to purchase'", 
-                            levels=c("Homeowner", "Renter not seeking to purchase", "Renter seeking to purchase"))
-
+  select(agegrps, MIP_top5) %>%
+  as_factor() %>% 
+  tabyl(., agegrps, MIP_top5, show_na=F) %>% 
+  adorn_percentages(denominator="row") %>% 
+  adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns() %>% 
+  gt()
 
 #Age and Housing
 on22 %>% 
-  tabyl(.,  agegrps, Housing_Status, show_na=F) %>% 
-  adorn_percentages("row")%>% 
-  adorn_pct_formatting()
+  select(agegrps, Housing_Status2) %>%
+  as_factor() %>% 
+  filter(Housing_Status2!="Other") %>%
+  tabyl(., agegrps, Housing_Status2, show_na=F) %>% 
+  adorn_percentages(denominator="row") %>% 
+  adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns() %>% 
+  gt()
 
 #Housing Status and MIP
 on22 %>% 
-  tabyl(.,  Housing_Status, MIP_top5, show_na=F) %>% 
-  adorn_percentages("row")%>% 
-  adorn_pct_formatting()
+  select(Housing_Status2, MIP_top5) %>%
+  as_factor() %>% 
+  filter(Housing_Status2!="Other") %>%
+  tabyl(., Housing_Status2, MIP_top5, show_na=F) %>% 
+  adorn_percentages(denominator="row") %>% 
+  adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns() %>% 
+  gt()
 
 #MIP and Density
 on22 %>% 
-  tabyl(.,  Size, MIP_top5, show_na=F) %>% 
-  adorn_percentages("row")%>% 
-  adorn_pct_formatting()
+  select(Size, MIP_top5) %>%
+  as_factor() %>% 
+   tabyl(., Size, MIP_top5, show_na=F) %>% 
+  adorn_percentages(denominator="row") %>% 
+  adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns() %>% 
+  gt()
 
 #MIP and Partisanship
 on22 %>% 
-  tabyl(.,  MIP_top5,Vote_Intention_Likely, show_na=F) %>% 
-  adorn_percentages("col")%>% 
-  adorn_pct_formatting()
+  select(Vote_Intention_Likely, MIP_top5) %>%
+  as_factor() %>% 
+  tabyl(., Vote_Intention_Likely, MIP_top5, show_na=F) %>% 
+  adorn_percentages(denominator="row") %>% 
+  adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns() %>% 
+  gt()
+
+#Partisanship and Density
+on22 %>% 
+  select(Size, Vote_Intention_Likely) %>%
+  as_factor() %>% 
+  tabyl(., Size, Vote_Intention_Likely, show_na=F) %>% 
+  adorn_percentages(denominator="row") %>% 
+  adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns() %>% 
+  gt()
 
 
-on22$agegrps
-on22$Q6b
