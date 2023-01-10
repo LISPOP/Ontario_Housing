@@ -53,18 +53,20 @@ table(as_factor(on22$Q27), as_factor(on22$Q30))
 
 #Landlords who are staying Put
 on22$Q28
- on22 %>% 
-   mutate(Housing_Status=case_when(
-     #Put all the separate conditions in the same mutate - case_when command, separated by a comma. 
-     Q27==1 & Q30==2 & Q28==2~ "Satisfied Homeowner",
-     Q27==1  & Q28==1~ "Speculator",
-     Q27==2 & Q30==1 ~ "First-Time Homebuyer",
-     Q27==2 & Q30==2 ~ "Satisfied renter",
-     Q27==3 & Q30==2 ~ "First-Time Homebuyer",
-     Q27==4 & Q30==2 ~ "First-Time Homebuyer",
-     TRUE ~ "Other"
-     #To actually save the results one needs to reassign the results of the foregoing back into on22
-   ))->on22
+on22 %>% 
+  mutate(Housing_Status=case_when(
+    #Put all the separate conditions in the same mutate - case_when command, separated by a comma. 
+    Q27==1 ~ "Homeowner", #Those that own
+    Q27==2 & Q30==1 ~ "Seeking to purchase", #Those that rent and want to buy 
+    Q27==3 & Q30==1 ~ "Seeking to purchase", #Those who live with fam and want to buy
+    Q27==2 & Q30==2 ~ "Not seeking to purchase", #Those who rent and want to stay
+    Q27==3 & Q30==2 ~ "Not seeking to purchase", #Those who live with fam and want to stay
+    Q27==2 & Q30==3 ~ "Not seeking to purchase", #Those who rent and want to move to another rental
+    Q27==3 & Q30==3 ~ "Not seeking to purchase", #Those who live with fam and want to move to a rental
+    TRUE ~ "Other"
+    #To actually save the results one needs to reassign the results of the foregoing back into on22
+  ))->on22
+table(on22$Housing_Status)
  val_labels(on22$Q27)
 table(on22$Housing_Status, as_factor(on22$Q27))
 names(on22)
@@ -75,7 +77,11 @@ names(on22)
 #   View()
 #   
 #Reordering Housing_Status variable  
-on22$Housing_Status<-factor(on22$Housing_Status, levels=c("First-Time Homebuyer", "Satisfied Homeowner", "Satisfied renter", "Speculator", "Other"))
+on22$Housing_Status<-factor(on22$Housing_Status, 
+                            levels=c("Homeowner", 
+                                     "Seeking to purchase", 
+                                     "Not seeking to purchase", 
+                                     "Other"))
 
  #### Experiment####
  
@@ -489,11 +495,22 @@ lookfor(on22, "urban")
 on22$Density<-as_factor(on22$Q41)
 levels(on22$Density)<-c("Suburban", "Urban", "Rural")
 #Renter variabvle
-levels(on22$Housing_Status)<-c("Satisfied Homeowner", "First-Time Homebuyer", "Speculator", "Satisfied Renter", "Other")
-on22$Renter<-Recode(on22$Housing_Status, "'Satisfied Renter'='Satisfied Renter'; else='Other'", levels=c("Other", "Satisfied Renter"))
-on22$`First_Time_Buyer`<-Recode(on22$Housing_Status, "'First-Time Homebuyer'='First-Time Homebuyer'; else='Other'", levels=c("Other", "First-Time Homebuyer"))
-on22$`Homeowner`<-Recode(on22$Housing_Status, "'Satisfied Homeowner'='Satisfied Homeowner'; else='Other'", levels=c("Other", "Satisfied Homeowner"))
-on22$`Speculator`<-Recode(on22$Housing_Status, "'Speculator'='Speculator'; else='Other'", levels=c("Other", "Speculator"))
+
+#levels(on22$Housing_Status)<-c("Satisfied Homeowner", "First-Time Homebuyer", "Speculator", "Satisfied Renter", "Other")
+on22 %>% 
+  mutate(Renter=case_when(
+    Q27==2~ 'Renter',
+    TRUE ~ 'Other',
+  ))->on22
+#Satisfied_Renter
+on22 %>% 
+  mutate(Satisfied_Renter=case_when(
+    Q27==2&Q30==2~ 'Satisfied Renter',
+    TRUE ~ 'Other',
+  ))->on22
+#on22$`First_Time_Buyer`<-Recode(on22$Housing_Status, "'First-Time Homebuyer'='First-Time Homebuyer'; else='Other'", levels=c("Other", "First-Time Homebuyer"))
+on22$`Homeowner`<-Recode(on22$Housing_Status, "'Homeowner'='Homeowner'; else='Other'", levels=c("Other", "Homeowner"))
+#on22$`Speculator`<-Recode(on22$Housing_Status, "'Speculator'='Speculator'; else='Other'", levels=c("Other", "Speculator"))
 
 #Causes by renter/non-renter dummy variable
 # on22$renter<-ifelse(on22$Q27==2,1,0)
@@ -536,6 +553,7 @@ on22$Under_35<-Recode(as.numeric(on22$agegrps), "1:2='Under 35' ;
                       3:6='Over 36'", 
                       as.factor=T, levels=c("Over 36","Under 35" ))
 table(on22$Over_55)
+
 # Make male
 on22$gender
 on22$male<-Recode(as.numeric(on22$gender), 
@@ -685,6 +703,28 @@ on22 %>%
 table(on22$MIP_Cost_Housing)
 on22$MIP_Cost_Housing<-factor(on22$MIP_Cost_Housing, levels=c("Cost of Living", "Housing", "Other"))
 
+on22 %>% 
+  mutate(MIP_top3=case_when(
+    Topic=="Cost of living, living expenses / wages / Inflation" ~ "Cost of Living",
+    Topic=="Housing" ~ "Housing",
+    Topic=="Health care issues (non-COVID)" ~ "Health Care",
+    TRUE ~ "Other"
+  ))->on22
+table(on22$MIP_top3)
+on22$MIP_top3<-factor(on22$MIP_top3, levels=c("Cost of Living", "Housing", "Health Care", "Other"))
+
+on22 %>% 
+  mutate(MIP_top5=case_when(
+    Topic=="Cost of living, living expenses / wages / Inflation" ~ "Cost of Living",
+    Topic=="Housing" ~ "Housing",
+    Topic=="Health care issues (non-COVID)" ~ "Health Care",
+    Topic=="Environmental / ecological issues / climate change" ~ "Environment",
+    Topic=="Economy" ~ "Economy",
+    TRUE ~ "Other"
+  ))->on22
+table(on22$MIP_top5)
+on22$MIP_top5<-factor(on22$MIP_top5, levels=c("Cost of Living", "Housing", "Health Care", "Environment", "Economy", "Other"))
+
 table(on22$Topic)
 on22 %>% 
   mutate(YIMBY=case_when(
@@ -698,5 +738,10 @@ on22 %>%
     TRUE ~ "Not NIMBY")
   )->on22
 table(on22$NIMBY)
+## Make a speculator versus everyone else variable. 
+
+#Create new variable for housing status
+
 source("R_Scripts/2_value_labels.R")
 source("R_Scripts/2_variable_labels.R")
+

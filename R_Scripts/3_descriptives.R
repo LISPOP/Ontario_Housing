@@ -56,8 +56,14 @@ on22 %>%
   theme(legend.position="bottom")+theme(text=element_text(size=18))
 ggsave(filename=here("Plots", "best_party.png"), width=12, height=8)
 
-
+####Cross Tabs
 #Cross tab 2018 vote by 2021 vote 
+
+on22 %>% 
+  tabyl(.,  Q6b, Vote_Intention_Likely, show_na=F) %>% 
+  filter(Q6b!=5)%>% 
+  adorn_percentages("row")%>% 
+  adorn_pct_formatting()
 
 #Cross tab vote switching variable by housing status
 
@@ -74,6 +80,77 @@ on22 %>%
   tabyl(.,  YIMBY, Vote_Intention_Likely, show_na=F) %>% 
   adorn_percentages()
 
+#Age and Partisanship
+on22 %>% 
+  select(agegrps, Vote_Intention_Likely) %>%
+  as_factor() %>% 
+  tabyl(., agegrps, Vote_Intention_Likely, show_na=F) %>% 
+  adorn_percentages(denominator="row") %>% 
+  adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns() %>% 
+  gt()
+
+#Age and MIP
+on22 %>% 
+  select(agegrps, MIP_top5) %>%
+  as_factor() %>% 
+  tabyl(., agegrps, MIP_top5, show_na=F) %>% 
+  adorn_percentages(denominator="row") %>% 
+  adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns() %>% 
+  gt()
+
+#Age and Housing
+on22 %>% 
+  select(agegrps, Housing_Status2) %>%
+  as_factor() %>% 
+  filter(Housing_Status2!="Other") %>%
+  tabyl(., agegrps, Housing_Status2, show_na=F) %>% 
+  adorn_percentages(denominator="row") %>% 
+  adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns() %>% 
+  gt()
+
+#Housing Status and MIP
+on22 %>% 
+  select(Housing_Status2, MIP_top5) %>%
+  as_factor() %>% 
+  filter(Housing_Status2!="Other") %>%
+  tabyl(., Housing_Status2, MIP_top5, show_na=F) %>% 
+  adorn_percentages(denominator="row") %>% 
+  adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns() %>% 
+  gt()
+
+#MIP and Density
+on22 %>% 
+  select(Size, MIP_top5) %>%
+  as_factor() %>% 
+   tabyl(., Size, MIP_top5, show_na=F) %>% 
+  adorn_percentages(denominator="row") %>% 
+  adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns() %>% 
+  gt()
+
+#MIP and Partisanship
+on22 %>% 
+  select(Vote_Intention_Likely, MIP_top5) %>%
+  as_factor() %>% 
+  tabyl(., Vote_Intention_Likely, MIP_top5, show_na=F) %>% 
+  adorn_percentages(denominator="row") %>% 
+  adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns() %>% 
+  gt()
+
+#Partisanship and Density
+on22 %>% 
+  select(Size, Vote_Intention_Likely) %>%
+  as_factor() %>% 
+  tabyl(., Size, Vote_Intention_Likely, show_na=F) %>% 
+  adorn_percentages(denominator="row") %>% 
+  adorn_pct_formatting(digits = 2) %>% 
+  adorn_ns() %>% 
+  gt()
 
 
 names(on22)
