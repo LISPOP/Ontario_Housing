@@ -135,23 +135,25 @@ on22 %>%
 
 tab1<-prop.table(table(as_factor(on22$agegrps), on22$Housing_Status), 1)
 tab2<-prop.table(table(as_factor(on22$agegrps), as_factor(on22$Q27)), 1)
+tab1
+tab2
 write.table(tab1, file=here("Tables", "agegroups_by_housing_status_row_percent.txt"))
 write.table(tab2, file=here("Tables", "agegroups_by_q27_row_percent.txt"))
 
 library(gt)
-tabyl(on22,agegrps, Housing_Status2) %>% 
-  as_factor() %>% 
-  adorn_percentages(denominator="row") %>% 
-  adorn_pct_formatting(digits = 2) %>% 
-  adorn_ns() %>% 
-  gt()
-on22 %>% 
-  select(agegrps, Housing_Status2) %>%
-  filter(Housing_Status2!="Other") %>%
-  as_factor() %>% 
-  tabyl(., agegrps, Housing_Status2, show_na=F) %>% 
-  adorn_percentages(denominator="row") %>% 
-  adorn_pct_formatting(digits = 2) %>% 
-  adorn_ns() %>% 
-  gt()
+# tabyl(on22,agegrps, Housing_Status2) %>% 
+#   as_factor() %>% 
+#   adorn_percentages(denominator="row") %>% 
+#   adorn_pct_formatting(digits = 2) %>% 
+#   adorn_ns() %>% 
+#   gt()
+# on22 %>% 
+#   select(agegrps, Housing_Status2) %>%
+#   filter(Housing_Status2!="Other") %>%
+#   as_factor() %>% 
+#   tabyl(., agegrps, Housing_Status2, show_na=F) %>% 
+#   adorn_percentages(denominator="row") %>% 
+#   adorn_pct_formatting(digits = 2) %>% 
+#   adorn_ns() %>% 
+#   gt()
 

@@ -26,14 +26,14 @@ cause_var_labels$label<-str_remove_all(cause_var_labels$label, "Causes - ")
 #Check what has happened
 cause_var_labels
 on22$Housing_Status
-on22$Housing_Status<-factor(on22$Housing_Status, levels=c("First-Time Homebuyer", 
-                                                          "Speculator", 
-                                                          "Satisfied Homeowner", 
-                                                          "Satisfied Renter", "Other"))
-on22$Housing_Status<-Recode(on22$Housing_Status, "'First-Time Homebuyer'='Renter seeking to purchase';
-'Satisfied Homeowner'='Homeowner';
-'Satisfied Renter'='Renter not seeking to purchase'", 
-       levels=c("Homeowner", "Renter not seeking to purchase", "Renter seeking to purchase"))
+on22$Housing_Status<-factor(on22$Housing_Status, levels=c("Seeking to purchase", 
+                                                          "Not seeking to purchase", 
+                                                          "Homeowner", 
+                                                          "Other"))
+#on22$Housing_Status<-Recode(on22$Housing_Status, "'First-Time Homebuyer'='Renter seeking to purchase';
+#'Satisfied Homeowner'='Homeowner';
+#'Satisfied Renter'='Renter not seeking to purchase'", 
+#       levels=c("Homeowner", "Renter not seeking to purchase", "Renter seeking to purchase"))
 #Raw Cause Scores
 
 on22 %>% 
@@ -54,25 +54,25 @@ ggsave(filename=here("Plots", "causes_house_price_increase.png"), width=8, heigh
    #Now the graph
 on22 %>% 
   #Change the Housing STatus variable so that First Time Homebuyers is first
-  #mutate(Housing_Status22=fct_relevel(Housing_Status2, "First-Time Homebuyer")) %>% 
+  #mutate(Housing_Status2=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
   #select what you're working with; in this case the batch of cause variables and housing status
-  select(Q32_1_x:Q32_9_x, Housing_Status2) %>% 
+  select(Q32_1_x:Q32_9_x, Housing_Status) %>% 
   #pivot them longer, except for the grouping variable of interest
   #Note that I am *not* pivotting housing status down. Note also that I am setting hte name of the new column to be "variable"
   #The point here is to make it match with the variable above in cause_var_labels
-  pivot_longer(., cols=-Housing_Status2, names_to=c("variable")) %>% 
+  pivot_longer(., cols=-Housing_Status, names_to=c("variable")) %>% 
   #Form groups by Housing STatus and the variable of interest
-group_by(Housing_Status2, variable) %>% 
+group_by(Housing_Status, variable) %>% 
   filter(value!="NA") %>% 
-  filter(Housing_Status2!="Other") %>% 
-  filter(Housing_Status2!="Speculator") %>% 
+  filter(Housing_Status!="Other") %>% 
+  filter(Housing_Status!="Speculator") %>% 
   summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
   #this is the merge
   #It joins what came above in the pipe with the cause_var_labels object
   #Because both have variables `variable` It automatically merges on that variable
   left_join(., cause_var_labels) %>% 
 #And graph
-  ggplot(., aes(y=fct_reorder(label, average), x=average, col=Housing_Status2))+xlim(c(0,1))+
+  ggplot(., aes(y=fct_reorder(label, average), x=average, col=Housing_Status))+xlim(c(0,1))+
   geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_jitter(height=0.25), size = 1)+
   labs(x="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=100), y="")+
   scale_color_brewer(palette="Dark2")+
@@ -218,15 +218,15 @@ ggsave(filename=here("Plots/cause_by_community_size.png"))
 #Solutions by insider/outsider
 on22 %>% 
   #mutate(Housing_Status=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
-  select(Q33a_1_x:Q80_6_x, Housing_Status2) %>% 
-  pivot_longer(., cols=-Housing_Status2, names_to=c("variable")) %>% 
-  group_by(Housing_Status2, variable) %>% 
+  select(Q33a_1_x:Q80_6_x, Housing_Status) %>% 
+  pivot_longer(., cols=-Housing_Status, names_to=c("variable")) %>% 
+  group_by(Housing_Status, variable) %>% 
   filter(value!="NA") %>% 
-  filter(Housing_Status2!="Other") %>% 
+  filter(Housing_Status!="Other") %>% 
   summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., solution_var_labels) %>% 
   mutate(label=str_remove_all(label, "Support for policy - ")) %>% 
-  ggplot(., aes(y=fct_reorder(label, average), x=average, col=Housing_Status2))+
+  ggplot(., aes(y=fct_reorder(label, average), x=average, col=Housing_Status))+
   xlim(c(0,1))+
   geom_pointrange(size=1,aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_jitter(height=0.25), size = 1)+
   scale_color_brewer(palette="Dark2")+
