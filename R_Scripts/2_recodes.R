@@ -756,7 +756,7 @@ table(on22$Q20_x)
 on22$Q21_x<-Recode(as.numeric(on22$Q21), "1=0; 2=0.5 ; 3=1")
 table(on22$Q21_x)
 
-Spending_Mean<-rowMeans(on22[ , c("Q16_x","Q17_x", "Q18_x", "Q19_x", "Q20_x", "Q21_x")], na.rm=TRUE)
+on22$Ideology<-rowMeans(on22[ , c("Q16_x","Q17_x", "Q18_x", "Q19_x", "Q20_x", "Q21_x")], na.rm=TRUE)
 
 
 source("R_Scripts/2_value_labels.R")
