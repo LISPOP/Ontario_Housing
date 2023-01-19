@@ -742,6 +742,28 @@ table(on22$NIMBY)
 
 #Create new variable for housing status
 
+###Create new variables for rescaling spending preferences
+on22$Q16_x<-Recode(as.numeric(on22$Q16), "1=0; 2=0.5 ; 3=1")
+table(on22$Q16_x)
+
+on22$Q17_x<-Recode(as.numeric(on22$Q17), "1=0; 2=0.5 ; 3=1")
+table(on22$Q17_x)
+
+on22$Q18_x<-Recode(as.numeric(on22$Q18), "1=1; 2=0.5 ; 3=0")
+table(on22$Q18_x)
+
+on22$Q19_x<-Recode(as.numeric(on22$Q19), "1=0; 2=0.5 ; 3=1")
+table(on22$Q19_x)
+
+on22$Q20_x<-Recode(as.numeric(on22$Q20), "1=0; 2=0.5 ; 3=1")
+table(on22$Q20_x)
+
+on22$Q21_x<-Recode(as.numeric(on22$Q21), "1=0; 2=0.5 ; 3=1")
+table(on22$Q21_x)
+
+on22$Ideology<-rowMeans(on22[ , c("Q16_x","Q17_x", "Q18_x", "Q19_x", "Q20_x", "Q21_x")], na.rm=TRUE)
+
+
 source("R_Scripts/2_value_labels.R")
 source("R_Scripts/2_variable_labels.R")
 
