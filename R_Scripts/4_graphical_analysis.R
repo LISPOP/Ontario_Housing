@@ -54,7 +54,7 @@ ggsave(filename=here("Plots", "causes_house_price_increase.png"), width=8, heigh
    #Now the graph
 on22 %>% 
   #Change the Housing STatus variable so that First Time Homebuyers is first
-  #mutate(Housing_Status2=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
+  #mutate(Housing_Status=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
   #select what you're working with; in this case the batch of cause variables and housing status
   select(Q32_1_x:Q32_9_x, Housing_Status) %>% 
   #pivot them longer, except for the grouping variable of interest
@@ -404,17 +404,17 @@ ggsave(here("Plots", "trade_offs_raw.png"), width=12, height=8)
 
 #Trade-Offs By Housing Status
 on22 %>% 
-  #mutate(Housing_Status2=fct_relevel(Housing_Status2, "First-Time Homebuyer")) %>% 
-  select(Q34_1_x:Q34_5_x, Housing_Status2) %>% 
-  pivot_longer(., cols=-Housing_Status2, names_to=c("variable")) %>% 
-  group_by(Housing_Status2, variable) %>% 
+  #mutate(Housing_Status=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
+  select(Q34_1_x:Q34_5_x, Housing_Status) %>% 
+  pivot_longer(., cols=-Housing_Status, names_to=c("variable")) %>% 
+  group_by(Housing_Status, variable) %>% 
   filter(value!="NA") %>% 
-  filter(Housing_Status2!="Other") %>%
-  filter(Housing_Status2!="Speculator") %>% 
+  filter(Housing_Status!="Other") %>%
+  filter(Housing_Status!="Speculator") %>% 
  summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., trade_off_var_labels) %>% 
   #mutate(label=str_remove_all(label, "Trade off support - ")) %>% 
-  ggplot(., aes(y=fct_reorder(label, average), x=average, col=Housing_Status2))+
+  ggplot(., aes(y=fct_reorder(label, average), x=average, col=Housing_Status))+
   geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)))+
   scale_color_brewer(palette="Dark2")+
   labs(x="0 = Anti-Housing Choice\n1=Pro-Housing Choice", 
