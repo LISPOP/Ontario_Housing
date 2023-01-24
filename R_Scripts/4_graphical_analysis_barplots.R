@@ -49,32 +49,34 @@ mutate(Agree=case_when(
   mutate(Percent=n/sum(n)*100) %>% 
   filter(Agree==1) %>% 
   ggplot(., aes(y=fct_reorder(label, Percent), x=Percent, fill=Housing_Status))+
-  geom_col(position="dodge")+geom_vline(xintercept=50, linetype=2)+labs(y="Cause", x="Percent Agreeing")
+  geom_col(position="dodge")+
+  geom_vline(xintercept=50, linetype=2)+
+  labs(y="Cause", x="Percent Agreeing")
 
 ##CAUSES BY RENTING STATUS
 on22 %>% 
   #Change the Housing STatus variable so that First Time Renter is first
-  mutate(renter=fct_relevel(as_factor(renter), "Renter")) %>% 
+  mutate(Renter=fct_relevel(as_factor(Renter), "Renter")) %>% 
   #select what you're working with; in this case the batch of cause variables and housing status
-  select(Q32_1_x:Q32_9_x, renter) %>% 
-  pivot_longer(., cols=-renter, names_to=c("variable")) %>% 
-  group_by(renter, variable) %>% 
+  select(Q32_1_x:Q32_9_x, Renter) %>% 
+  pivot_longer(., cols=-Renter, names_to=c("variable")) %>% 
+  group_by(Renter, variable) %>% 
   filter(value!="NA") %>% 
-  filter(renter!="Other") %>% 
+  filter(Renter!="Other") %>% 
   mutate(Agree=case_when(
     value>0.5~1,
     TRUE~ 0)) %>% 
   left_join(., cause_var_labels) %>% 
-  group_by(renter, variable, label, Agree) %>% 
+  group_by(Renter, variable, label, Agree) %>% 
   summarize(n=n()) %>% 
   mutate(Percent=n/sum(n)*100) %>% 
   filter(Agree==1) %>% 
-  ggplot(., aes(y=fct_reorder(label, Percent), x=Percent, fill=renter))+
+  ggplot(., aes(y=fct_reorder(label, Percent), x=Percent, fill=Renter))+
   geom_col(position="dodge")+geom_vline(xintercept=50, linetype=2)+labs(y="Cause", x="Percent Agreeing")
 
 ##CAUSES BY PARTISANSHIP
 on22 %>% 
-  mutate(renter=fct_relevel(as_factor(partisanship), "Partisanship")) %>% 
+  mutate(Renter=fct_relevel(as_factor(partisanship), "Partisanship")) %>% 
   select(Q32_1_x:Q32_9_x, partisanship) %>% 
   pivot_longer(., cols=-partisanship, names_to=c("variable")) %>% 
   group_by(partisanship, variable) %>% 
@@ -116,28 +118,28 @@ on22 %>%
 ##RENTING STATUS
 on22 %>% 
   #Change the Housing STatus variable so that First Time Renter is first
-  mutate(renter=fct_relevel(as_factor(renter), "Renter")) %>% 
+  mutate(Renter=fct_relevel(as_factor(Renter), "Renter")) %>% 
   #select what you're working with; in this case the batch of cause variables and housing status
-  select(Q33a_1_x:Q80_6_x, renter) %>% 
-  pivot_longer(., cols=-renter, names_to=c("variable")) %>% 
-  group_by(renter, variable) %>% 
+  select(Q33a_1_x:Q80_6_x, Renter) %>% 
+  pivot_longer(., cols=-Renter, names_to=c("variable")) %>% 
+  group_by(Renter, variable) %>% 
   filter(value!="NA") %>% 
-  filter(renter!="Other") %>% 
+  filter(Renter!="Other") %>% 
   mutate(Agree=case_when(
     value>0.5~1,
     TRUE~ 0)) %>% 
   left_join(., solution_var_labels) %>% 
   mutate(label=str_remove_all(label, "Support for policy - ")) %>%
-  group_by(renter, variable, label, Agree) %>% 
+  group_by(Renter, variable, label, Agree) %>% 
   summarize(n=n()) %>% 
   mutate(Percent=n/sum(n)*100) %>% 
   filter(Agree==1) %>% 
-  ggplot(., aes(y=fct_reorder(label, Percent), x=Percent, fill=renter))+
+  ggplot(., aes(y=fct_reorder(label, Percent), x=Percent, fill=Renter))+
   geom_col(position="dodge")+geom_vline(xintercept=50, linetype=2)+labs(y="Support for Policy", x="Percent Agreeing")
 
 ##PARTISANSHIP
 on22 %>% 
-  mutate(renter=fct_relevel(as_factor(partisanship), "Partisanship")) %>% 
+  mutate(Renter=fct_relevel(as_factor(partisanship), "Partisanship")) %>% 
   select(Q33a_1_x:Q80_6_x, partisanship) %>% 
   pivot_longer(., cols=-partisanship, names_to=c("variable")) %>% 
   group_by(partisanship, variable) %>% 

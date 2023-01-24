@@ -511,7 +511,7 @@ on22 %>%
 #on22$`First_Time_Buyer`<-Recode(on22$Housing_Status, "'First-Time Homebuyer'='First-Time Homebuyer'; else='Other'", levels=c("Other", "First-Time Homebuyer"))
 on22$`Homeowner`<-Recode(on22$Housing_Status, "'Homeowner'='Homeowner'; else='Other'", levels=c("Other", "Homeowner"))
 #on22$`Speculator`<-Recode(on22$Housing_Status, "'Speculator'='Speculator'; else='Other'", levels=c("Other", "Speculator"))
-
+on22$`Buyer`<-Recode(on22$Housing_Status, "'Seeking to purchase'='Buyer' ; else='Other'", as.factor=T, levels=c("Other", "Buyer"))
 #Causes by renter/non-renter dummy variable
 # on22$renter<-ifelse(on22$Q27==2,1,0)
 # val_labels(on22$renter)<-c("Renter"=1, "Non-Renter"=0)
@@ -766,4 +766,30 @@ on22$Ideology<-rowMeans(on22[ , c("Q16_x","Q17_x", "Q18_x", "Q19_x", "Q20_x", "Q
 
 source("R_Scripts/2_value_labels.R")
 source("R_Scripts/2_variable_labels.R")
+
+# We have to take the variable labels  in the original cause variables and match them to the ones that end in _x
+# 
+#Get variable labels and Store them. 
+#This is great way to get a batch of variable labels
+on22 %>% 
+  #Select what you are looking to work with
+  #In this case it is the batch of rescaled cause variables
+  select(Q32_1_x:Q32_9_x) %>% 
+  #Use the command look_for() in the labelled library, must be loaded!
+  #Store in something meaningful
+  look_for()->cause_var_labels
+#Inspect
+cause_var_labels#Note that the variable name is stored in variable and the actual label is stored in label
+#Here we remove the bit about Causes - from each entry and save it back into the label variable
+cause_var_labels$label<-str_remove_all(cause_var_labels$label, "Causes - ")
+#Check what has happened
+cause_var_labels
+#make solution variable label data frame
+
+on22 %>% 
+  select(Q33a_1_x:Q80_6_x) %>% 
+  look_for()->solution_var_labels
+
+#Inspect
+solution_var_labels$label<-str_remove_all(solution_var_labels$label, "Support for policy - ")
 

@@ -36,3 +36,17 @@ model.list
 modelsummary(model.list$m1, stars=T)  
 
 
+#### Constraint ####
+
+names(on22)
+
+qplot(Ideology, geom="histogram", data=on22)
+
+on22 %>% 
+  select(Ideology, Housing_Status, Q33a_1_x:Q80_6_x) %>% 
+  pivot_longer(Q33a_1_x:Q80_6_x) %>% 
+  ggplot(., aes(x=Ideology, y=value))+
+  geom_point()+geom_smooth(method="lm")+
+  facet_wrap(~name, nrow=2)
+
+var_label(on22$Q80_3)

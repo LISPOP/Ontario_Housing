@@ -129,4 +129,10 @@ modelsummary(cause_models$m1, coef_omit="(Intercept)", coef_rename = c("gender"=
 # Note there is a way to change the titles of the models, but I can't quite figure it out yet, I wiill work on it. 
 
 
+#### Solutions ####
+names(on22)
+on22 %>% 
+  select(Q33a_1_x:Q80_6_x, Ideology, Buyer) %>% 
+  View()
+pivot_longer(cols=c(Q33a_1_x:Q80_6_x))
 

@@ -8,23 +8,7 @@ library(wlucolors)
 theme_set(theme_classic(base_size=24))
 
 #### Causes ####
-# We have to take the variable labels  in the original cause variables and match them to the ones that end in _x
-# 
-#Get variable labels and Store them. 
-#This is great way to get a batch of variable labels
-on22 %>% 
-  #Select what you are looking to work with
-  #In this case it is the batch of rescaled cause variables
-  select(Q32_1_x:Q32_9_x) %>% 
-  #Use the command look_for() in the labelled library, must be loaded!
-  #Store in something meaningful
-  look_for()->cause_var_labels
-#Inspect
-cause_var_labels#Note that the variable name is stored in variable and the actual label is stored in label
-#Here we remove the bit about Causes - from each entry and save it back into the label variable
-cause_var_labels$label<-str_remove_all(cause_var_labels$label, "Causes - ")
-#Check what has happened
-cause_var_labels
+
 on22$Housing_Status
 on22$Housing_Status<-factor(on22$Housing_Status, levels=c("Seeking to purchase", 
                                                           "Not seeking to purchase", 
@@ -175,12 +159,6 @@ names(on22)
 
 #Raw Solutions Scores
 
-on22 %>% 
-  select(Q33a_1_x:Q80_6_x) %>% 
-  look_for()->solution_var_labels
-#Inspect
-solution_var_labels$label<-str_remove_all(solution_var_labels$label, "Support for policy - ")
-solution_var_labels
 #Note that the variable name is stored in variable and the actual label is stored in label
 
 on22 %>% 
@@ -267,7 +245,8 @@ on22 %>%
   # filter(partisanship!=5) %>% #Filter out R's that identify as "Other" 
   # filter(partisanship!=6) %>%# Filter out R's that identify as "None of these"
   summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
-  left_join(., solution_var_labels) %>% 
+  left_join(., solution_var_labels)  %>% 
+  View()
   ggplot(., aes(y=fct_reorder(label, average), x=average, col=partisanship))+
   xlim(c(0,1))+geom_point()+
  geom_pointrange(size=1,aes(xmin=average-(1.96*se),

@@ -90,12 +90,4 @@ cause_models
 cause_var_labels
 
 #### Printing the Regressions
-library(modelsummary)
-modelsummary(cause_models$m1)
-
-
-
-
-         m1_tidy=map(m1, tidy))->cause_models
-
 
