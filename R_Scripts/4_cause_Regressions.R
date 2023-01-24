@@ -131,8 +131,30 @@ modelsummary(cause_models$m1, coef_omit="(Intercept)", coef_rename = c("gender"=
 
 #### Solutions ####
 names(on22)
+#Start with data frame
 on22 %>% 
+  #Select variables neeeded for regression
   select(Q33a_1_x:Q80_6_x, Ideology, Buyer) %>% 
-  View()
-pivot_longer(cols=c(Q33a_1_x:Q80_6_x))
+  #pivot the DVs into two new columns, by default 
+  #one will be called name (e.g. the name of the variable)
+  #one will be called value (e.g. the actual response)
+pivot_longer(cols=c(Q33a_1_x:Q80_6_x)) %>% 
+  #nest all variables *except* the name variable from the above command
+  #Which stores the variable name
+nest(-name) %>% 
+  #Mutate the data frame by adding a new column
+  #Which is the result of a linear regression
+  #Fit to each of the data sets stored in the column "data"
+mutate(model=map(data, function(x) lm(value~Ideology, data=x))) %>%
+  mutate(model2=map(data, function(x) lm(value~Ideology+Buyer, data=x))) %>% 
+  mutate(model3=map(data, function(x) lm(value~Ideology+Buyer+Ideology:Buyer, data=x))) %>% 
+  #Tidy those up with a function called tidy from the broom package
+  mutate(tidied=map(model, tidy)) %>% 
+    mutate(tidied3=map(model3, tidy))->model.list1
+glimpse(model.list1)
+library(modelsummary)
+modelsummary(model.list1$model3, 
+             stars=T, 
+             gof_omit=c("AIC|BIC|RMSE"), 
+             coef_omit = c("(Intercept)"))
 
