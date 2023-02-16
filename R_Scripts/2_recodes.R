@@ -529,8 +529,9 @@ table(on22$Density, on22$region)
 on22$region<-Recode(on22$region, "'K'='Eastern Ontario' ;
 'L'='Central Ontario' ; 
        'M'='Metropolitan Toronto'; 'N'='SW Ontario' ; 'P'='Northern Ontario' ; else='Other' ", 
-       levels=c("Metropolitan Toronto", "Central Ontario", "SW Ontario", "Eastern Ontario", "Other"),
+       levels=c("Metropolitan Toronto", "Central Ontario", "SW Ontario", "Eastern Ontario", "Northern Ontario"),
        as.factor=T)
+ggsave(filename=here('Plots', 'causes_by_region.png'), width=10, height=8)
 
 #Cognitive 
 lookfor(on22, "interest")
@@ -763,7 +764,9 @@ table(on22$Q21_x)
 
 on22$Ideology<-rowMeans(on22[ , c("Q16_x","Q17_x", "Q18_x", "Q19_x", "Q20_x", "Q21_x")], na.rm=TRUE)
 
+#### Political Interest ####
 
+on22$Interest<-cut(on22$Q4_1, breaks=3, labels=c("Low", "Medium", "High"))
 source("R_Scripts/2_value_labels.R")
 source("R_Scripts/2_variable_labels.R")
 

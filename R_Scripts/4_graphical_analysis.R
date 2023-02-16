@@ -6,7 +6,24 @@ names(on22)
 #remotes::install_github("sjkiss/wlucolors")
 library(wlucolors)
 theme_set(theme_classic(base_size=24))
-
+on22 %>% 
+  count(Topic) %>% 
+  mutate(Percent=(n/sum(n))*100) %>% 
+  mutate(Housing=case_when(
+    Topic=="Housing"~ 1,
+    TRUE ~ 0
+  )) %>% 
+  filter(Percent>2&!is.na(Topic)) %>% 
+  filter(!str_detect(Topic, "Other")) %>% 
+  filter(!str_detect(Topic, "Refused")) %>% 
+  filter(!str_detect(Topic, "not sure")) %>% 
+  ggplot(., aes(x=Percent, y=fct_reorder(Topic, Percent), fill=as.factor(Housing)))+
+  geom_col()+
+  scale_fill_grey(start=0.8, end=0.2)+
+  geom_text(aes(x=Percent, y=Topic, label=round(Percent,0)), position=position_dodge(width=0.9), hjust=-0.1)+
+  labs(y="Issue")+
+  guides(fill="none")
+ggsave(filename=here("Plots", "MIP.png"), width=14, height=6)
 #### Causes ####
 
 on22$Housing_Status
@@ -27,15 +44,41 @@ on22 %>%
   group_by(label) %>% 
   summarize(Average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(),se=sd/sqrt(n)) %>% 
   ggplot(., aes(x=Average, y=fct_reorder(label, Average)))+
-  geom_pointrange(size=2,aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)))+
+  geom_pointrange(size=1,aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)))+
   #scale_x_continuous(breaks=c("0", "0.25", "0.5", "0.75", "1"))+
   scale_y_discrete(labels=function(x) str_wrap(x, width=20))+
   labs(x="0=Not at all a Cause\n1=A significant Cause", y="", title=str_wrap("Causes of House, Rent Price Increases", 25))+
   xlim(c(0,1))+geom_vline(xintercept=0.5, linetype=2)+
   theme(axis.text.y=element_text(size=20))
 
-ggsave(filename=here("Plots", "causes_house_price_increase.png"), width=8, height=8, dpi=300)
-   #Now the graph
+ggsave(filename=here("Plots", "causes_house_price_increase.png"), width=8, height=6, dpi=300)
+
+names(on22) 
+
+#### Causes by Region####
+on22 %>% 
+  select(Q32_1_x:Q32_9_x, Region=region) %>% 
+  pivot_longer(., cols=-Region, names_to=c("variable")) %>% 
+  group_by(Region, variable) %>% 
+  filter(value!="NA") %>% 
+  filter(Region!="NA") %>% 
+  summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
+  #this is the merge
+  #It joins what came above in the pipe with the cause_var_labels object
+  #Because both have variables `variable` It automatically merges on that variable
+  left_join(., cause_var_labels) %>% 
+  #And graph
+  ggplot(., aes(y=fct_reorder(label, average), x=average, col=Region))+xlim(c(0,1))+
+  geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_jitter(height=0.25), size = 1)+
+  labs(x="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=100), y="")+
+  scale_color_brewer(palette="Dark2")+
+  geom_vline(xintercept=0.5, linetype=2)+
+  guides(col=guide_legend(nrow=3))+
+  theme(legend.position = "bottom")+
+  scale_y_discrete(labels=function(x) str_wrap(x, width=20))
+ggsave(filename=here("Plots", "causes_by_region.png"), width=10, height=8)
+
+#### Causes Housing Status ####
 on22 %>% 
   #Change the Housing STatus variable so that First Time Homebuyers is first
   #mutate(Housing_Status=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
@@ -64,14 +107,14 @@ group_by(Housing_Status, variable) %>%
   guides(col=guide_legend(nrow=3))+
   theme(legend.position = "bottom")+
 scale_y_discrete(labels=function(x) str_wrap(x, width=20))
-ggsave(filename=here("Plots", "causes_house_price_increase_by_status.png"), width=10, height=10, dpi=300)
+ggsave(filename=here("Plots", "causes_house_price_increase_by_status.png"), width=10, height=8)
 
 
 #Save the above plot out into the "PLots" Subdirectory
 #Inspect the graph above to try to discern what it is about and provide a meaningful filename
 #No spaces
 #Feel free to fiddle with the dimensions (they are in in ches) to get the best graph
-ggsave(filename=here("Plots", "causes_by_housing_status.png"), width=10, height=4)
+ggsave(filename=here("Plots", "causes_by_housing_status.png"), width=10, height=8)
 
 
 #### By Community Size
@@ -246,7 +289,6 @@ on22 %>%
   # filter(partisanship!=6) %>%# Filter out R's that identify as "None of these"
   summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., solution_var_labels)  %>% 
-  View()
   ggplot(., aes(y=fct_reorder(label, average), x=average, col=partisanship))+
   xlim(c(0,1))+geom_point()+
  geom_pointrange(size=1,aes(xmin=average-(1.96*se),
@@ -496,6 +538,13 @@ on22 %>%
   geom_smooth(method="lm")
 
 ##MIP Charts
+#MIP 
+#Graph of Most important Problem
+on22 %>% 
+  count(Topic) %>% 
+  mutate(Percent=(n/sum(n))*100) %>% 
+  filter(Percent>2&!is.na(Topic)) %>% 
+  ggplot(., aes(x=Percent, y=fct_reorder(Topic, Percent)))+geom_col()
 #Causes
 on22 %>% 
   select(Q32_1_x:Q32_9_x, MIP_Cost_Housing) %>% 
@@ -508,11 +557,11 @@ on22 %>%
   xlim(c(0,1))+
   geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_jitter(height=0.25), size = .75)+
   scale_color_brewer(palette="Dark2")+
-  labs(color="Most Important Problem",y="",x="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=100), x="")+
+  labs(color="Most Important Problem",y="",x="1=A significant cause\n 0=Not a cause at all", title=str_wrap("Causes of housing cost increase", width=70), x="")+
   geom_vline(xintercept=0.5, linetype=2)+
   theme(legend.position = "bottom")+
   guides(col=guide_legend(nrow=3, ncol=3))
-ggsave(filename=here("Plots", "causes_by_MIP.png"), width=11, height=6)
+ggsave(filename=here("Plots", "causes_by_MIP.png"), width=11, height=8)
 
 #Solutions
 on22 %>% 
