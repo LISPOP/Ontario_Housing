@@ -66,9 +66,9 @@ fa.sort(cause_pca3)
 fa.sort(support_pca2)
 fa.sort(support_pca3)
 #Get Component scores
-on22$state<-support_pca$scores[,1]
-on22$market<-support_pca$scores[,2]
-# 
+# on22$state<-support_pca$scores[,1]
+# on22$market<-support_pca$scores[,2]
+# # 
 # on22 %>% 
 #   select(Q33a_1_x:Q80_6_x,state, market) %>% 
 #   cor(., use="complete.obs")
