@@ -203,6 +203,8 @@ names(on22)
 #Raw Solutions Scores
 
 #Note that the variable name is stored in variable and the actual label is stored in label
+solution_var_labels
+#Check Raw Means
 
 on22 %>% 
   select(Q33a_1_x:Q80_6_x) %>% 
@@ -210,14 +212,15 @@ on22 %>%
   left_join(solution_var_labels, by="variable") %>% 
   group_by(label) %>% 
   summarize(Average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(),se=sd/sqrt(n)) %>% 
-  ggplot(., aes(x=Average, y=fct_reorder(label, Average)))+geom_pointrange(size=1.2,aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)))+
+  ggplot(., aes(x=Average, y=fct_reorder(label, Average)))+
+  geom_pointrange(size=1.2,aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)))+
   labs(x="Score (0=Strongly Oppose\n1=Strongly Support)", 
        title=str_wrap("Solutions To Address Housing Price Increase",30), y="")+
   xlim(c(0,1))+
-  scale_y_discrete(labels=function(x) str_wrap(x, 20))+
+ # scale_y_discrete(labels=function(x) str_wrap(x, 20))+
   geom_vline(xintercept=0.5, linetype=2)
 
-ggsave(filename=here("Plots", "solution_house_price_increase.png"), width=12, height=10)
+ggsave(filename=here("Plots", "solution_house_price_increase.png"), width=14, height=10)
 #Solutions by Community Size
 on22 %>% 
   select(Q33a_1_x:Q80_6_x,Size) %>% 
@@ -254,12 +257,12 @@ on22 %>%
  # scale_color_manual(values=c("blue", "orange", "darkred", "darkgreen", "black"))+
   labs(x="Score (0=Strongly Oppose, 1=Strongly Support)", 
        title="", 
-       y="")+
+       y="", col="Housing Status")+
   geom_vline(xintercept=0.5, linetype=2)+
   theme(legend.position="bottom")+
-  guides(col=guide_legend(ncol=1))+
-  scale_y_discrete(labels=function(x) str_wrap(x, width=30))
-ggsave(filename=here("Plots", "solutions_by_housing_status.png"), width=12, height=12)
+  guides(col=guide_legend(ncol=1))
+  #scale_y_discrete(labels=function(x) str_wrap(x, width=30))
+ggsave(filename=here("Plots", "solutions_by_housing_status.png"), width=14, height=12)
 
 #Solutions by Renter/non-Renter dummy variable
 on22 %>% 
@@ -324,9 +327,9 @@ on22 %>%
        y="")+
   geom_vline(xintercept=0.5, linetype=2)+
   theme(legend.position="bottom")+
-  guides(col=guide_legend(ncol=2))+
-  scale_y_discrete(labels=function(x) str_wrap(x, width=30))
-ggsave(filename=here("Plots", "solutions_by_provincial_vote.png"), width=14, height=12)
+  guides(col=guide_legend(ncol=2, title="Vote Intention (Likely Voters)"))
+  #scale_y_discrete(labels=function(x) str_wrap(x, width=30))
+ggsave(filename=here("Plots", "solutions_by_provincial_vote.png"), width=16, height=10)
 
 ### Solutions by Population Size
 
@@ -394,7 +397,8 @@ on22 %>%
   left_join(., solution_var_labels) %>% 
   group_by(label, cognitive_non_partisan) %>%  
   summarize(Average=mean(value, na.rm=T), n=n(), sd=sd(value, na.rm=T), se=sd/sqrt(n)) %>% 
-  ggplot(., aes(x=Average, y=fct_reorder(label, Average), col=cognitive_non_partisan))+geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)))
+  ggplot(., aes(x=Average, y=fct_reorder(label, Average), col=cognitive_non_partisan))+
+  geom_pointrange(aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)))
 
 on22 %>% 
   select(Q34_1_x:Q34_5_x) %>% 
@@ -431,12 +435,12 @@ on22 %>%
   group_by(Housing_Status, variable) %>% 
   filter(value!="NA") %>% 
   filter(Housing_Status!="Other") %>%
-  filter(Housing_Status!="Speculator") %>% 
+  #filter(Housing_Status!="Speculator") %>% 
  summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
   left_join(., trade_off_var_labels) %>% 
   #mutate(label=str_remove_all(label, "Trade off support - ")) %>% 
   ggplot(., aes(y=fct_reorder(label, average), x=average, col=Housing_Status))+
-  geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)))+
+  geom_pointrange(aes(xmin=average-(1.96*se), xmax=average+(1.96*se)), position=position_dodge(width=0.5))+
   scale_color_brewer(palette="Dark2")+
   labs(x="0 = Anti-Housing Choice\n1=Pro-Housing Choice", 
        title="",
@@ -444,6 +448,7 @@ on22 %>%
   xlim(c(0,1))+
   geom_vline(xintercept=0.5, linetype=2)+
   scale_y_discrete(labels=trade_off_var_labels$label)
+ggsave(here("Plots", "trade_offs_housing_status.png"), width=14, height=10)
 #Trade-Offs by Vote
 on22 %>% 
  # mutate(Housing_Status=fct_relevel(Housing_Status, "First-Time Homebuyer")) %>% 
@@ -514,7 +519,8 @@ on22 %>%
                names_to = c("Payment"), values_to=c("Cost")) %>% 
   left_join(., solution_var_labels, by=c("name"="variable")) %>% 
   ggplot(., aes(x=Cost, y=value,  col=Payment))+
-  geom_point(size=0.25) +facet_wrap(~label, scales="free_x")+geom_smooth(method="lm")
+  geom_point(size=0.25) +facet_wrap(~label, scales="free_x")+
+  geom_smooth(method="lm")
 
 cause_var_labels
 on22 %>% 
@@ -524,7 +530,8 @@ on22 %>%
         #       names_to = c("Payment"), values_to=c("Cost")) %>% 
   left_join(., cause_var_labels, by=c("name"="variable")) %>% 
   ggplot(., aes(x=income_digits, y=value))+
-  geom_point(size=0.25) +facet_wrap(~label, scales="free_x")+geom_smooth(method="lm")
+  geom_point(size=0.25) +facet_wrap(~label, scales="free_x")+
+  geom_smooth(method="lm")
 
 cause_var_labels
 on22 %>% 

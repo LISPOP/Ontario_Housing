@@ -66,6 +66,18 @@ on22 %>%
   adorn_pct_formatting()
 
 #Cross tab vote switching variable by housing status
+on22 %>% 
+  filter(Housing_Status!="Other") %>% 
+  tabyl(., Housing_Status, Vote_Intention_Likely, show_na=F, show_missing_levels=F) %>% 
+  adorn_percentages("row") %>% 
+  #adorn_pct_formatting() %>% 
+  adorn_pct_formatting(digits = 0) %>% 
+  adorn_ns() %>% 
+  gt() %>% 
+  cols_label(Housing_Status="Housing Status") %>% 
+  gtsave(filename=here("Tables", "vote_by_housing_status.html"))
+
+
 
 # Other stuff! Feel free to freelance. 
 on22$Q33a_6

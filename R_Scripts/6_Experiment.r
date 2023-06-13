@@ -1,14 +1,18 @@
 source("R_Scripts/4_graphical_analysis.R")
 #### Experiment
 #lookfor(on22, "social")
-theme_set(theme_minimal(base_size=22))
+
 on22 %>% 
   select(ends_with('_exp')) %>% 
   var_label()->experimental_variable_labels
 experimental_variable_labels
 on22 %>%
+  # This renames the names of the Developmental approval ratings
+  # With the type of development
   rename_with(~ unlist(experimental_variable_labels), ends_with('_exp'))->on22
+#Check
 names(on22)
+on22$`6 Storey condominium building`
 on22$Experimental_Group
 #on22$Experimental_Group<-Recode(on22$Experimental_Group,as.factor=T, "'Control'='Control' ; 'Private'='Individual' ; 'Public'='Community';'Social'='National'", 
 #levels=c("Control" ,"Individual", "Community", "National"))
@@ -39,12 +43,12 @@ on22 %>%
   select(Experimental_Group, Development, `Development Support`) %>% 
   group_by(Experimental_Group, Development) %>% 
   summarize(n=n(), Average=mean(`Development Support`, na.rm=T), sd=sd(`Development Support`, na.rm=T), se=sd/sqrt(n)) %>% 
-  ggplot(., aes(x=Average, y=Development, col=Experimental_Group))+
+  ggplot(., aes(x=Average, y=fct_reorder(Development, Average, .desc=T), col=Experimental_Group))+
   #geom_point()+
   xlim(c(0,1))+
   scale_y_discrete(limits=rev) +
   geom_pointrange(size=1.2,aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)), position=position_jitter(height=0.25)) +
-  labs(y="")+
+  labs(y="", col="Experimental Group")+
   geom_vline(xintercept=0.5, linetype=2)+
   theme(legend.position = "bottom") +
   guides(col=guide_legend(ncol=1))
@@ -82,36 +86,6 @@ on22 %>%
   theme(legend.position="bottom")+
   scale_y_discrete(limits=rev)+labs(y="")+guides(col=guide_legend(ncol=2))
 ggsave(filename=here("Plots", "Experiment_development_homeowner_prior_belief.png"), width=12, height=8)
-theme_set(theme_minimal(base_size=22))
-on22 %>% 
-  select(ends_with('_exp')) %>% 
-  var_label()->experimental_variable_labels
-experimental_variable_labels
-on22 %>%
-  rename_with(~ unlist(experimental_variable_labels), ends_with('_exp'))->on22
-names(on22)
-on22$Experimental_Group
-names(on22)
-#This sets the data-set up for regressions in on_exp
-#This has a dataframe of     columns
-#The variable `data` is a data frame of the proper number of observations
-#Each row in this data-set corresponds to the data provided for each response in the experinment
-on22 %>% 
-  pivot_longer(., cols="6 Storey rental building":"Semi-detached house", 
-               names_to="Development", values_to="Development Support") %>% 
-  nest(-Development)->on_exp
-#This does the same thing but sets the on22 dataframe up for easy graphing
-#Note that the nrow because very large here because we are providing six rows for each respondent.
-#Thsu the confidence intervals here are probably not correct. 
-on22 %>% 
-  pivot_longer(., cols="6 Storey rental building":"Semi-detached house", 
-               names_to="Development", values_to="Development Support")->on22
-on22$Development<-factor(on22$Development, levels=c("6 Storey rental building", 
-                                                    "15 Storey rental tower", 
-                                                    "6 Storey condominium building", 
-                                                    "15 Storey condominium Tower", 
-                                                    "Single detached house", 
-                                                    "Semi-detached house"))
 on22 %>% 
   select(Experimental_Group, Development, `Development Support`) %>% 
   group_by(Experimental_Group, Development) %>% 
@@ -180,8 +154,8 @@ on22 %>%
   scale_x_continuous(labels=c("0", "0.25", "0.5", "0.75", "1"))+xlim(c(0,1))
 ggsave(filename=here("Plots", "Experiment_development_renter_prior_belief.png"), width=10, height=6)
 
-on22$own_affordable<-relevel(on22$own_affordable, "Pro-Affordable Housing Non-Homeowner")
-  exp_ols1<-function(x) lm(`Development Support` ~ male+Degree+income_digits
+on22$own_affordable<-relevel(on22$own_affordable,                              "Pro-Affordable Housing Non-Homeowner")
+  exp_ols1<-function(x) lm(`Development Support` ~ male+Degree+income_digits+
                              Experimental_Group:own_affordable, data=x)
   on22 %>% 
     nest(-Development) %>% 

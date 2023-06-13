@@ -1,0 +1,25 @@
+---
+title: "Untitled"
+author: "Simon J. Kiss"
+date: "2023-06-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## R Markdown
+
+```{r}
+library(psych)
+library(psychTools)
+data("Thurstone")
+Thurstone
+```
+
+```{r code, results='asis'}
+mod<-fa(Thurstone, nfactors=3)
+fa2latex(mod)
+```

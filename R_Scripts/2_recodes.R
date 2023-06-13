@@ -53,6 +53,8 @@ table(as_factor(on22$Q27), as_factor(on22$Q30))
 
 #Landlords who are staying Put
 on22$Q28
+table(as_factor(on22$Q28))
+table(as_factor(on22$Q28), as_factor(on22$Q30))
 on22 %>% 
   mutate(Housing_Status=case_when(
     #Put all the separate conditions in the same mutate - case_when command, separated by a comma. 
@@ -244,7 +246,28 @@ on22 %>%
 on22 %>% 
   select(starts_with("Q33")) %>% 
   val_labels()
+on22 %>% 
+  select(starts_with("Q33")) %>% 
+  summary() 
+#Subtract 1
+on22 %>% 
+  mutate(
+    across(matches("Q33a_[0-9]$"), ~
+             .x-1
+    )) %>% 
+  select(starts_with("Q33a")) %>% 
+  summary() 
 
+on22 %>% 
+  mutate(
+    across(matches("Q33a_[0-9]$"), ~
+             .x-1
+    )) ->on22
+
+#the max should be 11 here, those are the don\'t knows
+on22 %>% 
+  select(starts_with("Q33a")) %>% 
+  summary() 
 on22 %>% 
   mutate(
     across(
@@ -531,7 +554,7 @@ on22$region<-Recode(on22$region, "'K'='Eastern Ontario' ;
        'M'='Metropolitan Toronto'; 'N'='SW Ontario' ; 'P'='Northern Ontario' ; else='Other' ", 
        levels=c("Metropolitan Toronto", "Central Ontario", "SW Ontario", "Eastern Ontario", "Northern Ontario"),
        as.factor=T)
-ggsave(filename=here('Plots', 'causes_by_region.png'), width=10, height=8)
+
 
 #Cognitive 
 lookfor(on22, "interest")
@@ -597,10 +620,10 @@ qplot(pop_2021, geom="histogram", data=on22)
 #   summarize(density=mean(pop_density, na.rm=T)) %>% 
 #   arrange(desc(density)) %>% 
 #   View()
-on22 %>%
-  group_by(CSDNAME) %>%
-  summarize(pop=mean(pop_2021, na.rm=T)) %>%
-  arrange(desc(pop)) %>% View()
+# on22 %>%
+#   group_by(CSDNAME) %>%
+#   summarize(pop=mean(pop_2021, na.rm=T)) %>%
+#   arrange(desc(pop)) %>% View()
 
 on22$Size<-Recode(on22$pop_2021, "0:25000='Rural';
 25001:99999='Small' ;
@@ -638,25 +661,27 @@ on22 %>%
    Q8==3 ~ "NDP",
     Q8==4  ~ "Green",
   ))->on22
-
-#Conservative Dummy Variables
-
-
-
-lookfor(on22, "vote")
-on22$PC<-Recode(on22$Vote, "'PC'='PC'; else='Other'", levels=c("Other", "PC"))
-
-on22$PC_Vote22<-Recode(on22$Vote_Intention_Likely, "'PC'='PC' ;
-       else='Other'", levels=c("Other", "PC"))
-#This table shows PC Voters in rows and swing voters in columns
-# There are 84 Voters who voted Liberal/ NDP in the last time and voted PC this time
-table(on22$PC_Vote22,on22$Swing)
-table(on22$PC_Vote22, on22$Abstain)
+#Convert to factors
 
 on22$Vote_Intention_Likely<-factor(on22$Vote_Intention_Likely, levels=c("PC", "Liberal", "NDP", "Green"))
 on22$Vote_Intention_Unlikely<-factor(on22$Vote_Intention_Unlikely, levels=c("PC", "Liberal", "NDP", "Green"))
 on22$Vote_Intention_All<-factor(on22$Vote_Intention_All, levels=c("PC", "Liberal", "NDP", "Green"))
 table(on22$Vote_Intention_Unlikely)
+
+#Conservative Dummy Variables
+lookfor(on22, "vote")
+on22$PC<-Recode(on22$Vote, "'PC'='PC'; else='Other'", levels=c("Other", "PC"))
+
+on22$PC_Vote22<-Recode(on22$Vote_Intention_Likely, "'PC'='PC' ;
+       else='Other'", levels=c("Other", "PC"))
+
+
+
+
+#This table shows PC Voters in rows and swing voters in columns
+# There are 84 Voters who voted Liberal/ NDP in the last time and voted PC this time
+table(on22$PC_Vote22,on22$Swing)
+table(on22$PC_Vote22, on22$Abstain)
 
 #Most Important Problem
 #Read in most important problem responsesr
@@ -796,3 +821,4 @@ on22 %>%
 #Inspect
 solution_var_labels$label<-str_remove_all(solution_var_labels$label, "Support for policy - ")
 
+lookfor(on22, "purchase")

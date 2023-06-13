@@ -157,3 +157,24 @@ library(gt)
 #   adorn_ns() %>% 
 #   gt()
 
+#Check value labels for solutions questions 
+#Check value labels for Q33a_1to Q33a_6
+on22 %>% 
+  select(Q33a_1:Q33a_6) %>% 
+  val_labels()
+#It's totally unclear. 
+#Check individually
+val_labels(on22$Q33a_1)
+val_labels(on22$Q33a_2)
+val_labels(on22$Q33a_3)
+val_labels(on22$Q33a_4)
+val_labels(on22$Q33a_5)
+val_labels(on22$Q33a_6)
+#It seems like there are two sets of value labels
+on22 %>% 
+  select(Q33a_1:Q33a_6) %>% 
+  summary()
+on22 %>% 
+  select(Q80_1:Q80_6) %>% 
+  summary()
+

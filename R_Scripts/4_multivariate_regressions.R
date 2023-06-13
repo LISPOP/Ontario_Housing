@@ -1,4 +1,4 @@
-source("R_Scripts/4_Analysis.R")
+source("R_Scripts/4_graphical_analysis.R")
 
 #### Selecting The Variables
 # Step 1 select the variables you need.
@@ -90,4 +90,29 @@ cause_models
 cause_var_labels
 
 #### Printing the Regressions
+
+#### Doing Regression of Housing Status on Vote ####
+
+on22$Vote_Intention_Likely
+on22$PC_Vote22
+on22$Housing_Status
+on22$Degree
+#Relevels
+on22$PC_Vote22<-fct_relevel(on22$PC_Vote22, "Other",)
+on22$Housing_Status
+
+on22$Housing_Status<-fct_relevel(on22$Housing_Status,"Not seeking to purchase", "Homeowner")
+on22 %>% filter(Housing_Status!="Other")->on22_out
+on22$PC_Vote22
+mod1<-glm(PC_Vote22~ Housing_Status, data=on22_out, family="binomial")
+mod2<-glm(PC_Vote22~ Housing_Status+Degree+male, data=on22_out, family="binomial")
+
+library(modelsummary)
+modelsummary(list(mod1, mod2), stars=T, exp=T)
+library(marginaleffects)
+
+avg_comparisons(mod2, 
+                variables=list(Housing_Status=c("Seeking to purchase", "Not seeking to purchase")), 
+                type="response")
+
 

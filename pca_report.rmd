@@ -1,0 +1,58 @@
+---
+title: "Results of Principal Component Analysis"
+author: "Simon J. Kiss"
+date: "2023-06-06"
+output: pdf_document
+---
+
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = F, message=F, warning=F, cache=T, fig.width=5, fig.height=3)
+```
+```{r run-background-code}
+library(here)
+source(here("R_Scripts", "4_pca.R"))
+```
+
+
+Here are the correlation matrices for the cause items and the solution items.
+
+```{r cause-correlation, fig.height=8, fig.width=10}
+
+#install.packages("ggcorrplot")
+library(ggcorrplot)
+ggcorrplot(cause_correlation$r,hc.order=T, type="upper", title="Correlation Matrix For Causes")
+```
+
+```{r support-correlation, eval=T, fig.height=8, fig.width=10}
+
+ggcorrplot(support_correlation$r,hc.order=T, type="upper", title="Correlation Matrix For Policy Solutions")
+
+```
+
+## Results of PCA
+
+There are really only two components in the `causes` items. 
+
+```{r results="asis"}
+library(psychTools)
+fa2latex(fa.sort(cause_pca), cumvar=T,cut=0.3, caption="PCA of Causes", label="causes")
+
+```
+
+The support items are a little more complex. There could be two or three.
+
+Here's what two would look like:
+
+```{r results="asis"}
+library(psychTools)
+fa2latex(fa.sort(support_pca2), cumvar=T, 
+         cut=0.3, caption="PCA of Solutions", label="support_2")
+
+```
+
+```{r}
+fa2latex(fa.sort(support_pca3), cumvar=T, 
+         cut=0.3, caption="PCA of Solutions", label="support_2")
+
+```
+

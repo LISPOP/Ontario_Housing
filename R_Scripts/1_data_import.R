@@ -99,5 +99,34 @@ on22 %>%
 on22 %>% 
   select(starts_with("Q32"))
 
+#Check value labels for solutions
+val_labels(on22$Q33a_1)
+val_labels(on22$Q33a_2)
+val_labels(on22$Q33a_3)
+val_labels(on22$Q33a_4)
+val_labels(on22$Q33a_5)
+val_labels(on22$Q33a_6)
+table(as_factor(on22$Q33a_1))
+table(as_factor(on22$Q33a_1), on22$Q33a_1)
+#Conclusion in the Q33 set, the #1 corresponded to 0 on the screen; 
+# the # 11, corresponded to the 10 on the screen and 12 corresponded to Dont' know
+#
 
+val_labels(on22$Q80_1)
+val_labels(on22$Q80_2)
+val_labels(on22$Q80_3)
+val_labels(on22$Q80_4)
+val_labels(on22$Q80_5)
+val_labels(on22$Q80_6)
+table(as_factor(on22$Q80_1))
+table(as_factor(on22$Q80_1), on22$Q80_1)
+#It appears to be the same for both. 
+#Summarize both sets
 
+on22 %>% 
+  select(starts_with("Q33")) %>% 
+  summary() #Note that the max is 12
+
+on22 %>% 
+  select(starts_with("Q80")) %>% 
+  summary() 
