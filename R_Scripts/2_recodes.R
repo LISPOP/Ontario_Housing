@@ -695,7 +695,10 @@ mip<-read_excel(path=here("Data/mip.xlsx"), range="A1:B967", col_types=c("text",
 on22$mip<-str_to_lower(on22$Q3)
 #Now merge on22 with the mip object
 #Using the mip variable as the key
-names(on22)
+nrow(mip)
+mip %>% 
+  distinct()->mip
+#Filter out unique responses
 on22 %>% 
   left_join(.,mip, by=c("mip"="mip"))->on22
 names(on22)

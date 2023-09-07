@@ -110,7 +110,11 @@ library(janitor)
 tabyl(on22$Vote_Intention_Likely, show_na=T) %>% 
   adorn_pct_formatting() %>% 
   adorn_totals()->sample_vote
-sample_vote
+# Check dates of likely voters
+on22 %>% 
+  filter(!is.na(Vote_Intention_Likely)) %>% 
+select(RecordedDate) %>% 
+  summary()
 #sample_vote<-data.frame(prop.table(table(on22$Vote_Intention_Likely))*100)
 library(flextable)
 names(sample_vote)<-c("Party" , "Sample n", "Sample Percent", "Percent Certain Voters")
