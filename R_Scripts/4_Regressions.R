@@ -105,8 +105,9 @@ names(on22)
                #Number of digits
                fmt=2, 
                #export the output as flextable
-               output="flextable") ->solution_ols_table 
-  solution_ols_table
+               output="flextable") %>% 
+    fontsize(size=8)->solution_ols_table
+
   #Save the flextable as a word document with this filename
   save_as_docx(solution_ols_table,path=here("Tables", "solution_ols_regressions.docx"))
   

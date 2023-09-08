@@ -97,22 +97,39 @@ on22$Vote_Intention_Likely
 on22$PC_Vote22
 on22$Housing_Status
 on22$Degree
-#Relevels
+
+# Relevel PC Vote 22 
 on22$PC_Vote22<-fct_relevel(on22$PC_Vote22, "Other",)
 on22$Housing_Status
-
+# Relevel Housing_Status To set Not Seeking to Purchase as reference
+on22$Housing_Status
 on22$Housing_Status<-fct_relevel(on22$Housing_Status,"Not seeking to purchase", "Homeowner")
+
+#Exclude people with "Other" Housing Status category
+# Save in on22_out
 on22 %>% filter(Housing_Status!="Other")->on22_out
 on22$PC_Vote22
+#Model 1
+# Logistic, PC Vote against all others
 mod1<-glm(PC_Vote22~ Housing_Status, data=on22_out, family="binomial")
+# Logistic PC Vote against all others controlling for degree status and gender
+
 mod2<-glm(PC_Vote22~ Housing_Status+Degree+male, data=on22_out, family="binomial")
 
 library(modelsummary)
-modelsummary(list(mod1, mod2), stars=T, exp=T)
+modelsummary(list(mod1, mod2), stars=T, exp=T, coef_rename=c("maleMale"=
+                                                               "Gender (Male v. Female)", 
+                                                             "DegreeNo degree"="Education (No Degree v. Degree)",
+                                                             "Housing_StatusHomeowner"="Housing Status\n(Homeowner v. Renter Not Seeking To Purchase)",
+                                                             "Housing_StatusSeeking to purchase"="Housing Status\n(Renter Seeking To Purchase v. Renter Not Seeking To Purchase)"),
+             output="gt", coef_omit="(Intercept)", gof_omit="AIC|BIC|F|RMSE|Log.Lik.") 
+  gtsave(., filename="")
+
 library(marginaleffects)
 
 avg_comparisons(mod2, 
-                variables=list(Housing_Status=c("Seeking to purchase", "Not seeking to purchase")), 
+                variables=list(Housing_Status=c("Seeking to purchase", 
+                                                "Not seeking to purchase")), 
                 type="response")
 
 
