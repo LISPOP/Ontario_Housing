@@ -122,14 +122,5 @@ modelsummary(list(mod1, mod2), stars=T, exp=T, coef_rename=c("maleMale"=
                                                              "DegreeNo degree"="Education (No Degree v. Degree)",
                                                              "Housing_StatusHomeowner"="Housing Status\n(Homeowner v. Renter Not Seeking To Purchase)",
                                                              "Housing_StatusSeeking to purchase"="Housing Status\n(Renter Seeking To Purchase v. Renter Not Seeking To Purchase)"),
-             output="gt", coef_omit="(Intercept)", gof_omit="AIC|BIC|F|RMSE|Log.Lik.") 
-  gtsave(., filename="")
-
-library(marginaleffects)
-
-avg_comparisons(mod2, 
-                variables=list(Housing_Status=c("Seeking to purchase", 
-                                                "Not seeking to purchase")), 
-                type="response")
-
-
+             output="gt", coef_omit="(Intercept)", gof_omit="AIC|BIC|F|RMSE|Log.Lik.", fmt=2, notes=c("Odds Ratios of likelihood of voting PC versus other parties by housing status, education and gender.")) %>% 
+  gtsave(., filename="home_owner_status_model.docx", path="Tables")
