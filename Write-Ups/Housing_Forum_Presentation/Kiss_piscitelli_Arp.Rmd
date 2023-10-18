@@ -1,0 +1,257 @@
+---
+title: "Partisan Consensus and its Limits in Ontario Housing Policy"
+author: 
+  - "Simon Kiss"
+  - "Anthony Piscitelli"
+  - "Matthew Arp"
+date: "2023-10-16"
+output: 
+  powerpoint_presentation: 
+    reference_doc: ~/lispop_template.pptx
+bibliography: housing.bib
+
+---
+
+
+
+## Ontario Provincial Election Survey
+
+```{r setup, include=FALSE, warning=F, message=F, cache=FALSE, include=F}
+knitr::opts_chunk$set(echo = FALSE, cache=F, warning=F, message=F, dev="png")
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+```
+
+```{r load-data, results="hide", include=F}
+source("R_Scripts/4_pca.R")
+
+```
+
+```{r set-theme, echo=F}
+my_theme <- function(base_size = 14) {
+  theme_bw(base_size = base_size) %+replace%
+    theme(
+      legend.position="bottom",
+      plot.title=element_text(size=18)
+    )
+}
+
+theme_set(my_theme(base_size = 20))
+```
+
+- LISPOP's mandate to support research, training and knowledge mobilization of public opinion and policy
+- Survey of 2000 voters during 2022 Ontario Provincial Election
+- Field dates between May 18th and May 30th, 2022
+- Standard political variables (e.g. federal and provincial vote, federal and provincial partisanship) as well as heavy focus on housing-specific variables
+- Data publicly available [here](https://doi.org/10.5683/SP3/FFTYDV) for sharing
+
+::: notes
+- Support for LISPOP comes from Office of Research Services
+- Strength of Laurier in all aspects of public opinion training and research, e.g. survey design, analysis
+- regularly commission surveys on important issues, we conducted an OPES 2018 and wanted to repeat that in 2022
+- clear Housing was going to be an issue, focus of this survey
+- emphasize dataset publicly available
+:::
+
+## Context of the 2022 Election Campaign
+
+:::::::::::::: {.columns}
+::: {.column width="60%"}
+
+- Provincial government commissioned an expert panel to make recommendations on housing affordability
+- Signature recommendation to build 1.5 million homes
+- subsequently included in the NDP and Liberal platforms
+
+:::
+::: {.column width="40%"}
+```{r mip, ft.align="center", ft.top=2,ft.left=7}
+on22 %>% 
+  count(Topic) %>% 
+  mutate(Percent=n/sum(n)*100) %>% 
+  arrange(desc(Percent)) %>% 
+  filter(Percent>4) %>% 
+  flextable() %>% 
+  bg(., i=3, bg="yellow") %>% 
+  colformat_double(digits = 0) %>% 
+  width(j=1, width=4)
+
+```
+:::
+::::::::::::::
+
+
+::: notes
+- Prior to the campaign, expert panel announced to make recommendations
+- Signature policy was to create 1.5 million homes over 10 years
+- Cross-partisan consensus on the need to increase supply
+  - Implementation is harder than you might think
+  - The data here will show how this support seeming consensus is fragile
+  
+- Governments can't just wave a wand and "increase supply". Requires financing, cooperation from developers, municipalities, rule changes, each of which can present place obstacles to emerge
+:::
+
+
+## Solutions
+
+
+```{r means-graph, fig.width=11, fig.height=6}
+on22 %>% 
+  select(Q33a_1_x:Q80_6_x) %>% 
+  pivot_longer(cols=everything(),names_to="variable") %>% 
+  left_join(solution_var_labels, by="variable") %>% 
+  group_by(label) %>% 
+  summarize(Average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(),se=sd/sqrt(n)) %>% 
+  ggplot(., aes(x=Average, y=fct_reorder(label, Average)))+
+  geom_pointrange(size=1.2,aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)))+
+  labs(x="Score (0=Strongly Oppose\n1=Strongly Support)", 
+       title=str_wrap("Solutions To Address Housing Price Increase",60), y="")+
+  xlim(c(0,1))+
+ # scale_y_discrete(labels=function(x) str_wrap(x, 20))+
+  geom_vline(xintercept=0.5, linetype=2)
+```
+
+
+## Ideology in housing policy
+
+:::::::::::::: {.columns}
+::: {.column width="40%"}
+- Two clusters of policies: 
+
+  1. Government regulation
+  2. Reducing barriers to increasing supply (Market forces)
+
+- These cluster mirror two fundamental ways of accomplishing collective goals: markets and states (or bureaucracy) [@samuelsonPureTheoryPublic1954]
+- In this case, government regulation is noticeably more popular 
+- The general goal of increasing supply is actually correlated with *both* clusters
+:::
+::: {.column width="60%"}
+```{r pca-results, ft.left=7} 
+
+library(flextable)
+pca_loadings<-data.frame(fa.sort(support_pca2$loadings)[1:12,])
+pca_loadings %>% 
+  add_rownames() %>% 
+  flextable() %>% 
+  colformat_double(., digits=2) %>% bold(., ~RC1 >0.4, j="RC1") %>% 
+  bold(., ~RC2 >0.4, j="RC2")   %>% 
+  width(., j="rowname", width=3) %>% 
+    width(., j="RC1", width=1) %>% 
+  width(., j="RC2", width=1) %>% 
+  set_header_labels(values=list(rowname="Question", RC1="Government", RC2="Market")) 
+
+```
+:::
+::::::::::::::
+
+## Ideology in housing policy
+
+:::::::::::::: {.columns}
+::: {.column width="40%"}
+- Two clusters of policies: 
+
+  1. Government regulation
+  2. Reducing barriers to increasing supply (Market forces)
+
+- These cluster mirror two fundamental ways of accomplishing collective goals: markets and states (or bureaucracy) [@samuelsonPureTheoryPublic1954]
+- In this case, government regulation is noticeably more popular 
+- The general goal of increasing supply is actually correlated with *both* cluster
+:::
+::: {.column width="60%"}
+```{r pca-results-1, ft.left=7} 
+
+library(flextable)
+pca_loadings<-data.frame(fa.sort(support_pca2$loadings)[1:12,])
+pca_loadings %>% 
+  add_rownames() %>% 
+  flextable() %>% 
+  colformat_double(., digits=2) %>% bold(., ~RC1 >0.4, j="RC1") %>% 
+  bold(., ~RC2 >0.4, j="RC2")   %>% 
+ bg(., i=11, bg="yellow") %>% 
+  width(., j="rowname", width=3) %>% 
+    width(., j="RC1", width=1) %>% 
+  width(., j="RC2", width=1) %>% 
+  set_header_labels(values=list(rowname="Question", RC1="Regulation", RC2="Market")) 
+
+```
+:::
+::::::::::::::
+
+
+## Importance of partisan cues
+
+:::::::::::::: {.columns}
+::: {.column width="20%"}
+
+- Voters often take cues from parties they identify with as to what positions they should hold [@zallerNatureOriginsMass1992]
+- Cross-partisan consensus in the platforms is evident in 
+:::
+
+::: {.column width="80%"}
+```{r solutions-partisanship, fig.width=10, fig.height=8}
+on22 %>% 
+  #Pick the variables working with
+  select(Q33a_1_x:Q80_6_x, partisanship) %>% 
+  #pivot them longer, except for the Sample variable
+  pivot_longer(., cols=-partisanship, names_to=c("variable")) %>% 
+  group_by(partisanship, variable) %>% 
+  filter(!is.na(value)) %>% 
+  filter(partisanship!="Green") %>% 
+  # filter(partisanship!=5) %>% #Filter out R's that identify as "Other" 
+  # filter(partisanship!=6) %>%# Filter out R's that identify as "None of these"
+  summarize(average=mean(value), sd=sd(value), n=n(), se=sd/sqrt(n)) %>% 
+  left_join(., solution_var_labels)  %>% 
+  filter(partisanship!="Independent") %>% 
+  ggplot(., aes(y=fct_reorder(label, average), x=average, col=partisanship))+
+  xlim(c(0,1))+geom_point()+
+ geom_pointrange(size=1,aes(xmin=average-(1.96*se),
+                            xmax=average+(1.96*se)))+
+ scale_color_manual(name=c('Partisanship'), values=c("blue", "orange", "darkred"))+
+  labs(x=str_wrap("Score (0=Strongly Oppose, 1=Strongly Support)", 30), 
+       y="")+
+  geom_vline(xintercept=0.5, linetype=2)+
+  guides(col=guide_legend(ncol=3))
+```
+:::
+::::::::::::::
+
+
+## Popularity of the clusters
+
+::: notes
+Overall, if we compare the clusters by partisanship, it's clear that a lot of the difference is driven by left-wing support for government regulation. PC voters are less enthusiastic than the other parties to do support either cluster.
+:::
+
+```{r averages, fig.width=10, fig.height=8}
+on22 %>% 
+  select(partisanship, contains("_Average")) %>% 
+  pivot_longer(-partisanship) %>% 
+  group_by(partisanship, name) %>% 
+  summarize(Average=mean(value)) %>% 
+  rename(Partisanship=partisanship, Measure=name) %>% 
+  filter(Partisanship!="Green") %>% 
+  mutate(Measure=fct_recode(Measure, Government="Government_Average", Market="Market_Average")) %>% 
+  ggplot(., aes(x=Average, y=Measure, col=Partisanship))+
+  geom_point(size=5,position=position_dodge(width=0.2))+xlim(c(0,1))+
+  guides(col=guide_legend(ncol=2))+scale_color_manual(values=c("darkblue", "orange", "darkred", "grey"))+
+  geom_vline(linetype=2, xintercept=0.5)
+
+
+```
+
+## Conclusion
+
+1. Cross-partisan consensus on the need to increase housing supply
+2. Public opinion remains protective of single-family homes
+3. Combined with public opposition to sprawl leaves the impression of remarkable challenges to adding to supply, despite #1
+
+::: notes
+1. Cross-partisan consensus on the need to increase housing supply
+  - This only goes so far
+2. Public opinion remains protective of single-family homes
+    - Government action on prices remains more popular than government action which might increase housing supply without contributing to urban sprawl
+    
+    3. Combined with public opposition to sprawl (see blowback on Greenbelt) leaves the impression of remarkable challenges to adding to supply, despite #1
+    
+:::
+
+## References
+
