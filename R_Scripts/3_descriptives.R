@@ -113,26 +113,26 @@ on22 %>%
   gt()
 
 #Age and Housing
-on22 %>% 
-  select(agegrps, Housing_Status2) %>%
-  as_factor() %>% 
-  filter(Housing_Status2!="Other") %>%
-  tabyl(., agegrps, Housing_Status2, show_na=F) %>% 
-  adorn_percentages(denominator="row") %>% 
-  adorn_pct_formatting(digits = 2) %>% 
-  adorn_ns() %>% 
-  gt()
+# on22 %>% 
+#   select(agegrps, Housing_Status2) %>%
+#   as_factor() %>% 
+#   filter(Housing_Status2!="Other") %>%
+#   tabyl(., agegrps, Housing_Status2, show_na=F) %>% 
+#   adorn_percentages(denominator="row") %>% 
+#   adorn_pct_formatting(digits = 2) %>% 
+#   adorn_ns() %>% 
+#   gt()
 
-#Housing Status and MIP
-on22 %>% 
-  select(Housing_Status2, MIP_top5) %>%
-  as_factor() %>% 
-  filter(Housing_Status2!="Other") %>%
-  tabyl(., Housing_Status2, MIP_top5, show_na=F) %>% 
-  adorn_percentages(denominator="row") %>% 
-  adorn_pct_formatting(digits = 2) %>% 
-  adorn_ns() %>% 
-  gt()
+# #Housing Status and MIP
+# on22 %>% 
+#   select(Housing_Status2, MIP_top5) %>%
+#   as_factor() %>% 
+#   filter(Housing_Status2!="Other") %>%
+#   tabyl(., Housing_Status2, MIP_top5, show_na=F) %>% 
+#   adorn_percentages(denominator="row") %>% 
+#   adorn_pct_formatting(digits = 2) %>% 
+#   adorn_ns() %>% 
+#   gt()
 
 #MIP and Density
 on22 %>% 
@@ -165,4 +165,3 @@ on22 %>%
   gt()
 
 
-names(on22)

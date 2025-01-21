@@ -162,4 +162,6 @@ on22 %>%
   geom_vline(linetype=2, xintercept=0.5)
 
 # Regression
-
+on22 %>% 
+  write_sav(., path=here("Data/opes_2022_with_PCA.sav"))
+packageVersion('haven')

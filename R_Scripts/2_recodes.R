@@ -443,7 +443,7 @@ names(on22)
 
 
 #Calculating age in new variable: age
-#  on22$age<-(2022-on22$DOB)
+on22$age<-(2022-on22$yob)
 
 #check age
 # on22 %>% 

@@ -11,9 +11,7 @@ on22 %>%
   # With the type of development
   rename_with(~ unlist(experimental_variable_labels), ends_with('_exp'))->on22
 #Check
-names(on22)
-on22$`6 Storey condominium building`
-on22$Experimental_Group
+
 #on22$Experimental_Group<-Recode(on22$Experimental_Group,as.factor=T, "'Control'='Control' ; 'Private'='Individual' ; 'Public'='Community';'Social'='National'", 
 #levels=c("Control" ,"Individual", "Community", "National"))
 on22$Experimental_Group<-factor(on22$Experimental_Group, levels=c("Control", "Individual", "Community", "National"))
@@ -154,14 +152,17 @@ on22 %>%
   scale_x_continuous(labels=c("0", "0.25", "0.5", "0.75", "1"))+xlim(c(0,1))
 ggsave(filename=here("Plots", "Experiment_development_renter_prior_belief.png"), width=10, height=6)
 
-on22$own_affordable<-relevel(on22$own_affordable,                              "Pro-Affordable Housing Non-Homeowner")
-  exp_ols1<-function(x) lm(`Development Support` ~ male+Degree+income_digits+
+on22$own_affordable<-relevel(on22$own_affordable,
+                             "Pro-Affordable Housing Non-Homeowner")
+
+exp_ols1<-function(x) lm(`Development Support` ~ male+Degree+income_digits+
                              Experimental_Group:own_affordable, data=x)
-  on22 %>% 
-    nest(-Development) %>% 
-    mutate(exp_ols1=map(data, exp_ols1)) %>% 
-    mutate(tidy_exp_ols1=map(exp_ols1, tidy)) ->exp_models1
-  exp_models1$tidy_exp_ols1[[1]]
+on22 %>% 
+nest(-Development) %>% 
+mutate(ols1=map(data, function(x) lm(`Development Support` ~ 
+                                       male+Degree+income_digits+Experimental_Group:own_affordable, data=x))) %>% 
+  mutate(ols1_tidied=map(ols1, broom::tidy))->exp_models1
+
 
   exp_models1 %>% 
     filter(str_detect(Development, "rental")) ->apartment_models
@@ -170,48 +171,48 @@ on22$own_affordable<-relevel(on22$own_affordable,                              "
     exp_models1 %>% 
     filter(str_detect(Development, "Single ")) ->single_models
 
-  
-names(exp_models1$exp_ols1)<-exp_models1$Development
-exp_models1$exp_ols1
+  exp_models1
+names(exp_models1$ols1)<-exp_models1$Development
+
 table(on22$own_affordable,on22$Experimental_Group)
-coefs<-c("Experimental_GroupPrivate:own_affordablePro-Affordable Housing Homeowner"=
-           "Private X Pro-Affordable Housing Homeowner", 
-         "Experimental_GroupSocial:own_affordablePro-Affordable Housing Homeowner"=
-           "Social X Pro-Affordable Housing Homeowner",
-         "Experimental_GroupPublic:own_affordablePro-Affordable Housing Homeowner"=
-           "Public X Pro-Affordable Housing Homeowner",
-         "Experimental_GroupPrivate:own_affordableAnti-Affordable Housing Homeowner"=
-           "Private X Anti-Affordable Housing Homeowner", 
-         "Experimental_GroupSocial:own_affordableAnti-Affordable Housing Homeowner"=
-           "Social X Anti-Affordable Housing Homeowner",
-         "Experimental_GroupPublic:own_affordableAnti-Affordable Housing Homeowner"=
-           "Public X Anti-Affordable Housing Homeowner"
-         )
-coefs_renters<-c("Experimental_GroupPrivate:own_affordablePro-Affordable Housing Non-Homeowner"=
-           "Private X Pro-Affordable Housing Non-Homeowner", 
-         "Experimental_GroupSocial:own_affordablePro-Affordable Housing Non-Homeowner"=
-           "Social X Pro-Affordable Housing Non-Homeowner",
-         "Experimental_GroupPublic:own_affordablePro-Affordable Housing Non-Homeowner"=
-           "Public X Pro-Affordable Housing Non-Homeowner",
-         "Experimental_GroupPrivate:own_affordableAnti-Affordable Housing Non-Homeowner"=
-           "Private X Anti-Affordable Housing Non-Homeowner", 
-         "Experimental_GroupSocial:own_affordableAnti-Affordable Housing Non-Homeowner"=
-           "Social X Anti-Affordable Housing Non-Homeowner",
-         "Experimental_GroupPublic:own_affordableAnti-Affordable Housing Non-Homeowner"=
-           "Public X Anti-Affordable Housing Non-Homeowner"
-)
+# coefs<-c("Experimental_GroupPrivate:own_affordablePro-Affordable Housing Homeowner"=
+#            "Private X Pro-Affordable Housing Homeowner", 
+#          "Experimental_GroupSocial:own_affordablePro-Affordable Housing Homeowner"=
+#            "Social X Pro-Affordable Housing Homeowner",
+#          "Experimental_GroupPublic:own_affordablePro-Affordable Housing Homeowner"=
+#            "Public X Pro-Affordable Housing Homeowner",
+#          "Experimental_GroupPrivate:own_affordableAnti-Affordable Housing Homeowner"=
+#            "Private X Anti-Affordable Housing Homeowner", 
+#          "Experimental_GroupSocial:own_affordableAnti-Affordable Housing Homeowner"=
+#            "Social X Anti-Affordable Housing Homeowner",
+#          "Experimental_GroupPublic:own_affordableAnti-Affordable Housing Homeowner"=
+#            "Public X Anti-Affordable Housing Homeowner"
+#          )
+# coefs_renters<-c("Experimental_GroupPrivate:own_affordablePro-Affordable Housing Non-Homeowner"=
+#            "Private X Pro-Affordable Housing Non-Homeowner", 
+#          "Experimental_GroupSocial:own_affordablePro-Affordable Housing Non-Homeowner"=
+#            "Social X Pro-Affordable Housing Non-Homeowner",
+#          "Experimental_GroupPublic:own_affordablePro-Affordable Housing Non-Homeowner"=
+#            "Public X Pro-Affordable Housing Non-Homeowner",
+#          "Experimental_GroupPrivate:own_affordableAnti-Affordable Housing Non-Homeowner"=
+#            "Private X Anti-Affordable Housing Non-Homeowner", 
+#          "Experimental_GroupSocial:own_affordableAnti-Affordable Housing Non-Homeowner"=
+#            "Social X Anti-Affordable Housing Non-Homeowner",
+#          "Experimental_GroupPublic:own_affordableAnti-Affordable Housing Non-Homeowner"=
+#            "Public X Anti-Affordable Housing Non-Homeowner"
+# )
 
 
-modelsummary(exp_models1$exp_ols1,
+modelsummary(exp_models1$ols1,
              coef_omit=c("!Pro-|Control|Non-Homeowner|Intercept"), stars=T, 
              output="flextable", 
-             coef_map=coefs,fmt=2,gof_omit=c("AIC|BIC|F|Log.Lik|Adj.") ) %>% 
-  save_as_docx(., path=here("Tables", "experiment_ideology_owners.docx"))
+             fmt=2,gof_omit=c("AIC|BIC|F|Log.Lik|Adj.") ) 
 
-modelsummary(exp_models1$exp_ols1,
+#save_as_docx(., path=here("Tables", "experiment_ideology_owners.docx")
+modelsummary(exp_models1$ols1,
              coef_omit=c("Housing Homeowner"), stars=T, 
-             output="flextable",fmt=2, coef_map=coefs_renters, gof_omit=c("AIC|BIC|F|Log.Lik|Adj.")) %>% 
-  save_as_docx(., path=here("Tables", "experiment_ideology_renters.docx"))
+             output="flextable",fmt=2, gof_omit=c("AIC|BIC|F|Log.Lik|Adj.")) 
+ # save_as_docx(., path=here("Tables", "experiment_ideology_renters.docx"))
 
 on22 %>% 
   select(Experimental_Group, own_affordable, `Development Support`) %>% 

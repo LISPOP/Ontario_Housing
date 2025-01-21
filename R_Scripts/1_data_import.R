@@ -6,6 +6,7 @@ library(here)
 library(labelled)
 #Import
 on22<-read_dta(file="Data/Housing_02_06_100_Percent_Complete.dta")
+
 #Merge with the geocoded file Provided by Tim Gravelle
 on22_geocoded<-read_sav(file="Data/opes22_2022-09-26-geocoded.sav")
 names(on22_geocoded)
@@ -14,6 +15,13 @@ on22_geocoded %>%
   select(ResponseId, FSA:pop_density)->on22_geocoded
 #on22<-read_sav(file=here("Data", "Housing_06_06.sav"))
 names(on22_geocoded)
+on22$Q37_DO_NOT_USE
+on22$yob
+on22 %>% 
+  select(Q37_DO_NOT_USE, yob) %>% 
+  as_factor() %>% 
+  group_by(Q37_DO_NOT_USE, yob) %>% 
+  count()
 
 #make a geo_good variable for respondents whose postal code matches a Census Subdivision
 on22 %>% 
@@ -130,3 +138,5 @@ on22 %>%
 on22 %>% 
   select(starts_with("Q80")) %>% 
   summary() 
+
+

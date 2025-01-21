@@ -71,10 +71,10 @@ library(knitr)
 on22 %>% 
   group_by(voting_flag) %>% 
   summarize(average=mean(Duration__in_seconds_)) %>% 
-kable() %>% 
+kable(., format="html") %>%
   kableExtra::save_kable(., file=here("Tables", "contradictory_voters_duration.html"))
 #datasummary(as_factor(voting_flag)*(mean)~Duration__in_seconds_, data=on22, output="Tables/contradictory_voters_duration.html")
-
+?kable
 on22 %>% 
   filter(!is.na(Q42)) %>% 
   ggplot(., aes(x=Q42))+geom_histogram()+facet_wrap(~as.factor(income_digits), scales="free_x", ncol=4)

@@ -4,7 +4,7 @@ source("R_Scripts/3_diagnostics.R")
 names(on22)
 #Install wlucolrs if necessary
 #remotes::install_github("sjkiss/wlucolors")
-library(wlucolors)
+#library(wlucolors)
 theme_set(theme_classic(base_size=24))
 on22 %>% 
   count(Topic) %>% 
