@@ -80,10 +80,10 @@ names(on22)
 #These are community level variables about the percentage of houses in each municipality in housing poverty
 #And median monthly mortgage and rent
 on22 %>% 
-  rename("hh_more_than_30"=268, 
-         "hh_less_than_30"=269,
-         "median_monthly_mortgage"=270, 
-         "median_monthly_rent"=271) ->on22
+  rename("hh_more_than_30"=`v_CA21_4290..Spending.30..or.more.of.income.on.shelter.costs`, 
+         "hh_less_than_30"=`v_CA21_4289..Spending.less.than.30..of.income.on.shelter.costs`,
+         "median_monthly_mortgage"=`v_CA21_4309..Median.monthly.shelter.costs.for.owned.dwellings......59.`, 
+         "median_monthly_rent"=`v_CA21_4317..Median.monthly.shelter.costs.for.rented.dwellings......59.`) ->on22
 
 
 names(on22)
