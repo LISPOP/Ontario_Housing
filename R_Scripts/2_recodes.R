@@ -92,20 +92,31 @@ on22$Housing_Status<-factor(on22$Housing_Status,
 
 
 #Count missing values in experimental group
-
+# Got this from here: 
+# https://github.com/jennybc/row-oriented-workflows/blob/master/ex09_row-summaries.md
 on22 %>% 
-  rowwise() %>% 
-  mutate(experimental_missings=sum(is.na(c_across(National:Control)))) %>% 
-  ungroup()->on22
-names(on22)
+  mutate(experimental_missings=rowSums(is.na(select(., National:Control)))) ->on22
+
+#Old garbage way.
+# on22 %>% 
+#   rowwise() %>% 
+#   mutate(experimental_missings=sum(is.na(c_across(National:Control)))) %>%
+#   select(experimental_missings)
+#   ungroup()->on22
+# names(on22)
 
 # on22 %>% 
 #   filter(experimental_missings==4) %>% 
 #   select(Consent2, experimental_missings, `_v7`:`SCREEN10_Experiment1_DO_Control`, ResponseId, RecordedDate)  %>% 
 #   write_csv(., file="Data/missing_experimental.csv")
 #   
+
+# This command pivots the four treatment group columns down.
 on22 %>%
+  #Resondents are assigned 1 if they were in respective treatment group
+  #That means respondents will now have NAs for those treatment groups of which they were not apart
   pivot_longer(National:Control, names_to="Experimental_Group", values_to=c("Value")) ->on22
+#Check now that each respondent has only a 1 for their treatment group
 on22 %>%
   filter(Value==1) %>%
   select(Experimental_Group:Value)
@@ -540,12 +551,8 @@ on22$`Buyer`<-Recode(on22$Housing_Status, "'Seeking to purchase'='Buyer' ; else=
 # val_labels(on22$renter)<-c("Renter"=1, "Non-Renter"=0)
 nrow(on22)
 names(on22)
-#Create upper case postal code
 
-on22%>% 
-  mutate(postal_code=str_to_upper(Q47))->on22
-
-
+#### Extract Region from postal code
 on22$region<-str_sub(on22$postal_code, end=1L)
 on22$region
 table(on22$Density, on22$region)
@@ -556,7 +563,7 @@ on22$region<-Recode(on22$region, "'K'='Eastern Ontario' ;
        as.factor=T)
 
 
-#Cognitive 
+#### Cognitive Non-Partisanship
 lookfor(on22, "interest")
 lookfor(on22, "provincial")
 summary(on22$Q4_1)
@@ -578,13 +585,13 @@ on22$Under_35<-Recode(as.numeric(on22$agegrps), "1:2='Under 35' ;
                       as.factor=T, levels=c("Over 36","Under 35" ))
 table(on22$Over_55)
 
-# Make male
+#### Gender
 on22$gender
 on22$male<-Recode(as.numeric(on22$gender), 
                   "1='Male' ;2:3='Non-Male'", 
                   as.factor=T,
                   levels=c("Non-Male", "Male"))
-### Combine attitude to affordable housing and homeownership status
+#### Combine attitude to affordable housing and homeownership status
 
 lookfor(on22, "affordable")
 lookfor(on22, "own")
@@ -632,7 +639,7 @@ on22$Size<-Recode(on22$pop_2021, "0:25000='Rural';
        2000000:3000000='Toronto/Ottawa'", as.factor=T, 
                   levels=c("Medium","Rural", "Small", "Large", "Toronto/Ottawa"))
 table(on22$Size)
-#Vote Intention
+#### Vote Intention
 val_labels(on22$Q7)
 val_labels(on22$Q8)
 on22 %>% 
@@ -711,15 +718,7 @@ on22 %>%
   left_join(., mip_categories, by=c("mip_code"="Code Number"))->on22
 names(on22)
 on22$Topic<-as.factor(on22$Topic)
-#Recode parties in Q15
-on22 %>% 
-  #select(starts_with("Q15")) %>% 
-  #as_factor() %>% 
-  mutate(across(.cols=starts_with("Q15"), .fns=function(x) Recode(as_factor(x), "'Ontario Liberal Party'='Liberal';
-                      'Ontario New Democratic Party'='NDP' ;
-                      'Progressive Conservative Party of Ontario'='PC' ;
-                      'Green Party of Ontario'='Green'", levels=c("PC", "NDP", "Liberal", "Green"))))->on22
-#on22 %>% select(starts_with("Q32"))
+
 
 #Housing and Cost of Living Issues recoded
 
@@ -755,6 +754,21 @@ table(on22$MIP_top5)
 on22$MIP_top5<-factor(on22$MIP_top5, levels=c("Cost of Living", "Housing", "Health Care", "Environment", "Economy", "Other"))
 
 table(on22$Topic)
+
+#### Party Handling
+# These variables are the party best handling certain issues
+# variable labels are assigned in the 2_variable_label scripts
+# This code simply sets the factor levels to be equivalent to vote choice
+on22 %>% 
+  #select(starts_with("Q15")) %>% 
+  #as_factor() %>% 
+  mutate(across(.cols=starts_with("Q15"), .fns=function(x) Recode(as_factor(x), "'Ontario Liberal Party'='Liberal';
+                      'Ontario New Democratic Party'='NDP' ;
+                      'Progressive Conservative Party of Ontario'='PC' ;
+                      'Green Party of Ontario'='Green'", levels=c("PC", "NDP", "Liberal", "Green"))))->on22
+
+#### YIMBY and NIMBYism
+
 on22 %>% 
   mutate(YIMBY=case_when(
     on22$Q80_3_y=="Support" & on22$Q33a_6_y=="Support" ~ "YIMBY",
@@ -795,6 +809,8 @@ on22$Ideology<-rowMeans(on22[ , c("Q16_x","Q17_x", "Q18_x", "Q19_x", "Q20_x", "Q
 #### Political Interest ####
 
 on22$Interest<-cut(on22$Q4_1, breaks=3, labels=c("Low", "Medium", "High"))
+
+#Run a script setting value and variable labels
 source("R_Scripts/2_value_labels.R")
 source("R_Scripts/2_variable_labels.R")
 

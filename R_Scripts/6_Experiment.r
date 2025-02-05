@@ -17,6 +17,7 @@ on22 %>%
 on22$Experimental_Group<-factor(on22$Experimental_Group, levels=c("Control", "Individual", "Community", "National"))
 table(on22$Experimental_Group)
 names(on22)
+
 #This sets the data-set up for regressions in on_exp
 #This has a dataframe of     columns
 #The variable `data` is a data frame of the proper number of observations
@@ -25,6 +26,7 @@ on22 %>%
   pivot_longer(., cols="6 Storey rental building":"Semi-detached house", 
                names_to="Development", values_to="Development Support") %>% 
   nest(-Development)->on_exp
+on_exp
 #This does the same thing but sets the on22 dataframe up for easy graphing
 #Note that the nrow because very large here because we are providing six rows for each respondent.
 #Thsu the confidence intervals here are probably not correct. 
@@ -36,7 +38,39 @@ on22$Development<-factor(on22$Development, levels=c("6 Storey rental building",
                                                     "6 Storey condominium building", 
                                                     "15 Storey condominium Tower", 
                                                     "Single detached house", 
-                                                    "Semi-detached house"))
+                                                   "Semi-detached house"))
+on22$Development
+on22 %>% 
+  mutate(
+    #Create dichotomous variable comparing respondent
+    # support for rental towers
+    # Versus detached houses
+    #all others excluded
+    rental_tower=case_when(
+    str_detect(Development, "rental")~1,
+    str_detect(Development, "detached")~0,
+    TRUE~NA_integer_,
+  ), 
+  #Create dichotomous variable comparing respondent
+  # support for condo towers
+  # Versus detached houses
+  #all others excluded
+  condo=case_when(
+    str_detect(Development, "condo")~1,
+    str_detect(Development, "detached")~0,
+    TRUE~NA_integer_
+  ), 
+  #Create dichotomous variable comparing respondent
+  # support for 6-story towers
+  # Versus detached houses
+  #all others excluded
+ midsize=case_when(
+    str_detect(Development, "6")~1,
+    str_detect(Development, "detached")~0,
+    TRUE~NA_integer_
+  ), 
+  )->on22
+#### The code below was used for producing graphical analysis prior to January 2025####
 on22 %>% 
   select(Experimental_Group, Development, `Development Support`) %>% 
   group_by(Experimental_Group, Development) %>% 

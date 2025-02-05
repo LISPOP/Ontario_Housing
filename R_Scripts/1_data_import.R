@@ -6,6 +6,21 @@ library(here)
 library(labelled)
 #Import
 on22<-read_dta(file="Data/Housing_02_06_100_Percent_Complete.dta")
+names(on22)
+#Check postal codes
+
+look_for(on22, "postal")
+#Count good postal codes
+str_to_upper(on22$Q47) 
+str_remove_all(on22$Q47, " ")
+#This modifies postal codes to be properly formatted
+on22%>% 
+  mutate(postal_code=str_to_upper(str_remove_all(Q47, " ")))->on22
+#This provides a count of how many respondents have provided 6-digit postal codes
+on22 %>% 
+  select(postal_code) %>% 
+map_df(., nchar)  %>% 
+ count(postal_code)
 
 #Merge with the geocoded file Provided by Tim Gravelle
 on22_geocoded<-read_sav(file="Data/opes22_2022-09-26-geocoded.sav")
@@ -15,8 +30,8 @@ on22_geocoded %>%
   select(ResponseId, FSA:pop_density)->on22_geocoded
 #on22<-read_sav(file=here("Data", "Housing_06_06.sav"))
 names(on22_geocoded)
-on22$Q37_DO_NOT_USE
-on22$yob
+
+#Provide a count of year of birth
 on22 %>% 
   select(Q37_DO_NOT_USE, yob) %>% 
   as_factor() %>% 
@@ -31,7 +46,7 @@ on22 %>%
     TRUE~0
   ))->on22
 table(on22$geo_good)
-names(on22)
+
 #Keep only those good cases
 on22 %>% 
   filter(geo_good==1)->on22
@@ -44,11 +59,13 @@ vote22<-data.frame(Party=c("PC", "NDP", "Liberal", "Green"),
                    Share=c(40.82, 23.74, 23.85, 5.96))
 #Read in Ontario costs
 # library(cancensus)
-# census_data <- get_census(dataset='CA21', 
-#                           regions=list(PR="35"), 
-#                           vectors=c("v_CA21_4290","v_CA21_4289","v_CA21_4309","v_CA21_4317"), 
-#                           labels="detailed", geo_format=NA, level='CSD')
-# write_csv(census_data, file=here("Data/ontario_shelter_costs.csv"))
+# To make this work it is necessary to get an API key 
+# at Census Mapper
+# census_data <- get_census(dataset='CA21',
+#                           regions=list(PR="35"),
+#                           vectors=c("v_CA21_4290","v_CA21_4289","v_CA21_4309","v_CA21_4317"),
+#                           labels="detailed", geo_format=NA, level='DA')
+#write_csv(census_data, file=here("Data/ontario_shelter_costs.csv"))
 #Read in Shelter costs
 #Import the data file on shelter costs in the Canadian census
 on_shelter_costs<-read.csv(file=here("Data/ontario_shelter_costs.csv"))
@@ -102,7 +119,7 @@ nrow(on22)
 names(on22)
 #clean names for SPSS export
 on22 %>% 
-  rename(area_sq_km=169, region_name=168)->on22
+  rename(area_sq_km=`Area..sq.km.`, region_name=`Region.Name`)->on22
 
 on22 %>% 
   select(starts_with("Q32"))
