@@ -553,7 +553,7 @@ nrow(on22)
 names(on22)
 
 #### Extract Region from postal code
-on22$region<-str_sub(on22$postal_code, end=1L)
+on22$region<-str_sub(on22$Postal_code, end=1L)
 on22$region
 table(on22$Density, on22$region)
 on22$region<-Recode(on22$region, "'K'='Eastern Ontario' ;
@@ -619,9 +619,9 @@ on22$own_affordable<-factor(on22$own_affordable, levels=c("Pro-Affordable Housin
        "Anti-Affordable Housing Non-Homeowner"))
 
 
-
+names(on22)
 qplot(pop_density, geom="histogram", data=on22)
-qplot(pop_2021, geom="histogram", data=on22)
+qplot(Population, geom="histogram", data=on22)
 # on22 %>% 
 #   group_by(CSDNAME) %>% 
 #   summarize(density=mean(pop_density, na.rm=T)) %>% 
@@ -632,7 +632,7 @@ qplot(pop_2021, geom="histogram", data=on22)
 #   summarize(pop=mean(pop_2021, na.rm=T)) %>%
 #   arrange(desc(pop)) %>% View()
 
-on22$Size<-Recode(on22$pop_2021, "0:25000='Rural';
+on22$Size<-Recode(on22$Population, "0:25000='Rural';
 25001:99999='Small' ;
        100000:499999='Medium';
        500000:1020000='Large' ;
