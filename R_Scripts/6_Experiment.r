@@ -66,10 +66,10 @@ main_effect <- lm_robust(
 
 
 graph_regression(list(main_effect_controls, main_effect), "main_effect")
-
-on22 %>% 
-  select(Experimental_Group, Development, `Development Support`) %>% 
-=======
+# 
+# on22 %>% 
+#   select(Experimental_Group, Development, `Development Support`) %>% 
+# =======
 
 #This nests the data-set up for regressions in on_exp
 #It was my first stab at doing regressions; it wasn't very good. 
