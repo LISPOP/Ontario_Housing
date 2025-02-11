@@ -159,6 +159,13 @@ var_label(on22$Q18)<-c("Spending - Fighting Crime")
 var_label(on22$Q19)<-c("Spending - Health Care")
 var_label(on22$Q20)<-c("Spending - Social Programs")
 var_label(on22$Q21)<-c("Spending - Affordable Housing")
+
+var_label(on22$Q16_x)<-c("Spending - Education 0 to 1")
+var_label(on22$Q17_x)<-c("Spending - Environment 0 to 1")
+var_label(on22$Q18_x)<-c("Spending - Fighting Crime 0 to 1")
+var_label(on22$Q19_x)<-c("Spending - Health Care 0 to 1")
+var_label(on22$Q20_x)<-c("Spending - Social Programs 0 to 1")
+var_label(on22$Q21_x)<-c("Spending - Affordable Housing 0 to 1")
 #Q34
 on22 %>% 
   select(starts_with("Q34")) %>% 
@@ -189,7 +196,7 @@ on22 %>% set_variable_labels(non_partisan="R is Non Partisan",
                              #`First_Time_Buyer`="R is a first time homebuyer",
                              Homeowner="R is a satisfied homeowner, not looking to purchase",
                              Housing_Status="Rs Housing Status",
-                             geo_good="Good Postal Code to FED and CSD match",
+                             #geo_good="Good Postal Code to FED and CSD match",
                              Q31_1_x="$800/month",
                              Q31_2_x="$1200/month",
                              Q31_3_x="$1600/month",
