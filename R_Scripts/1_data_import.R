@@ -21,16 +21,18 @@ on22 %>%
   select(postal_code) %>% 
 map_df(., nchar)  %>% 
  count(postal_code)
-
+#This script gets the dissemination areas 
 source("R_Scripts/2_pccf_merge.R")
 on22$PRCDDA<-as.numeric(on22$PRCDDA)
 
-# #Merge with the geocoded file Provided by Tim Gravelle
-# on22_geocoded<-read_sav(file="Data/opes22_2022-09-26-geocoded.sav")
-# names(on22_geocoded)
-# #Keep only the variables that Tim provided in the on22_geocoded_survey
-# on22_geocoded %>% 
-#   select(ResponseId, FSA:pop_density)->on22_geocoded
+#This script gets the CSD 
+#Merge with the geocoded file Provided by Tim Gravelle
+on22_geocoded<-read_sav(file="Data/opes22_2022-09-26-geocoded.sav")
+names(on22_geocoded)
+#Keep only the variables that Tim provided in the on22_geocoded_survey
+names(on22_geocoded)
+on22_geocoded %>%
+  select(ResponseId, FSA:CSDTYPE)->on22_geocoded
 # #on22<-read_sav(file=here("Data", "Housing_06_06.sav"))
 # names(on22_geocoded)
 # 
@@ -42,17 +44,17 @@ on22$PRCDDA<-as.numeric(on22$PRCDDA)
 #   count()
 # 
 # #make a geo_good variable for respondents whose postal code matches a Census Subdivision
-# on22 %>% 
-#   left_join(., on22_geocoded) %>% 
-#   mutate(geo_good=case_when(
-#     is.na(FED2013) == FALSE & is.na(CSD) == FALSE ~ 1,
-#     TRUE~0
-#   ))->on22
+on22 %>%
+  left_join(., on22_geocoded) %>%
+  mutate(geo_good=case_when(
+    is.na(FED2013) == FALSE & is.na(CSD) == FALSE ~ 1,
+    TRUE~0
+  ))->on22
 # table(on22$geo_good)
 # 
 # #Keep only those good cases
-# on22 %>% 
-#   filter(geo_good==1)->on22
+on22 %>%
+  filter(geo_good==1)->on22
 #filter out non-consents
 on22 %>% 
   filter(Consent2<2)->on22
@@ -68,10 +70,17 @@ source(here("R_scripts/2_statscan_census_data.R"))
 names(on22)
 #Merge with the on22 data set by the Dissemination Area
 #Note in on22 the variable is called PRCDDA and in the on_statscan object it is GeoUID
+names(on22)
 on22 %>% 
-  left_join(., on_statscan, by=c("PRCDDA"="GeoUID"))->on22
-names(on_statscan)
+  left_join(., on_statscan_da, by=c("PRCDDA"="GeoUID_da"))->on22
 
+names(on22)
+on22$CSDuid
+on_statscan_csd$GeoUID_csd
+on_statscan_csd$GeoUID_csd
+on22 %>% 
+  left_join(., on_statscan_csd, by=c("CSDuid"="GeoUID_csd"))->on22
+names(on_statscan_csd)
 #Clean Underscores before names
 names(on22)<-str_remove_all(names(on22), "^_")
 names(on22)
@@ -103,8 +112,10 @@ names(on22)
 nrow(on22)
 names(on22)
 #clean names for SPSS export
+names(on22)
 on22 %>% 
-  rename(area_sq_km=`Area..sq.km.`, region_name=`Region.Name`)->on22
+  rename(area_sq_km_da=`Area..sq.km._da`, region_name_da=`Region.Name_da`,
+         area_sq_km_csd=`Area..sq.km._csd`, region_name_csd=`Region.Name_csd`,)->on22
 
 on22 %>% 
   select(starts_with("Q32"))

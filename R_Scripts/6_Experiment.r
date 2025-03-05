@@ -4,7 +4,6 @@ library(estimatr)
 #### Experiment
 #lookfor(on22, "social")
 
-<<<<<<< HEAD
 experimental_variable_labels <- on22 %>% 
   select(ends_with('_exp')) %>% 
   var_label()
@@ -66,10 +65,6 @@ main_effect <- lm_robust(
 
 
 graph_regression(list(main_effect_controls, main_effect), "main_effect")
-# 
-# on22 %>% 
-#   select(Experimental_Group, Development, `Development Support`) %>% 
-# =======
 
 #This nests the data-set up for regressions in on_exp
 #It was my first stab at doing regressions; it wasn't very good. 
@@ -116,7 +111,6 @@ on22_stacked %>%
 #### The code below was used for producing graphical analysis prior to January 2025####
 on22_stacked %>% 
   select(Experimental_Group, Development, `Development_Support`) %>% 
->>>>>>> 967b143c9e86fa0783161d32136d8e5918d3b5ed
   group_by(Experimental_Group, Development) %>% 
   summarize(n=n(), Average=mean(`Development_Support`, na.rm=T), sd=sd(`Development_Support`, na.rm=T), se=sd/sqrt(n)) %>% 
   ggplot(., aes(x=Average, y=fct_reorder(Development, Average, .desc=T), col=Experimental_Group))+

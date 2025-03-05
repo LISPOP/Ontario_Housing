@@ -553,6 +553,7 @@ nrow(on22)
 names(on22)
 
 #### Extract Region from postal code
+
 on22$region<-str_sub(on22$Postal_code, end=1L)
 on22$region
 table(on22$Density, on22$region)
@@ -620,8 +621,8 @@ on22$own_affordable<-factor(on22$own_affordable, levels=c("Pro-Affordable Housin
 
 
 names(on22)
-qplot(pop_density, geom="histogram", data=on22)
-qplot(Population, geom="histogram", data=on22)
+# qplot(pop_density, geom="histogram", data=on22)
+# qplot(Population, geom="histogram", data=on22)
 # on22 %>% 
 #   group_by(CSDNAME) %>% 
 #   summarize(density=mean(pop_density, na.rm=T)) %>% 
@@ -631,8 +632,8 @@ qplot(Population, geom="histogram", data=on22)
 #   group_by(CSDNAME) %>%
 #   summarize(pop=mean(pop_2021, na.rm=T)) %>%
 #   arrange(desc(pop)) %>% View()
-
-on22$Size<-Recode(on22$Population, "0:25000='Rural';
+names(on22)
+on22$Size<-Recode(on22$Population_csd, "0:25000='Rural';
 25001:99999='Small' ;
        100000:499999='Medium';
        500000:1020000='Large' ;
@@ -873,3 +874,8 @@ on22_stacked$Development<-factor(on22_stacked$Development,
                                           "single_detached",
                                           "semi_detached"))
 names(on22)
+
+on22 %>% 
+  select(-CSDNAME, -CSDTYPE)->on22
+on22_stacked %>% 
+  select(-CSDNAME, -CSDTYPE)->on22_stacked

@@ -79,4 +79,4 @@ write_csv(census_data_csd, file=here("Data/ontario_statscan_data_csd.csv"))
 #Import the data file on shelter costs in the Canadian census
 on_statscan_da<-read.csv(file=here("Data/ontario_statscan_data_da.csv"))
 on_statscan_csd<-read.csv(file=here("Data/ontario_statscan_data_csd.csv"))
-
+on_statscan %>% names()
