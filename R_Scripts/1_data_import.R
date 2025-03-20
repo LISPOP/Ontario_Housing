@@ -23,7 +23,7 @@ map_df(., nchar)  %>%
  count(postal_code)
 #This script gets the dissemination areas 
 source("R_Scripts/2_pccf_merge.R")
-on22$PRCDDA<-as.numeric(on22$PRCDDA)
+#on22$PRCDDA<-as.numeric(on22$PRCDDA)
 
 #This script gets the CSD 
 #Merge with the geocoded file Provided by Tim Gravelle
@@ -50,6 +50,9 @@ on22 %>%
     is.na(FED2013) == FALSE & is.na(CSD) == FALSE ~ 1,
     TRUE~0
   ))->on22
+
+
+
 # table(on22$geo_good)
 # 
 # #Keep only those good cases
@@ -71,13 +74,13 @@ names(on22)
 #Merge with the on22 data set by the Dissemination Area
 #Note in on22 the variable is called PRCDDA and in the on_statscan object it is GeoUID
 names(on22)
-on22 %>% 
-  left_join(., on_statscan_da, by=c("PRCDDA"="GeoUID_da"))->on22
-
 names(on22)
 on22$CSDuid
 on_statscan_csd$GeoUID_csd
-on_statscan_csd$GeoUID_csd
+on22$CSDuid<-as.character(on22$CSDuid)
+on22 %>% 
+  left_join(., on_statscan_da, by=c("PRCDDA"="GeoUID_da"))->on22
+
 on22 %>% 
   left_join(., on_statscan_csd, by=c("CSDuid"="GeoUID_csd"))->on22
 names(on_statscan_csd)
@@ -114,8 +117,8 @@ names(on22)
 #clean names for SPSS export
 names(on22)
 on22 %>% 
-  rename(area_sq_km_da=`Area..sq.km._da`, region_name_da=`Region.Name_da`,
-         area_sq_km_csd=`Area..sq.km._csd`, region_name_csd=`Region.Name_csd`,)->on22
+  rename(area_sq_km_da=`Area (sq km)_da`, region_name_da=`Region Name_da`,
+         area_sq_km_csd=`Area (sq km)_csd`, region_name_csd=`Region Name_csd`,)->on22
 
 on22 %>% 
   select(starts_with("Q32"))
