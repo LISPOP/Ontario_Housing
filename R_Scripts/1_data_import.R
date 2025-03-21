@@ -76,7 +76,6 @@ names(on22)
 names(on22)
 names(on22)
 on22$CSDuid
-on_statscan_csd$GeoUID_csd
 on22$CSDuid<-as.character(on22$CSDuid)
 on22 %>% 
   left_join(., on_statscan_da, by=c("PRCDDA"="GeoUID_da"))->on22

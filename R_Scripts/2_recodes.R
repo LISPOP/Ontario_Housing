@@ -156,6 +156,8 @@ select(ends_with('_exp'))
       across(ends_with('_exp'), ~scales::rescale(as.numeric(.x))))->on22  
 
   #Now we need to rename the variables to be meaningful.
+
+
   #The only way to get this is by looking in the questionnaire. 
 on22 %>% set_variable_labels(Q35_1_exp="rental_6_storey", 
                     Q35_2_exp="rental_15_storey", 
@@ -163,6 +165,19 @@ on22 %>% set_variable_labels(Q35_1_exp="rental_6_storey",
                     Q35_4_exp="condo_15_storey",
                     Q35_5_exp="single_detached",
                     Q35_6_exp="semi_detached")->on22
+#### Experiment #### 
+
+on22 %>% 
+  select(ends_with('_exp')) %>% 
+  var_label()->experimental_variable_labels
+experimental_variable_labels
+on22 %>%
+  # This renames the names of the Developmental approval ratings
+  # With the type of development
+  rename_with(~ unlist(experimental_variable_labels), ends_with('_exp'))->on22
+on22 %>% select(all_of(unlist(experimental_variable_labels)))
+
+
 #### Rescale Q31
 
 #Step 1, check to see what we are dealing with
@@ -842,16 +857,8 @@ on22 %>%
 solution_var_labels$label<-str_remove_all(solution_var_labels$label, "Support for policy - ")
 
 lookfor(on22, "purchase")
-#### Experiment #### 
 
-on22 %>% 
-  select(ends_with('_exp')) %>% 
-  var_label()->experimental_variable_labels
-experimental_variable_labels
-on22 %>%
-  # This renames the names of the Developmental approval ratings
-  # With the type of development
-  rename_with(~ unlist(experimental_variable_labels), ends_with('_exp'))->on22
+
 #Check
 
 #on22$Experimental_Group<-Recode(on22$Experimental_Group,as.factor=T, "'Control'='Control' ; 'Private'='Individual' ; 'Public'='Community';'Social'='National'", 
