@@ -30,7 +30,6 @@ library(pwr)
 
 # Total k =  48
 library(pwr)
-pwr.f2.test(u=48, v=nrow(on22)-48, f2="small")
+pwr.f2.test(u=52, v=nrow(on22)-48, f2="small")
 
-
-
+names(on22)

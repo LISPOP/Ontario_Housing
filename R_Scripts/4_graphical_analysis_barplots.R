@@ -1,7 +1,7 @@
 source("R_Scripts/2_recodes.R")
 #Install wlucolrs if necessary
 #remotes::install_github("sjkiss/wlucolors")
-library(wlucolors)
+#library(wlucolors)
 theme_set(theme_classic())
 on22$Housing_Status<-factor(on22$Housing_Status, levels=c("First-Time Homebuyer", "Speculator", "Satisfied Homeowner", "Satisfied Renter", "Other"))
 #Now the graph
