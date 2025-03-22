@@ -1,17 +1,17 @@
-source("R_Scripts/4_graphical_analysis.R")
+source("R_Scripts/2_recodes.R")
 source("R_Scripts/0_Functions.R")
 library(estimatr)
 #### Experiment
 #lookfor(on22, "social")
 
-experimental_variable_labels <- on22 %>% 
-  select(ends_with('_exp')) %>% 
-  var_label()
-
-on22 <- on22 %>%
-  # This renames the names of the Developmental approval ratings
-  # With the type of development
-  rename_with(~ unlist(experimental_variable_labels), ends_with('_exp'))
+# experimental_variable_labels <- on22 %>% 
+#   select(ends_with('_exp')) %>% 
+#   var_label()
+# 
+# on22 <- on22 %>%
+#   # This renames the names of the Developmental approval ratings
+#   # With the type of development
+#   rename_with(~ unlist(experimental_variable_labels), ends_with('_exp'))
 #Check
 
 #on22$Experimental_Group<-Recode(on22$Experimental_Group,as.factor=T, "'Control'='Control' ; 'Private'='Individual' ; 'Public'='Community';'Social'='National'", 
@@ -51,14 +51,14 @@ REG_VARS <- c("Experimental_Group", "Development")
 CONTROLS <- c("age", "gender", "Vote")
 
 main_effect_controls <- lm_robust(
-  reformulate(c(REG_VARS, CONTROLS), response = "`Development Support`"),
-  data = on22,
+  reformulate(c(REG_VARS, CONTROLS), response = "Development_Support"),
+  data = on22_stacked,
   se_type = "CR2", #HC2 SEs are used for experiments 
   clusters = ResponseId) #Clustered by Respondent 
   
 main_effect <- lm_robust(
-  reformulate(REG_VARS, response = "`Development Support`"),
-          data = on22,
+  reformulate(REG_VARS, response = "Development_Support"),
+          data = on22_stacked,
           se_type = "CR2", #HC2 SEs are used for experiments 
           clusters = ResponseId) #Clustered by Respondent 
 
