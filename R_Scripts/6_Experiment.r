@@ -28,14 +28,14 @@ names(on22)
 #The variable `data` is a data frame of the proper number of observations
 #Each row in this data-set corresponds to the data provided for each response in the experinment
 on_exp <- on22 %>% 
-  pivot_longer(., cols="6 Storey rental building":"Semi-detached house", 
+  pivot_longer(., cols="rental_6_storey":"semi_detached", 
                names_to="Development", values_to="Development Support") %>% 
   nest(data = -Development)
 #This does the same thing but sets the on22 dataframe up for easy graphing
 #Note that the nrow because very large here because we are providing six rows for each respondent.
 #Thsu the confidence intervals here are probably not correct. 
 on22 <- on22 %>% 
-  pivot_longer(., cols="6 Storey rental building":"Semi-detached house", 
+  pivot_longer(., cols="rental_6_storey":"semi_detached", 
                names_to="Development", values_to="Development Support") 
 
 on22$Development<-factor(on22$Development, levels=c("6 Storey rental building", 
