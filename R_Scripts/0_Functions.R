@@ -1,3 +1,10 @@
+#### LOAD PACKAGES ####
+
+pacman::p_load(tidyverse,
+               estimatr,
+               sf)
+
+
 #### GRAPH REGRESSION MODELS ####
 
 graph_regression <- function(models, graphname,

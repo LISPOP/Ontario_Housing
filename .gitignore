@@ -37,5 +37,9 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 
+# Large Data files
+
+Data/Ontario_geography/*
+
 # R Environment Variables
 .Renviron

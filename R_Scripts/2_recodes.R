@@ -866,9 +866,22 @@ lookfor(on22, "purchase")
 on22$Experimental_Group<-factor(on22$Experimental_Group, levels=c("Control", "Individual", "Community", "National"))
 table(on22$Experimental_Group)
 names(on22)
+
+#### Add touching variable ####
+
+source("R_Scripts/2_touching.R")
+
+on22 <- on22_geography %>% 
+  as.data.frame() %>% 
+  select(pid, touching_FSAs) %>% 
+  left_join(on22, ., by = "pid") # unsure why there is a many to many relationship here (revisit with simon)
+
 #### Stack for the experiment ####
 # This code stacks on22 with six rows for each respondent, one row for each respondent's 
 # level of support for a type of development
+
+
+
 names(on22)
 on22 %>% 
   pivot_longer(., cols="rental_6_storey":"semi_detached", 
