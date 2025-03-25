@@ -3,9 +3,9 @@
 source("R_Scripts/1_data_import.R")
 
 nrow(on22)
-install.packages("pwr")
+
 library(pwr)
-?pwr.f2.test
+
 
 #Power Test Number of coefficients
 # Controls
