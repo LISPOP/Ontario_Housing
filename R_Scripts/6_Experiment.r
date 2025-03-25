@@ -1,17 +1,17 @@
-source("R_Scripts/4_graphical_analysis.R")
+source("R_Scripts/2_recodes.R")
 source("R_Scripts/0_Functions.R")
-library(estimatr)
+
 #### Experiment
 #lookfor(on22, "social")
 
-experimental_variable_labels <- on22 %>% 
-  select(ends_with('_exp')) %>% 
-  var_label()
-
-on22 <- on22 %>%
-  # This renames the names of the Developmental approval ratings
-  # With the type of development
-  rename_with(~ unlist(experimental_variable_labels), ends_with('_exp'))
+# experimental_variable_labels <- on22 %>% 
+#   select(ends_with('_exp')) %>% 
+#   var_label()
+# 
+# on22 <- on22 %>%
+#   # This renames the names of the Developmental approval ratings
+#   # With the type of development
+#   rename_with(~ unlist(experimental_variable_labels), ends_with('_exp'))
 #Check
 
 #on22$Experimental_Group<-Recode(on22$Experimental_Group,as.factor=T, "'Control'='Control' ; 'Private'='Individual' ; 'Public'='Community';'Social'='National'", 
@@ -28,14 +28,14 @@ names(on22)
 #The variable `data` is a data frame of the proper number of observations
 #Each row in this data-set corresponds to the data provided for each response in the experinment
 on_exp <- on22 %>% 
-  pivot_longer(., cols="6 Storey rental building":"Semi-detached house", 
+  pivot_longer(., cols="rental_6_storey":"semi_detached", 
                names_to="Development", values_to="Development Support") %>% 
   nest(data = -Development)
 #This does the same thing but sets the on22 dataframe up for easy graphing
 #Note that the nrow because very large here because we are providing six rows for each respondent.
 #Thsu the confidence intervals here are probably not correct. 
 on22 <- on22 %>% 
-  pivot_longer(., cols="6 Storey rental building":"Semi-detached house", 
+  pivot_longer(., cols="rental_6_storey":"semi_detached", 
                names_to="Development", values_to="Development Support") 
 
 on22$Development<-factor(on22$Development, levels=c("6 Storey rental building", 
@@ -51,20 +51,48 @@ REG_VARS <- c("Experimental_Group", "Development")
 CONTROLS <- c("age", "gender", "Vote")
 
 main_effect_controls <- lm_robust(
-  reformulate(c(REG_VARS, CONTROLS), response = "`Development Support`"),
-  data = on22,
+  reformulate(c(REG_VARS, CONTROLS), response = "Development_Support"),
+  data = on22_stacked,
   se_type = "CR2", #HC2 SEs are used for experiments 
   clusters = ResponseId) #Clustered by Respondent 
   
 main_effect <- lm_robust(
-  reformulate(REG_VARS, response = "`Development Support`"),
-          data = on22,
+  reformulate(REG_VARS, response = "Development_Support"),
+          data = on22_stacked,
           se_type = "CR2", #HC2 SEs are used for experiments 
           clusters = ResponseId) #Clustered by Respondent 
 
 
 
 graph_regression(list(main_effect_controls, main_effect), "main_effect")
+
+
+#### Heterogeneous Effects by Halo Effect ####
+
+
+on22_st <- on22_stacked %>% 
+  filter(!is.na(LAT) & !is.na(LONG)) %>% 
+  st_as_sf(., coords = c("LONG", "LAT"), crs = 4326)
+
+
+st_crs(on22_st) # Is EPSG:4326 need to transform
+
+on22_st <- st_transform(on22_st, crs = 3857)
+
+touch_matrix <- st_touches(on22_st, sparse = FALSE)
+touch_list <- st_touches(on22_st, sparse = TRUE)
+
+on22_st[touch_matrix %*% rep(1, nrow(touch_matrix)) > 0, ]
+
+ggplot() +
+  geom_sf(data = on22_geography, color = "blue", lims_method = "geometry_bbox") #+
+  # geom_sf(data = on22_st[unlist(touch_list), ], color = "red") +
+  # theme_minimal()
+
+
+# Second attempt with shape way file
+
+  
 
 #This nests the data-set up for regressions in on_exp
 #It was my first stab at doing regressions; it wasn't very good. 
