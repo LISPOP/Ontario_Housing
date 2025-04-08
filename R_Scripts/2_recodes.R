@@ -569,7 +569,7 @@ names(on22)
 
 #### Extract Region from postal code
 
-on22$region<-str_sub(on22$Postal_code, end=1L)
+on22$region<-str_sub(on22$postal_code, end=1L)
 on22$region
 table(on22$Density, on22$region)
 on22$region<-Recode(on22$region, "'K'='Eastern Ontario' ;
@@ -648,6 +648,8 @@ names(on22)
 #   summarize(pop=mean(pop_2021, na.rm=T)) %>%
 #   arrange(desc(pop)) %>% View()
 names(on22)
+### This extracts the population from 
+
 on22$Size<-Recode(on22$Population_csd, "0:25000='Rural';
 25001:99999='Small' ;
        100000:499999='Medium';
@@ -869,12 +871,12 @@ names(on22)
 
 #### Add touching variable ####
 
-source("R_Scripts/2_touching.R")
-
-on22 <- on22_geography %>% 
-  as.data.frame() %>% 
-  select(pid, touching_FSAs) %>% 
-  left_join(on22, ., by = "pid") # unsure why there is a many to many relationship here (revisit with simon)
+# source("R_Scripts/2_touching.R")
+# 
+# on22 <- on22_geography %>% 
+#   as.data.frame() %>% 
+#   select(pid, touching_FSAs) %>% 
+#   left_join(on22, ., by = "pid") # unsure why there is a many to many relationship here (revisit with simon)
 
 #### Stack for the experiment ####
 # This code stacks on22 with six rows for each respondent, one row for each respondent's 

@@ -1,6 +1,11 @@
 #Diagnostics
 #show Histogram of age
 source("R_Scripts/2_recodes.R")
+
+#### Missing Values
+
+
+
 ggplot(on22, aes(x=age))+geom_histogram()+geom_vline(xintercept=c(18, 95))+
   labs(title="Age Distribution, OPES22")
 summary(on22$age)
@@ -74,7 +79,7 @@ on22 %>%
 kable(., format="html") %>%
   kableExtra::save_kable(., file=here("Tables", "contradictory_voters_duration.html"))
 #datasummary(as_factor(voting_flag)*(mean)~Duration__in_seconds_, data=on22, output="Tables/contradictory_voters_duration.html")
-?kable
+
 on22 %>% 
   filter(!is.na(Q42)) %>% 
   ggplot(., aes(x=Q42))+geom_histogram()+facet_wrap(~as.factor(income_digits), scales="free_x", ncol=4)

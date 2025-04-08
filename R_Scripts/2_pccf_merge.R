@@ -11,19 +11,23 @@ library(readr)
 #save(pccf_fwf, file=here("Data/PCCF/pccf_fwf.rds"))
 load(here("Data/PCCF/pccf_fwf.rds"))
 #Names follow order of PCCF Reference Guide (PCCF_202011-eng.pdf); some names include additional "_" ; "DAuid" renamed to "PRCDDA" to match CIMD nomenclature
-column_names <- c("Postal_code", "FSA", "PR", "CDuid", "CSDuid", "CSDname", "CSDtype", "CCScode", "SAC", "SACtype", "Ctname","ER", "DPL", "FED13iud", "POP_CNTR_RA", "POP_CNTR_RA_type", "PRCDDA", "Dissemination_block", "Rep_Pt_Type", "LAT", "LONG", "SLI","PCtype", "Comm_Name", "DMT", "H_DMT", "Birth_Date", "Ret_Date", "PO", "QI", "Source", "POP_CENTR_RA_SIZE_CLASS")
+column_names <- c("postal_code", "FSA", "PR", "CDuid", "CSDuid", "CSDname", "CSDtype", "CCScode", "SAC", "SACtype", "Ctname","ER", "DPL", "FED13iud", "POP_CNTR_RA", "POP_CNTR_RA_type", "PRCDDA", "Dissemination_block", "Rep_Pt_Type", "LAT", "LONG", "SLI","PCtype", "Comm_Name", "DMT", "H_DMT", "Birth_Date", "Ret_Date", "PO", "QI", "Source", "POP_CENTR_RA_SIZE_CLASS")
 # Name the pccf_fwf with the vector column_names
 names(pccf_fwf)<-column_names
 #check
 head(pccf_fwf)
 #Filter pccf_fwf to include single SLIs
+
 pccf_fwf %>% 
+  filter(SLI==1)->pccf_fwf
   #many postal codes straddle the boundaries of a dissemination block.
   # So, StatsCan picks 1 dissemination block that has the majority of the dwellings 
   # in the postal code and assigns it a 1
   # It is crude, but it means you are then assigning a postal code to the most probable
   # Dissemination block that it belongs to. 
-  filter(SLI==1) %>% 
-  right_join(., on22, by=c("Postal_code"="postal_code"))->on22
 
-pccf_fwf %>% view()
+names(on22)
+pccf_fwf
+on22 %>% 
+left_join(., pccf_fwf, by="postal_code")->on22
+nrow(on22)
