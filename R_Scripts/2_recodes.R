@@ -329,14 +329,15 @@ on22 %>%
       }, .names="{.col}_x" ))->on22
 
 ### Reocde Q33 and Q80 to categorical variable
+
 on22 %>% 
   mutate(across(matches("Q33a_[0-9]$|Q80_[0-9]$"), 
                 .fns=function(x) car::Recode(as.numeric(x), 
-                                             "5:10='Support'; 0:4='Not Support'; 11='Not Support'", 
-                                             levels=c("Not Support", "Support")), .names="{.col}_y"))->on22
+"5:10='Support'; 0:4='Not Support'; 11='Not Support'", 
+levels=c("Not Support", "Support")), .names="{.col}_y"))->on22
 
 #### Rescale Q34
-on22$Q34_1
+
 on22 %>% 
   mutate(
     across(
@@ -582,14 +583,18 @@ on22$region<-Recode(on22$region, "'K'='Eastern Ontario' ;
 #### Cognitive Non-Partisanship
 lookfor(on22, "interest")
 lookfor(on22, "provincial")
-summary(on22$Q4_1)
-on22$Q5_1
+
 on22 %>% 
   mutate(cognitive_non_partisan=case_when(
     Q4_1 >5 & Q23==6~"Cognitive Non-Partisan",
     TRUE ~ "Other"
   ))->on22
 table(on22$cognitive_non_partisan)
+
+#### PRovincial partisanship
+# Distribution of partisanship
+prop.table(table(as_factor(on22$Q23)))
+
 
 
 
@@ -897,8 +902,5 @@ on22_stacked$Development<-factor(on22_stacked$Development,
                                           "semi_detached"))
 names(on22)
 
-on22 %>% 
-  select(-CSDNAME, -CSDTYPE)->on22
-on22_stacked %>% 
-  select(-CSDNAME, -CSDTYPE)->on22_stacked
+
 

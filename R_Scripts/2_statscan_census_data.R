@@ -2,16 +2,8 @@ library(tidyverse)
 #install.packages("cancensus")
 library(cancensus)
 library(here)
-#This sets the cancensus cache here in the project directory
-set_cancensus_cache_path(cache_path=here("Data/cancensus_cache_statscan_data"))
-#This command gets the data for the dissemination areas and stores it 
-# as on_statscan_da. 
-#Note, because I have previously cached this in the above file
-#It should not have to download it again as long as the user has 
-# the cancensus package installed.
-# if it does not work, users are recommended to get
-# themselves a censusmapper api key 
-# https://censusmapper.ca/api
+#This gets the data for variables of interest for Ontario DAs
+# It does not get the geometries
 on_statscan_da <- get_census(dataset='CA21',regions=list(PR="35"),
  vectors=c("v_CA21_434","v_CA21_435","v_CA21_440","v_CA21_436","v_CA21_437","v_CA21_438","v_CA21_439","v_CA21_4290", "v_CA21_4309", "v_CA21_4317"),
 labels="detailed", geo_format=NA, level='DA')

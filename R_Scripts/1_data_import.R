@@ -4,6 +4,12 @@ library(tidyverse)
 library(modelsummary)
 library(here)
 library(labelled)
+library(cancensus)
+#Set cancencus cache and key for a few scripts
+set_cancensus_api_key(key="CensusMapper_e0bb5e9bb16c197f306a580284d35b5b")
+#This sets the cancensus cache here in the project directory
+set_cancensus_cache_path(cache_path=here("Data/cancensus_cache_statscan_data"))
+
 #Import
 on22<-read_dta(file="Data/Housing_02_06_100_Percent_Complete.dta")
 names(on22)
