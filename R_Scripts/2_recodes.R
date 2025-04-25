@@ -902,5 +902,6 @@ on22_stacked$Development<-factor(on22_stacked$Development,
                                           "semi_detached"))
 names(on22)
 
+table(as_factor(on22$Q23), useNA = "ifany")
 
 
