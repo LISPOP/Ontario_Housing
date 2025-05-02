@@ -23,8 +23,7 @@ on_statscan_da %>%
          "median_shelter_costs_owned"=20,
          "median_shelter_costs_rented"=21
          )->on_statscan_da
-on_statscan_da %>%
-  view()
+
 #Normalize data
 on_statscan_da %>%
   mutate(single_detached_houses_pct=single_detached_houses/total_occupied_private_dwellings,
@@ -42,8 +41,16 @@ on_statscan_da %>%
 #This drops superfluous variables that we don't need for merging with ON22
 # Tim has already got these
 names(on_statscan_da)
+#Get CSD Population
+get_census("CA21", regions=list(PR="35"),level="CSD", vectors="v_CA21_1") %>% 
+  select(c("GeoUID", "Population"))->csd_population
+names(csd_population)
+
 on_statscan_da %>% 
-  select(DA2021=1, 12:28)->on_statscan_da
+  select(DA2021=1, CSD_UID=CSD_UID_da,total_occupied_private_dwellings_da:pop_density_da)->on_statscan_da
+
+on_statscan_da %>% 
+  left_join(., csd_population, by=c("CSD_UID"="GeoUID"))->on_statscan_da
 #This writes the data out for the record.
 write_csv(on_statscan_da, file=here("Data/ontario_statscan_data_da.csv"))
 #Get CSD level data

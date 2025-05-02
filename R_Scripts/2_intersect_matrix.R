@@ -1,18 +1,4 @@
-#This line is a prerequisite
-#When the code is ship-shape, I will modify this to integrate it to the rest of the code
-# properly
-#source("R_Scripts/1_data_import.R")
-#This approach to getting the dissemination areas uses the cancensus package
-# I have set my API key from census mapper in the script data_import
-#If necessary, a user can enter their own here by uncommenting this line
-library(cancensus)
-#set_cancensus_api_key(key='insert key here', overwrite=T, install=F)
-#More important however is to take note of the cancensus cache pathe
-# Which I have set to be in the folder "data/cancensus_cache_statscan_data"
-#Because I have run this code before, all the data has been cached there and 
-# Can be quickly importated here with the calls below
-
-# I ha
+# this code is Tim's code to generate the touch matrix of DAs in Ontario
 library(sf)
 library(here)
 library(dplyr)

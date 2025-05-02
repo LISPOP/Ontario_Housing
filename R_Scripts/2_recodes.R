@@ -1,8 +1,4 @@
 source("R_Scripts/1_data_import.R")
-names(on22)
-
-names(on22)
-nrow(on22)
 
 library(car)
 
@@ -15,7 +11,7 @@ library(car)
 # All others
 
 #Recoding Q6b to simplify party names
-data.5$Vote<-car::Recode(as.numeric(data.5$Q6b), "1='Liberal'; 2='PC' ; 3='NDP' ; 4='Green'")
+on22$Vote<-car::Recode(as.numeric(on22$Q6b), "1='Liberal'; 2='PC' ; 3='NDP' ; 4='Green'")
 on22 %>% 
   mutate(Vote=case_when(
     Q6b==1~"PC",
@@ -654,8 +650,7 @@ names(on22)
 #   arrange(desc(pop)) %>% View()
 names(on22)
 ### This extracts the population from 
-
-on22$Size<-Recode(on22$Population_csd, "0:25000='Rural';
+on22$Size<-Recode(on22$Population, "0:25000='Rural';
 25001:99999='Small' ;
        100000:499999='Medium';
        500000:1020000='Large' ;
@@ -900,8 +895,11 @@ on22_stacked$Development<-factor(on22_stacked$Development,
                                           "condo_15_storey",
                                           "single_detached",
                                           "semi_detached"))
+
+
+# Checks
 names(on22)
-
-table(as_factor(on22$Q23), useNA = "ifany")
-
-
+on22$weight
+da.intersect.0
+da.intersect.1
+da.intersect.2
