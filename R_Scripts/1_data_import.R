@@ -43,6 +43,8 @@ on22 %>%
 
 #This script gets the dissemination areas 
 source("R_Scripts/2_pccf_merge_weight.R")
+#This script gets the touch matrices from all Ontario DAs
+source("R_Scripts/2_intersect_matrix.R")
 
 #on22$PRCDDA<-as.numeric(on22$PRCDDA)
 
