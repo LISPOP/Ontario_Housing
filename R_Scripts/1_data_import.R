@@ -6,7 +6,7 @@ library(here)
 library(labelled)
 library(cancensus)
 #Set cancencus cache and key for a few scripts
-set_cancensus_api_key(key="CensusMapper_e0bb5e9bb16c197f306a580284d35b5b")
+#set_cancensus_api_key(key="CensusMapper_e0bb5e9bb16c197f306a580284d35b5b")
 #This sets the cancensus cache here in the project directory
 set_cancensus_cache_path(cache_path=here("Data/cancensus_cache_statscan_data"))
 
@@ -42,7 +42,7 @@ on22 %>%
 
 
 #This script gets the dissemination areas 
-source("R_Scripts/2_pccf_merge.R")
+source("R_Scripts/2_pccf_merge_weight.R")
 
 #on22$PRCDDA<-as.numeric(on22$PRCDDA)
 
@@ -81,30 +81,36 @@ source("R_Scripts/2_pccf_merge.R")
 
 
 
-
+#This script gets the census data for the dissemination areas
 source(here("R_scripts/2_statscan_census_data.R"))
 
+#This merges the Dissemination Areas in on22 with the data gathered in the above script
+
+
+on_statscan_da$DA2021<-as.numeric(on_statscan_da$DA2021)
+on22 %>% 
+  left_join(on_statscan_da, by="DA2021") ->on22
+
 #Note in on22 the variable is called PRCDDA and in the on_statscan object it is GeoUID
-on22$PRCDDA
-as.character(on22$CSDuid)
-on_statscan_csd
-on22 %>% 
-  left_join(., on_statscan_da, by=c("PRCDDA"="GeoUID_da"))->on22
-#Get the population variable from on_statscan_csd
-on_statscan_csd %>% 
-  mutate(GeoUID_csd=as.numeric(GeoUID_csd)) %>% 
-  select(GeoUID_csd, Population_csd)->out
-names(on22)
-names(on_statscan_csd)
-on22 %>% 
-  left_join(., out, by=c("CSDuid"="GeoUID_csd"))->on22
+# on22$PRCDDA
+# as.character(on22$CSDuid)
+# on_statscan_csd
+# on22 %>% 
+#   left_join(., on_statscan_da, by=c("PRCDDA"="GeoUID_da"))->on22
+# #Get the population variable from on_statscan_csd
+# on_statscan_csd %>% 
+#   mutate(GeoUID_csd=as.numeric(GeoUID_csd)) %>% 
+#   select(GeoUID_csd, Population_csd)->out
+# names(on22)
+# names(on_statscan_csd)
+# on22 %>% 
+#   left_join(., out, by=c("CSDuid"="GeoUID_csd"))->on22
 
 
 # Uncomment this line if we are using CSD level data. If not, disregard
 # on22 %>% 
 #   left_join(., on_statscan_csd, by=c("CSDuid"="GeoUID_csd"))->on22
 
-names(on_statscan_csd)
 #Clean Underscores before names
 names(on22)<-str_remove_all(names(on22), "^_")
 names(on22)
@@ -136,9 +142,6 @@ names(on22)
 nrow(on22)
 names(on22)
 #clean names for SPSS export
-names(on22)
-on22 %>% 
-  rename(area_sq_km_da=`Area (sq km)_da`, region_name_da=`Region Name_da`)->on22
 
 on22 %>% 
   select(starts_with("Q32"))
