@@ -15,7 +15,7 @@ library(car)
 # All others
 
 #Recoding Q6b to simplify party names
-on22$Vote<-Recode(as.numeric(on22$Q6b), "1='Liberal'; 2='PC' ; 3='NDP' ; 4='Green'")
+data.5$Vote<-car::Recode(as.numeric(data.5$Q6b), "1='Liberal'; 2='PC' ; 3='NDP' ; 4='Green'")
 on22 %>% 
   mutate(Vote=case_when(
     Q6b==1~"PC",
