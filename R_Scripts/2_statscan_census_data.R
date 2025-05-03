@@ -51,6 +51,8 @@ on_statscan_da %>%
 
 on_statscan_da %>% 
   left_join(., csd_population, by=c("CSD_UID"="GeoUID"))->on_statscan_da
+#Convert DA to Numeric
+on_statscan_da$DA2021<-as.numeric(on_statscan_da$DA2021)
 #This writes the data out for the record.
 write_csv(on_statscan_da, file=here("Data/ontario_statscan_data_da.csv"))
 #Get CSD level data

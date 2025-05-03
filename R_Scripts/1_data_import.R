@@ -5,6 +5,8 @@ library(modelsummary)
 library(here)
 library(labelled)
 library(cancensus)
+sf::sf_use_s2(TRUE)
+
 #Set cancencus cache and key for a few scripts
 #set_cancensus_api_key(key="CensusMapper_e0bb5e9bb16c197f306a580284d35b5b")
 #This sets the cancensus cache here in the project directory
@@ -43,11 +45,45 @@ on22 %>%
 
 #This script gets the dissemination areas 
 source("R_Scripts/2_pccf_merge_weight.R")
+# This script downloads the statistics canada census data for all Dissemination Areas in Ontario
+
 #This script gets the touch matrices from all Ontario DAs
+source("R_Scripts/2_statscan_census_data.R")
+#This gets the first order and second dissemination areas 
 source("R_Scripts/2_intersect_matrix.R")
 
-#on22$PRCDDA<-as.numeric(on22$PRCDDA)
+#This merges the Dissemination Areas in on22 with the respective statistis 
+# gathered in 2_statcsan_census_data.R
+on22 %>% 
+  left_join(on_statscan_da, by="DA2021") ->on22
 
+# This merges the respondent DA with the statistics from the first order DAs
+on22 %>% 
+  left_join(., da.intersect.1, by="DA2021")->on22
+names(on22)
+#Correlate the a few measures of respondent DA with intersecting DA
+on22 %>% 
+  select(contains("owned")) %>% 
+  ggplot(., aes(x=median_shelter_costs_owned_da, y=median_shelter_costs_owned_da_intersect1))+
+  geom_point()+theme_minimal()+
+  labs(x="Median Shelter Costs (DA)", y="Median Shelter Costs (Averaged Neighbouring DAs)")
+
+on22 %>% 
+  select(contains("detached_houses_pct")) %>% 
+  ggplot(., aes(x=single_detached_houses_pct_da, y=single_detached_houses_pct_da_intersect1))+
+  geom_point()+theme_minimal()+
+  labs(x="Percent Single Detached Houses (Percent)", y="Percent Single Detached Houses Neighbouring DAs (Averaged Percent)")
+
+# # Join DA shape file to DA statistics
+# 
+# on22 %>% 
+#   left_join(.,da.shp, by=c("DA2021"="DAUID"))->on22
+# da.shp %>% 
+#   filter(PRUID==35) %>% 
+#   st_simplify(., dTolerance=100) %>% 
+#   ggplot(.)+geom_sf()+geom_sf(data=on22, fill=single_det)
+# 
+# ggsave(here("Plots/ontario_dissemination_areas.png"))
 #This script gets the CSD 
 #Merge with the geocoded file Provided by Tim Gravelle
 # on22_geocoded<-read_sav(file="Data/opes22_2022-09-26-geocoded.sav")
@@ -76,22 +112,7 @@ source("R_Scripts/2_intersect_matrix.R")
 
 
 
-# table(on22$geo_good)
-# 
 
-
-
-
-
-#This script gets the census data for the dissemination areas
-source(here("R_scripts/2_statscan_census_data.R"))
-
-#This merges the Dissemination Areas in on22 with the data gathered in the above script
-
-
-on_statscan_da$DA2021<-as.numeric(on_statscan_da$DA2021)
-on22 %>% 
-  left_join(on_statscan_da, by="DA2021") ->on22
 
 #Note in on22 the variable is called PRCDDA and in the on_statscan object it is GeoUID
 # on22$PRCDDA

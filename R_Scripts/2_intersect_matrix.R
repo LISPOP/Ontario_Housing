@@ -57,6 +57,25 @@ da.intersect.2 %>%
   group_by(DA2021) %>%
   summarise(n = n()) %>%
   summary()
+# names(on_statscan_da)
+# names(da.intersect.1)
+# glimpse(on_statscan_da)
+# glimpse(da.intersect.1)
+#THIS IS ESSENTIAL!!!!!!!!!!!!
+# YOU HAVE TO DO THE JOIN USING THE VARIABLE DA2021_INTERSECT=DA_2021
+# SO THAT WE GRAB THE STATS FOR THE= THE INTERSECTING DAS 
+da.intersect.1 %>% 
+  left_join(., on_statscan_da, by=c("DA2021_intersect"="DA2021")) %>% 
+  group_by(DA2021) %>% 
+  summarize(., across(households_more_than_30_da:pop_density_da, ~mean(.,  na.rm=T), .names="{.col}_intersect1"))->da.intersect.1
+
+da.intersect.2 %>% 
+  left_join(., on_statscan_da, by=c("DA2021_intersect"="DA2021")) %>% 
+  group_by(DA2021) %>% 
+  summarize(., across(households_more_than_30_da:pop_density_da, ~mean(.,  na.rm=T), .names="{.col}_intersect2"))->da.intersect.2
+
+#Get Vectors
+
 
 # Export 
 # write_csv(da.intersect.1, here("data/ON DA intersections.csv"))

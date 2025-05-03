@@ -12,7 +12,6 @@ library(lubridate)
 library(data.table)
 library(units)
 
-sf::sf_use_s2(TRUE)
 
 
 ## Read in survey data from LISPOP
@@ -91,8 +90,10 @@ fsa.shp<-get_statcan_geographies("2021",type="cartographic", level=c("FSA"), tim
   select(FSA, PR, Y, X) %>%
   distinct(FSA, .keep_all = TRUE) %>%
   arrange(FSA)
-# 
-# 
+#Get DA file
+da.shp<- get_statcan_geographies("2021",type="digital", level=c("DA"), timeout=100)%>% 
+  st_transform(., crs = 3347) %>% 
+  mutate(DAUID=as.integer(DAUID))
 # ## FED digital boundary file
 #fed.shp <- read_sf("C:/Users/timgr/OneDrive - Wilfrid Laurier University/Geocoding/FED 2013/lfed000a21a_e.shp") %>%
 #Get fed file
@@ -102,6 +103,7 @@ fed.shp<- get_statcan_geographies("2021",type="digital", level=c("FED"), timeout
   mutate(PR = as.integer(PRUID)) %>%
   filter(PR %in% 10:59) %>%
   select(FED2013, FEDENAME, geometry)
+
 
 fed.names <- as.data.frame(fed.shp) %>%
   as_tibble() %>%
@@ -656,6 +658,10 @@ compare.vote.2018
 ## Save out data
 on22<- data.6 %>%
   select(-c(VOTE2018:HH_SIZE), -ipsw.logit)
+nrow(on22)
+sum(on22$weight)
+mean(on22$weight)
+summary(on22$weight)
 # 
 # write_sav(data_out, "opes22_wtd_20250410.sav", compress = TRUE)
 # saveRDS(data_out, "opes22_wtd_20250410.rds")
