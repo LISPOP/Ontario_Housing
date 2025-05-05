@@ -62,17 +62,36 @@ da.intersect.2 %>%
 # glimpse(on_statscan_da)
 # glimpse(da.intersect.1)
 #THIS IS ESSENTIAL!!!!!!!!!!!!
+# YOU HAVE TO GET THE STATISTICS FOR THE INTERSECTING DAS; NOT THE ORIGINAL DAS
 # YOU HAVE TO DO THE JOIN USING THE VARIABLE DA2021_INTERSECT=DA_2021
 # SO THAT WE GRAB THE STATS FOR THE= THE INTERSECTING DAS 
+on_statscan_da %>% 
+  left_join(., da.intersect.1, by="DA2021") %>% view()
 da.intersect.1 %>% 
-  left_join(., on_statscan_da, by=c("DA2021_intersect"="DA2021")) %>% 
+  #If you insert a view() after this line, you should see
+  # Several rows for each dissemination area; one row for each DA that intersects each DA
+  left_join(., on_statscan_da, by=c("DA2021_intersect"="DA2021")) %>%
+  #This forms groups of each DA
   group_by(DA2021) %>% 
-  summarize(., across(households_more_than_30_da:pop_density_da, ~mean(.,  na.rm=T), .names="{.col}_intersect1"))->da.intersect.1
-
+  #And then calculates the average of the intersecting DAs for each DA; it does it for several variables 
+  #The averages are stored with the suffix intersect1 indicating that it is the first order intersecting
+  #Note that I use mutate rather than summarize here because I want to keep all the rows of the in
+  # intersecting DAs to preserve the intersection matrix
+  # It is really worth interrupting this chain, step by step with a view() to see what is going on
+  # At the end; there should be multiple rows for each DA2021 becausethe 
+  # intersect matrix does;We don't want to lose that structured
+  # But it should contain multiple rows of the same statistics for each DA, because that is after averaging
+  # The values of the intersecting DAs. 
+  mutate(., across(households_more_than_30_da:pop_density_da, ~mean(.,  na.rm=T), .names="{.col}_intersect1")) %>% 
+  #This drops the columns that contain the individual statistics for the intersecting DAs
+  # WE only want the averages which are stored with the suffix _intersect1
+  select(-c(total_occupied_private_dwellings_da:Population)) ->da.intersect.1
+#Repeat with the second-order intersecting DAs
 da.intersect.2 %>% 
   left_join(., on_statscan_da, by=c("DA2021_intersect"="DA2021")) %>% 
   group_by(DA2021) %>% 
-  summarize(., across(households_more_than_30_da:pop_density_da, ~mean(.,  na.rm=T), .names="{.col}_intersect2"))->da.intersect.2
+  mutate(., across(households_more_than_30_da:pop_density_da, ~mean(.,  na.rm=T), .names="{.col}_intersect2")) %>% 
+  select(-c(total_occupied_private_dwellings_da:Population)) ->da.intersect.2
 
 #Get Vectors
 

@@ -93,7 +93,9 @@ fsa.shp<-get_statcan_geographies("2021",type="cartographic", level=c("FSA"), tim
 #Get DA file
 da.shp<- get_statcan_geographies("2021",type="digital", level=c("DA"), timeout=100)%>% 
   st_transform(., crs = 3347) %>% 
-  mutate(DAUID=as.integer(DAUID))
+  mutate(DAUID=as.integer(DAUID)) %>% 
+  mutate(CDUID=str_sub(DAUID,start=1, end=4))
+
 # ## FED digital boundary file
 #fed.shp <- read_sf("C:/Users/timgr/OneDrive - Wilfrid Laurier University/Geocoding/FED 2013/lfed000a21a_e.shp") %>%
 #Get fed file

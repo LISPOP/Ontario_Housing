@@ -1,6 +1,7 @@
 source("R_Scripts/1_data_import.R")
 
 library(car)
+nrow(on22)
 
 #### Insider Outsider Variable
 # Combine those Q27 and Q30 into one variable: 
@@ -87,39 +88,7 @@ on22$Housing_Status<-factor(on22$Housing_Status,
 #This folds down the four variables that distinguish the treatment group.
 
 
-#Count missing values in experimental group
-# Got this from here: 
-# https://github.com/jennybc/row-oriented-workflows/blob/master/ex09_row-summaries.md
-on22 %>% 
-  mutate(experimental_missings=rowSums(is.na(select(., National:Control)))) ->on22
 
-#Old garbage way.
-# on22 %>% 
-#   rowwise() %>% 
-#   mutate(experimental_missings=sum(is.na(c_across(National:Control)))) %>%
-#   select(experimental_missings)
-#   ungroup()->on22
-# names(on22)
-
-# on22 %>% 
-#   filter(experimental_missings==4) %>% 
-#   select(Consent2, experimental_missings, `_v7`:`SCREEN10_Experiment1_DO_Control`, ResponseId, RecordedDate)  %>% 
-#   write_csv(., file="Data/missing_experimental.csv")
-#   
-
-# This command pivots the four treatment group columns down.
-on22 %>%
-  #Resondents are assigned 1 if they were in respective treatment group
-  #That means respondents will now have NAs for those treatment groups of which they were not apart
-  pivot_longer(National:Control, names_to="Experimental_Group", values_to=c("Value")) ->on22
-#Check now that each respondent has only a 1 for their treatment group
-on22 %>%
-  filter(Value==1) %>%
-  select(Experimental_Group:Value)
-#Drop the Value variable; unnecessary
-on22 %>%
-  filter(Value==1) %>%
-  select(-Value) ->on22
 names(on22)
 # Currently the value labels for the experimental question run from 1 to 11; 12 is don't know
 # I'm going to set 12 to be in the  middle which is 5
@@ -865,25 +834,24 @@ lookfor(on22, "purchase")
 
 #on22$Experimental_Group<-Recode(on22$Experimental_Group,as.factor=T, "'Control'='Control' ; 'Private'='Individual' ; 'Public'='Community';'Social'='National'", 
 #levels=c("Control" ,"Individual", "Community", "National"))
+on22 %>% 
+  mutate(Experimental_Group=case_when(
+    !is.na(Control)~"Control",
+    !is.na(National)~"National",
+    !is.na(Individual)~"Individual",
+    !is.na(Community)~"Community"
+  ))->on22
+nrow(on22)
 on22$Experimental_Group<-factor(on22$Experimental_Group, levels=c("Control", "Individual", "Community", "National"))
 table(on22$Experimental_Group)
 names(on22)
-
-#### Add touching variable ####
-
-# source("R_Scripts/2_touching.R")
-# 
-# on22 <- on22_geography %>% 
-#   as.data.frame() %>% 
-#   select(pid, touching_FSAs) %>% 
-#   left_join(on22, ., by = "pid") # unsure why there is a many to many relationship here (revisit with simon)
-
 #### Stack for the experiment ####
 # This code stacks on22 with six rows for each respondent, one row for each respondent's 
 # level of support for a type of development
 
-
-
+nrow(on22)
+mean(on22$weight)
+sum(on22$weight)
 names(on22)
 on22 %>% 
   pivot_longer(., cols="rental_6_storey":"semi_detached", 

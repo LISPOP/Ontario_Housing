@@ -55,33 +55,43 @@ source("R_Scripts/2_intersect_matrix.R")
 #This merges the Dissemination Areas in on22 with the respective statistis 
 # gathered in 2_statcsan_census_data.R
 on22 %>% 
-  left_join(on_statscan_da, by="DA2021") ->on22
+  #Join respondents to statistics pulled for each DA in on_statscan_da
+  left_join(on_statscan_da, by="DA2021") %>% 
+  #Join that to the intersecting DAs; note because we have kept the 
+  # Underlying structure of Tim's intersection matrix there are multiple rows of 
+  # each dissemination area ; but each row contains the averages of the intersecting DAs
+  # For each DA 
+  # So can only have one row for each DA; so we run distinct() on da.intersect.1
+  left_join(., distinct(ungroup(da.intersect.1),DA2021, .keep_all=T)) %>%  
+  select(-DA2021_intersect) %>% 
+  left_join(., distinct(ungroup(da.intersect.2), DA2021, .keep_all=T)) ->on22
 
-# This merges the respondent DA with the statistics from the first order DAs
-on22 %>% 
-  left_join(., da.intersect.1, by="DA2021")->on22
-names(on22)
 #Correlate the a few measures of respondent DA with intersecting DA
 on22 %>% 
   select(contains("owned")) %>% 
-  ggplot(., aes(x=median_shelter_costs_owned_da, y=median_shelter_costs_owned_da_intersect1))+
-  geom_point()+theme_minimal()+
-  labs(x="Median Shelter Costs (DA)", y="Median Shelter Costs (Averaged Neighbouring DAs)")
+  rename(`First Order`=2, `First and Second Order`=3) %>% 
+  pivot_longer(2:3) %>% 
+  ggplot(., aes(x=median_shelter_costs_owned_da, y=value))+
+  geom_point()+theme_minimal()+facet_wrap(~fct_relevel(name, "First Order"))+geom_smooth(method="lm")+
+  labs(x="Median Shelter Costs (DA)", y="Median Shelter Costs (Averaged Neighbouring DAs)", 
+       title="Correlation of Median Shelter Costs of each DA with First and Second Order DAs")
+ggsave(here("Plots/median_shelter_costs.png"), width=8, height=5)
 
 on22 %>% 
   select(contains("detached_houses_pct")) %>% 
-  ggplot(., aes(x=single_detached_houses_pct_da, y=single_detached_houses_pct_da_intersect1))+
-  geom_point()+theme_minimal()+
-  labs(x="Percent Single Detached Houses (Percent)", y="Percent Single Detached Houses Neighbouring DAs (Averaged Percent)")
+  rename(`First Order`=2, `First and Second Order`=3) %>% 
+  pivot_longer(2:3) %>% 
+  ggplot(., aes(x=single_detached_houses_pct_da, y=value))+facet_wrap(~fct_relevel(name, "First Order"))+
+  geom_point()+theme_minimal()+geom_smooth(method="lm")+
+  labs(x="Percent Single Detached Houses (Percent)", 
+       y="Percent Single Detached Houses Neighbouring DAs (Averaged Percent)",
+       title="Correlation Between Percent Single-Detached Houses in DAs and Neighbouring DAs")
+ggsave(here("Plots/percent_single_detached_houses.png"), width=8, height=5)
 
-# # Join DA shape file to DA statistics
-# 
-# on22 %>% 
-#   left_join(.,da.shp, by=c("DA2021"="DAUID"))->on22
-# da.shp %>% 
-#   filter(PRUID==35) %>% 
-#   st_simplify(., dTolerance=100) %>% 
-#   ggplot(.)+geom_sf()+geom_sf(data=on22, fill=single_det)
+
+
+
+
 # 
 # ggsave(here("Plots/ontario_dissemination_areas.png"))
 #This script gets the CSD 
@@ -181,5 +191,5 @@ table(as_factor(on22$Q33a_1), on22$Q33a_1)
 #Conclusion in the Q33 set, the #1 corresponded to 0 on the screen; 
 # the # 11, corresponded to the 10 on the screen and 12 corresponded to Dont' know
 #
-
+nrow(on22)
 
