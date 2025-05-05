@@ -1,3 +1,5 @@
+
+source("R_Scripts/0_Functions.R") # To load packages
 source("R_Scripts/1_data_import.R")
 
 library(car)
