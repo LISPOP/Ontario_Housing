@@ -19,10 +19,12 @@ on22 %>%
 on22 %>% 
   select(DA2021, postal_code, Housing_Status, Q23) %>% 
   summary()
-on22$Q23
-# # #Keep only those good cases
-# on22 %>%
-#   filter(geo_good==1)->on22
-# #filter out non-consents
-# on22 %>% 
-#   filter(Consent2<2)->on22
+on22 %>% 
+  mutate(sum_NA=rowSums(is.na(.)))->on22
+summary(on22$sum_NA)
+
+on22 %>% 
+  filter(sum_NA>100) %>% view()
+on22 %>% 
+  ggplot(., aes(x=Progress))+geom_histogram()
+mean(on22$Progress, na.rm=T)

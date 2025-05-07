@@ -140,7 +140,7 @@ data.1a <- data.1 %>%
 
 # ## Secondary match on FSA
 data.1b <- data.1a %>%
-  filter(is.na(Y) == TRUE | is.na(X) == TRUE) %>%
+  filter(is.na(Y) == TRUE | is.na(X) == TRUE) %>%names()
   select(c(ResponseId:pid, FSA, Duration__in_seconds_)) %>%
   inner_join(fsa.shp, by = "FSA") %>%
   bind_rows(., data.1a %>% filter(is.na(Y) == FALSE & is.na(X) == FALSE & is.na(FED2013) == TRUE)) %>%

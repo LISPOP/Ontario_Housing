@@ -45,6 +45,8 @@ on22 %>%
 
 
 nrow(on22)
+# Run the diagnostics script
+source("R_Scripts/2_diagnostics.R")
 #This script gets the dissemination areas 
 source("R_Scripts/2_pccf_merge_weight.R")
 # This script downloads the statistics canada census data for all Dissemination Areas in Ontario

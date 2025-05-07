@@ -1,6 +1,6 @@
 #Diagnostics
 #show Histogram of age
-source("R_Scripts/2_recodes.R")
+#source("R_Scripts/1_data_import.R")
 
 #### Missing Values
 
@@ -10,7 +10,8 @@ ggplot(on22, aes(x=age))+geom_histogram()+geom_vline(xintercept=c(18, 95))+
   labs(title="Age Distribution, OPES22")
 summary(on22$age)
 ggsave(filename=here("Plots","age_distribution.png"))
-
+on22 %>% 
+  filter(age>95)
 
 # Diagnose voting not voting for variables
 table(as_factor(on22$Q8), as_factor(on22$Q12_1))
@@ -20,31 +21,38 @@ table(as_factor(on22$Q10), as_factor(on22$Q12_1))
 #Tables can be easily exported as html file using kable() and save_kable()
 
 # (https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html#Getting_Started)
-#How many contradictory voters are there?
-table(as_factor(on22$voting_flag))
-
-#Summary by voting_flag group
-tapply(on22$Duration__in_seconds_, on22$voting_flag, summary)
-
 
 #density chart of duration by voting_flag group
-on22 %>% 
-  select(Duration__in_seconds_, voting_flag) %>% 
-  ggplot(., aes(x=Duration__in_seconds_, cols=voting_flag))+
-  geom_density()+
-  scale_x_log10()+
-  facet_grid(cols=vars(voting_flag), labeller=labeller(.cols = label_both))
+# on22 %>% 
+#   select(Duration__in_seconds_, voting_flag) %>% 
+#   ggplot(., aes(x=Duration__in_seconds_, cols=voting_flag))+
+#   geom_density()+
+#   scale_x_log10()+
+#   facet_grid(cols=vars(voting_flag), labeller=labeller(.cols = label_both))
+# 
+# on22 %>% 
+#   select(Duration__in_seconds_, voting_flag) %>% 
+#   ggplot(., aes(x=Duration__in_seconds_, cols=voting_flag))+
+#   geom_histogram()+
+#   #scale_x_log10()+
+#   facet_grid(cols=vars(voting_flag), labeller=labeller(.cols = label_both))
+
+
+#Convert duration into minutes
+on22$duration_minutes<-on22$Duration__in_seconds_/60
+# Check median
+median(on22$duration_minutes)
+summary(on22$duration_minutes)
 
 on22 %>% 
-  select(Duration__in_seconds_, voting_flag) %>% 
-  ggplot(., aes(x=Duration__in_seconds_, cols=voting_flag))+
-  geom_histogram()+
-  #scale_x_log10()+
-  facet_grid(cols=vars(voting_flag), labeller=labeller(.cols = label_both))
+  ggplot(., aes(x=duration_minutes))+geom_histogram()
 
+#Filter the long takers
+on22 %>% filter(duration_minutes>1000)
+#Filter the speeders
+on22 %>% 
+  filter(duration_minutes<5.975)
 
-median(on22$Duration__in_seconds_, na.rm=T)
-summary(on22$Duration__in_seconds_)
 #Less than 100000 seconds?
 on22 %>% 
   mutate(time_flag_1_hour=case_when(
@@ -58,10 +66,10 @@ mutate(time_flag_1_minute=case_when(
   `Duration__in_seconds_`<300 ~1,
   TRUE ~0
 ))->on22
-table(on22$time_flag)
-table(on22$time_flag, on22$voting_flag)
-val_labels(on22$time_flag_1_hour)<-c("Less than 1 hour"=0, "More than 1 hour"=1)
-val_labels(on22$time_flag_1_minute)<-c("more than 5 minutes"=0, "less than 5 minutes"=1)
+# table(on22$time_flag)
+# table(on22$time_flag, on22$voting_flag)
+# val_labels(on22$time_flag_1_hour)<-c("Less than 1 hour"=0, "More than 1 hour"=1)
+# val_labels(on22$time_flag_1_minute)<-c("more than 5 minutes"=0, "less than 5 minutes"=1)
 
 on22 %>% 
   ggplot(., aes(x=Duration__in_seconds_))+geom_histogram()+
@@ -72,22 +80,19 @@ table(as_factor(on22$time_flag_1_minute))
 on22 %>% 
   group_by(time_flag_1_hour) %>% 
   summarize(avg=mean(Duration__in_seconds_))
-
-table(on22$voting_flag, on22$time_flag_1_hour)
-
 library(knitr)
-on22 %>% 
-  group_by(voting_flag) %>% 
-  summarize(average=mean(Duration__in_seconds_)) %>% 
-kable(., format="html") %>%
-  kableExtra::save_kable(., file=here("Tables", "contradictory_voters_duration.html"))
+# on22 %>% 
+#   group_by(voting_flag) %>% 
+#   summarize(average=mean(Duration__in_seconds_)) %>% 
+# kable(., format="html") %>%
+#   kableExtra::save_kable(., file=here("Tables", "contradictory_voters_duration.html"))
 #datasummary(as_factor(voting_flag)*(mean)~Duration__in_seconds_, data=on22, output="Tables/contradictory_voters_duration.html")
-
-on22 %>% 
-  filter(!is.na(Q42)) %>% 
-  ggplot(., aes(x=Q42))+geom_histogram()+facet_wrap(~as.factor(income_digits), scales="free_x", ncol=4)
-ggsave(filename=here("Plots", "income_reported_n_digits.png"), width=10, height=3)
-  
+# 
+# on22 %>% 
+#   filter(!is.na(Q42)) %>% 
+#   ggplot(., aes(x=Q42))+geom_histogram()+facet_wrap(~as.factor(income_digits), scales="free_x", ncol=4)
+# ggsave(filename=here("Plots", "income_reported_n_digits.png"), width=10, height=3)
+#   
 #Graph of likely voters and all voters vote intention
 # on22 %>% 
 #   select(Vote_Intention_Likely:Vote_Intention_All) %>% 
@@ -116,31 +121,18 @@ on22 %>%
   select(ResponseId, matches("Q32_[0-9]$"))->straightliners_Q32
 
 #on22 %>% filter(straightlining_Q32==0) %>% view()
-
-
 on22 %>% 
   mutate(straightliner=case_when(
     straightlining_Q32==0~1,
     straightlining_Q32!=0~0
   ))->on22
-table(on22$straightliner, useNA = "ifany")
-on22 %>% 
-  group_by(straightliner) %>% 
-  summarize(mean(Duration__in_seconds_, na.rm=T))
 
-table(on22$straightliner, useNA = "ifany")
-on22 %>% 
-ggplot(., aes(x=Duration__in_seconds_))+geom_histogram()+facet_wrap(~straightliner)
-on22 %>% 
-  group_by(straightliner) %>% 
-  summarize(avg=mean(Duration__in_seconds_, na.rm=T))
-on22 %>% 
-  filter(is.na(Duration__in_seconds_)) %>% view()
 
 # Check straightliners on experimental questions
+names(on22)
 
 on22 %>% 
-  select(rental_6_storey:semi_detached) %>% 
+  select(Q35_1:Q35_6) %>% 
   irv(.)->straightlining_experiment
 on22 %>% 
   mutate(straightlining_experiment=straightlining_experiment)->on22
@@ -152,7 +144,7 @@ on22 %>%
 table(on22$straightliner_experiment, useNA = "ifany")
 on22 %>% 
   filter(straightliner_experiment==1) %>% 
-  select(rental_6_storey:semi_detached, straightliner_experiment) %>% view()
+  select(Q35_1:Q35_6, straightliner_experiment) %>% view()
 #Write out to csv
 write_csv(straightliners_Q32, file="Data/straightliners_Q32.csv")
 #### Make table comparison of vote intention and election result 
