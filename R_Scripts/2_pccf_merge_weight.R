@@ -140,7 +140,7 @@ data.1a <- data.1 %>%
 
 # ## Secondary match on FSA
 data.1b <- data.1a %>%
-  filter(is.na(Y) == TRUE | is.na(X) == TRUE) %>%names()
+  filter(is.na(Y) == TRUE | is.na(X) == TRUE) %>%
   select(c(ResponseId:pid, FSA, Duration__in_seconds_)) %>%
   inner_join(fsa.shp, by = "FSA") %>%
   bind_rows(., data.1a %>% filter(is.na(Y) == FALSE & is.na(X) == FALSE & is.na(FED2013) == TRUE)) %>%
@@ -314,8 +314,7 @@ data.2 %>%
 
 ## 2021 Census PUMF as reference survey + weighting targets
 pumf.2021.0 <- read_csv(here("Data/2021_individual_pumf.csv"))
-look_for(pumf.2021.0, "weight")
-summary(pumf.2021.0$WEIGHT)
+
 pumf.2021.1 <- pumf.2021.0 %>%
   mutate(ResponseId = as.character(PPSORT)) %>%
   filter(AGEGRP %in% 7:21 & Citizen %in% 1:2 & PR == 35) %>%
@@ -522,8 +521,8 @@ prob.non.prob.1 <- prob.non.prob.0 %>%
   )) %>%
   select(ResponseId, p.nonprob.logit, ipsw.logit)
 
-summary(prob.non.prob.1$ipsw.logit)
-hist(prob.non.prob.1$ipsw.logit)
+# summary(prob.non.prob.1$ipsw.logit)
+# hist(prob.non.prob.1$ipsw.logit)
 
 data.2 <- data.2 %>%
   left_join(., (select(prob.non.prob.1, ResponseId, ipsw.logit)), by = "ResponseId") %>%
@@ -602,8 +601,8 @@ data.6 <- data.5 %>%
   )) %>%
   mutate(weight = weight * (n() / sum(weight)))
 
-summary(data.6$weight)
-PracTools::deffK(data.6$weight)
+# summary(data.6$weight)
+# PracTools::deffK(data.6$weight)
 
 
 ## Compare weighted data to targets

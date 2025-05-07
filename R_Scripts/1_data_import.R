@@ -42,13 +42,22 @@ on22 %>%
 on22 %>% 
   mutate(postal_code=str_remove_all(postal_code, "-")) %>% 
   mutate(postal_code=str_sub(postal_code, 1,6))->on22
-
+# Filter out DO variables
+on22 %>% 
+  select(-contains("_DO_"))->on22
+names(on22)
+#Filter out v1 variables
+on22 %>% 
+  select(-matches("^v[0-9]"))->on22
+names(on22)
 
 nrow(on22)
-# Run the diagnostics script
-source("R_Scripts/2_diagnostics.R")
 #This script gets the dissemination areas 
 source("R_Scripts/2_pccf_merge_weight.R")
+# Run the diagnostics script
+source("R_Scripts/2_diagnostics.R")
+source("R_Scripts/2_missing_values.R")
+
 # This script downloads the statistics canada census data for all Dissemination Areas in Ontario
 
 #This script gets the touch matrices from all Ontario DAs
@@ -157,14 +166,7 @@ on22 %>%
   rename("National"=`v7`, "Individual"=`v8`, "Community"=`v9`, "Control"=starts_with('SCREEN10'))->on22
 names(on22)
 
-# Filter out DO variables
-on22 %>% 
-  select(-contains("_DO_"))->on22
-names(on22)
-#Filter out v1 variables
-on22 %>% 
-  select(-matches("^v[0-9]"))->on22
-names(on22)
+
 #Look for variables
 library(labelled)
 names(on22)

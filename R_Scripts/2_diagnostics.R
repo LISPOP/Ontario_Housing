@@ -42,6 +42,7 @@ table(as_factor(on22$Q10), as_factor(on22$Q12_1))
 on22$duration_minutes<-on22$Duration__in_seconds_/60
 # Check median
 median(on22$duration_minutes)
+mean(on22$duration_minutes)
 summary(on22$duration_minutes)
 
 on22 %>% 
@@ -144,48 +145,52 @@ on22 %>%
 table(on22$straightliner_experiment, useNA = "ifany")
 on22 %>% 
   filter(straightliner_experiment==1) %>% 
-  select(Q35_1:Q35_6, straightliner_experiment) %>% view()
+  select(Q35_1:Q35_6, straightliner_experiment) %>%  nrow()
+
+on22 %>% 
+  group_by(straightliner_experiment) %>% 
+  summarize(avg=mean(duration_minutes, na.rm=T))
 #Write out to csv
 write_csv(straightliners_Q32, file="Data/straightliners_Q32.csv")
 #### Make table comparison of vote intention and election result 
 library(janitor)
 
-tabyl(on22$Vote_Intention_Likely, show_na=T) %>% 
-  adorn_pct_formatting() %>% 
-  adorn_totals()->sample_vote
+# tabyl(on22$Vote_Intention_Likely, show_na=T) %>% 
+#   adorn_pct_formatting() %>% 
+#   adorn_totals()->sample_vote
 # Check dates of likely voters
-on22 %>% 
-  filter(!is.na(Vote_Intention_Likely)) %>% 
-select(RecordedDate) %>% 
-  summary()
+# on22 %>% 
+#   filter(!is.na(Vote_Intention_Likely)) %>% 
+# select(RecordedDate) %>% 
+#   summary()
 #sample_vote<-data.frame(prop.table(table(on22$Vote_Intention_Likely))*100)
-library(flextable)
-names(sample_vote)<-c("Party" , "Sample n", "Sample Percent", "Percent Certain Voters")
-sample_vote %>% 
-  left_join(., vote22, by="Party") %>% 
-  rename(`Election Percent`="Share") %>% 
-  mutate(`Election Percent`=paste(`Election Percent`, "%", sep="")) %>% 
-flextable() %>% 
-  colformat_double(., digits=0) %>% 
-  save_as_docx(path=here("Tables", "sample_share_election_result.docx"))
+# library(flextable)
+# names(sample_vote)<-c("Party" , "Sample n", "Sample Percent", "Percent Certain Voters")
+# sample_vote %>% 
+#   left_join(., vote22, by="Party") %>% 
+#   rename(`Election Percent`="Share") %>% 
+#   mutate(`Election Percent`=paste(`Election Percent`, "%", sep="")) %>% 
+# flextable() %>% 
+#   colformat_double(., digits=0) %>% 
+#   save_as_docx(path=here("Tables", "sample_share_election_result.docx"))
 
 ## Filter out Straightliners
 names(on22)
-on22 %>% 
-  filter(straightlining_Q32!=0)->on22
+# on22 %>% 
+#   filter(straightlining_Q32!=0)->on22
 
 #### Diagnosting age and agegrps
-on22 %>%
-  group_by(agegrps) %>% 
- summarize(average=mean(age, na.rm=T))
+# on22 %>%
+#   group_by(agegrps) %>% 
+#  summarize(average=mean(age, na.rm=T))
 # This looks OK. 
-
-tab1<-prop.table(table(as_factor(on22$agegrps), on22$Housing_Status), 1)
-tab2<-prop.table(table(as_factor(on22$agegrps), as_factor(on22$Q27)), 1)
-tab1
-tab2
-write.table(tab1, file=here("Tables", "agegroups_by_housing_status_row_percent.txt"))
-write.table(tab2, file=here("Tables", "agegroups_by_q27_row_percent.txt"))
+# 
+# tab1<-prop.table(table(as_factor(on22$agegrps), on22$Housing_Status), 1)
+# tab2<-prop.table(table(as_factor(on22$agegrps), as_factor(on22$Q27)), 1)
+# tab1
+# tab2
+# write.table(tab1, file=here("Tables", "agegroups_by_housing_status_row_percent.txt"))
+# write.table(tab2, file=here("Tables", "agegroups_by_q27_row_percent.txt"))
 
 library(gt)
 # tabyl(on22,agegrps, Housing_Status2) %>% 
