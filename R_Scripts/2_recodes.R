@@ -876,3 +876,11 @@ da.intersect.0
 da.intersect.1
 da.intersect.2
 
+on22%>%
+  mutate(across(c(Q35_1:Q35_6, Degree, Density, Housing_Status, gender, income_digits, age, Vote_Intention_All, Experimental_Group),
+              ~ case_when(is.na(.x) ~ 1, TRUE ~ 0), .names = "{.col}_miss")) %>%
+  mutate(across(c(Q35_1:Q35_6, Degree, Density, Housing_Status, gender, income_digits, age, Vote_Intention_All, Experimental_Group),
+                ~ case_when(is.na(.x) == FALSE ~ 1, TRUE ~ 0), .names = "{.col}_seen")) %>%
+  mutate(sum_missing = rowSums((select(., Q35_1_miss:Experimental_Group_miss)), na.rm = TRUE)) %>%
+  mutate(sum_seen = rowSums((select(., Q35_1_seen:Experimental_Group_seen)), na.rm = TRUE)) %>%
+  mutate(missing_pct = (sum_missing / sum_seen) * 100)->on22
