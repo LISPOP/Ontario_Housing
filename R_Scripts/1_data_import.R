@@ -27,6 +27,8 @@ map_df(., nchar)  %>%
 on22 %>% 
   filter(nchar(postal_code)==7) %>% 
   select(ResponseId, postal_code)
+
+summary(on22$Duration__in_seconds_)
 #this code trims a hyphen, trims one postal code at 6 characters,
 # filters to try to identify them and shows what is left
 # It should show 0 rows
@@ -42,7 +44,7 @@ on22 %>%
   mutate(postal_code=str_sub(postal_code, 1,6))->on22
 
 
-
+nrow(on22)
 #This script gets the dissemination areas 
 source("R_Scripts/2_pccf_merge_weight.R")
 # This script downloads the statistics canada census data for all Dissemination Areas in Ontario

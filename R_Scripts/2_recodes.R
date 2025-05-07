@@ -870,9 +870,8 @@ on22_stacked$Development<-factor(on22_stacked$Development,
 # Checks
 names(on22)
 on22$weight
+nrow(on22)
 mean(on22$weight, na.rm=T)
 summary(on22$weight)
-da.intersect.0
-da.intersect.1
-da.intersect.2
+
 

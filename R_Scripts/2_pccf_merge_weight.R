@@ -126,33 +126,40 @@ csd.shp<-get_statcan_geographies("2021",type="digital", level=c("CSD"), timeout=
 # 
 # ## Join to PCCF
 #names(data.1)
+
 data.1a <- data.1 %>%
   left_join(select(pccf.24, -FSA), by = "postal.code") %>%
   mutate(FED2013 = as.integer(FED2013)) %>%
   mutate(CSD2021 = as.integer(CSD2021)) %>%
-  mutate(DA2021 = as.integer(DA2021))
+  mutate(DA2021 = as.integer(DA2021)) %>% 
+  mutate(first_match=case_when(
+    is.na(DA2021)~0,
+    !is.na(DA2021)~1
+  ))
 
-# 
+
 # ## Secondary match on FSA
 data.1b <- data.1a %>%
   filter(is.na(Y) == TRUE | is.na(X) == TRUE) %>%
-  select(ResponseId:pid, FSA) %>%
+  select(c(ResponseId:pid, FSA, Duration__in_seconds_)) %>%
   inner_join(fsa.shp, by = "FSA") %>%
   bind_rows(., data.1a %>% filter(is.na(Y) == FALSE & is.na(X) == FALSE & is.na(FED2013) == TRUE)) %>%
-  select(ResponseId:pid, postal.code, FSA, Y, X) %>%
+  select(ResponseId:pid, postal.code, FSA, Y, X, Duration__in_seconds_) %>%
   st_as_sf(., coords = c("X","Y"), crs = 4326) %>%
-  st_transform(., crs = 3347)
-names(data.1b)
+  st_transform(., crs = 3347) 
+
+
 data.1c <- data.1b %>%
   st_join(., fed.shp, join = st_within) %>%
   as_tibble()
-names(data.1c)
+
+
 data.1d <- data.1b %>%
   st_join(., csd.shp, join = st_within) %>%
   as_tibble() %>%
   arrange(FSA) %>%
   fill(c(CSD2021:LANDAREA), .direction = "down")
-names(data.1d)
+
 data.1e <- data.1b %>%
   left_join((select(data.1c, ResponseId, FED2013, FEDENAME)), by = "ResponseId") %>%
   left_join((select(data.1d, ResponseId, CSD2021, CSDNAME2021)), by = "ResponseId") %>%
@@ -164,25 +171,25 @@ data.1e <- data.1b %>%
   mutate(PR = as.integer(str_sub(CSD2021, 1, 2))) %>%
   select(-geometry, -latlon)
 
-
+table(is.na(data.1e$Duration__in_seconds_))
 ## Secondary match on lat/lon from Qualtrics geolocation
 data.1f <- data.1a %>%
   filter(is.na(Y) == TRUE | is.na(X) == TRUE) %>%
   anti_join(., select(data.1e, ResponseId), by = "ResponseId") %>%
   mutate(Y = as.numeric(LocationLatitude)) %>%
   mutate(X = as.numeric(LocationLongitude)) %>%
-  select(ResponseId:pid, postal.code, FSA, Y, X) %>%
+  select(ResponseId:pid, postal.code, FSA, Y, X, Duration__in_seconds_) %>%
   st_as_sf(., coords = c("X","Y"), crs = 4326) %>%
   st_transform(., crs = 3347)
-names(data.1f)
+
 data.1g <- data.1f %>%
   st_join(., fed.shp, join = st_within) %>%
   as_tibble()
-names(data.1g)
+
 data.1h <- data.1f %>%
   st_join(., csd.shp, join = st_within) %>%
   as_tibble()
-names(data.1h)
+
 data.1i <- data.1f %>%
   st_transform(., crs = 4326) %>%
   left_join((select(data.1g, ResponseId, FED2013, FEDENAME)), by = "ResponseId") %>%
@@ -298,6 +305,11 @@ xtabs(~ VOTE2018, addNA = TRUE, na.action = NULL, data = data.2)
 xtabs(~ VOTE2018, addNA = TRUE, na.action = NULL, data = data.2) %>% prop.table()*100
 xtabs(~ VOTE2022, addNA = TRUE, na.action = NULL, data = data.2)
 xtabs(~ VOTE2022, addNA = TRUE, na.action = NULL, data = data.2) %>% prop.table()*100
+
+# Spit out REspondents that do not have DAs
+data.2 %>% 
+  filter(is.na(DA2021)) %>% 
+  select(ResponseId,postal_code, postal.code, FSA, X, Y, Comm_Name) %>% write_csv(., file=here("Data/no_DA_fsa_lat_lon.csv"))
 
 
 ## 2021 Census PUMF as reference survey + weighting targets
@@ -542,7 +554,7 @@ data.3 <- rake(design = svydesign(ids = ~1, data = data.2, weights = data.2$ipsw
                  ),
                  control = list(maxit = 200, epsilon = 1e8, verbose = FALSE))
 data.3
-class(data.3)
+
 data.3 <- data.2 %>%
   mutate(weight = weights(data.3)) %>%
   mutate(weight = weight * (n() / sum(weight)))
@@ -664,6 +676,11 @@ nrow(on22)
 sum(on22$weight)
 mean(on22$weight)
 summary(on22$weight)
+
+table(is.na(data.6$DA2021), useNA = "ifany")
+table(is.na(on22$Duration__in_seconds_))
+
+
 # 
 # write_sav(data_out, "opes22_wtd_20250410.sav", compress = TRUE)
 # saveRDS(data_out, "opes22_wtd_20250410.rds")

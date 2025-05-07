@@ -42,6 +42,9 @@ on22 %>%
   #scale_x_log10()+
   facet_grid(cols=vars(voting_flag), labeller=labeller(.cols = label_both))
 
+
+median(on22$Duration__in_seconds_, na.rm=T)
+summary(on22$Duration__in_seconds_)
 #Less than 100000 seconds?
 on22 %>% 
   mutate(time_flag_1_hour=case_when(
@@ -99,14 +102,57 @@ library(careless)
 on22 %>% 
   select(matches("Q32_[0-9]$")) %>% 
   irv(.)->straightlining_Q32
+nrow(straightlining_Q32)
 #Assign this variable back into on22
 on22$straightlining_Q32<-straightlining_Q32
+on22 %>% 
+  select(matches("Q32_[0-9]$"), straightlining_Q32) %>% 
+  filter(is.na(straightlining_Q32))
 #Now create a data set of the straightliners
 on22 %>%
   #Straightliners have a score of 0 on this variable
   filter(straightlining_Q32==0) %>% 
   #Select responseid and the Q32 variables just for proof of straightlining
   select(ResponseId, matches("Q32_[0-9]$"))->straightliners_Q32
+
+#on22 %>% filter(straightlining_Q32==0) %>% view()
+
+
+on22 %>% 
+  mutate(straightliner=case_when(
+    straightlining_Q32==0~1,
+    straightlining_Q32!=0~0
+  ))->on22
+table(on22$straightliner, useNA = "ifany")
+on22 %>% 
+  group_by(straightliner) %>% 
+  summarize(mean(Duration__in_seconds_, na.rm=T))
+
+table(on22$straightliner, useNA = "ifany")
+on22 %>% 
+ggplot(., aes(x=Duration__in_seconds_))+geom_histogram()+facet_wrap(~straightliner)
+on22 %>% 
+  group_by(straightliner) %>% 
+  summarize(avg=mean(Duration__in_seconds_, na.rm=T))
+on22 %>% 
+  filter(is.na(Duration__in_seconds_)) %>% view()
+
+# Check straightliners on experimental questions
+
+on22 %>% 
+  select(rental_6_storey:semi_detached) %>% 
+  irv(.)->straightlining_experiment
+on22 %>% 
+  mutate(straightlining_experiment=straightlining_experiment)->on22
+on22 %>% 
+  mutate(straightliner_experiment=case_when(
+    straightlining_experiment==0~1,
+    straightlining_experiment!=0~0
+  ))->on22
+table(on22$straightliner_experiment, useNA = "ifany")
+on22 %>% 
+  filter(straightliner_experiment==1) %>% 
+  select(rental_6_storey:semi_detached, straightliner_experiment) %>% view()
 #Write out to csv
 write_csv(straightliners_Q32, file="Data/straightliners_Q32.csv")
 #### Make table comparison of vote intention and election result 
