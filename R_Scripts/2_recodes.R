@@ -1,6 +1,6 @@
 
 source("R_Scripts/0_Functions.R") # To load packages
-source("R_Scripts/1_data_import.R")
+#source("R_Scripts/1_data_import.R")
 
 library(car)
 nrow(on22)
@@ -138,6 +138,7 @@ on22 %>%
   select(ends_with('_exp')) %>% 
   var_label()->experimental_variable_labels
 experimental_variable_labels
+names(on22)
 on22 %>%
   # This renames the names of the Developmental approval ratings
   # With the type of development
@@ -836,6 +837,7 @@ lookfor(on22, "purchase")
 
 #on22$Experimental_Group<-Recode(on22$Experimental_Group,as.factor=T, "'Control'='Control' ; 'Private'='Individual' ; 'Public'='Community';'Social'='National'", 
 #levels=c("Control" ,"Individual", "Community", "National"))
+table(on22$Control)
 on22 %>% 
   mutate(Experimental_Group=case_when(
     !is.na(Control)~"Control",

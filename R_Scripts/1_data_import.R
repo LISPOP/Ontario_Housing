@@ -51,7 +51,6 @@ on22 %>%
   select(-matches("^v[0-9]"))->on22
 names(on22)
 
-nrow(on22)
 
 # in this script, on22 gets turned into data.2
 source("R_Scripts/2_merge_pccf.R")
@@ -69,7 +68,7 @@ nrow(data.2) # 1805
 #This script weights the dataset data.2 after diagnostics and 
 # missing values have been excluded
 source("R_Scripts/2_weight.R")
-
+# Run the recodes
 
 # This script downloads the statistics canada census data for all Dissemination Areas in Ontario
 
@@ -77,6 +76,7 @@ source("R_Scripts/2_weight.R")
 source("R_Scripts/2_statscan_census_data.R")
 #This gets the first order and second dissemination areas 
 source("R_Scripts/2_intersect_matrix.R")
+
 
 #This merges the Dissemination Areas in on22 with the respective statistis 
 # gathered in 2_statcsan_census_data.R
@@ -115,69 +115,27 @@ on22 %>%
 ggsave(here("Plots/percent_single_detached_houses.png"), width=8, height=5)
 
 
-
-
-
-# 
-# ggsave(here("Plots/ontario_dissemination_areas.png"))
-#This script gets the CSD 
-#Merge with the geocoded file Provided by Tim Gravelle
-# on22_geocoded<-read_sav(file="Data/opes22_2022-09-26-geocoded.sav")
-# names(on22_geocoded)
-# #Keep only the variables that Tim provided in the on22_geocoded_survey
-# names(on22_geocoded)
-# on22_geocoded %>%
-#   select(ResponseId, FSA:CSDTYPE)->on22_geocoded
-# #on22<-read_sav(file=here("Data", "Housing_06_06.sav"))
-# names(on22_geocoded)
-# 
-# #Provide a count of year of birth
-# on22 %>% 
-#   select(Q37_DO_NOT_USE, yob) %>% 
-#   as_factor() %>% 
-#   group_by(Q37_DO_NOT_USE, yob) %>% 
-#   count()
-# 
-# #make a geo_good variable for respondents whose postal code matches a Census Subdivision
-# on22 %>%
-#   left_join(., on22_geocoded) %>%
-#   mutate(geo_good=case_when(
-#     is.na(FED2013) == FALSE & is.na(CSD) == FALSE ~ 1,
-#     TRUE~0
-#   ))->on22
-
-
-
-
-
-#Note in on22 the variable is called PRCDDA and in the on_statscan object it is GeoUID
-# on22$PRCDDA
-# as.character(on22$CSDuid)
-# on_statscan_csd
-# on22 %>% 
-#   left_join(., on_statscan_da, by=c("PRCDDA"="GeoUID_da"))->on22
-# #Get the population variable from on_statscan_csd
-# on_statscan_csd %>% 
-#   mutate(GeoUID_csd=as.numeric(GeoUID_csd)) %>% 
-#   select(GeoUID_csd, Population_csd)->out
-# names(on22)
-# names(on_statscan_csd)
-# on22 %>% 
-#   left_join(., out, by=c("CSDuid"="GeoUID_csd"))->on22
-
-
-# Uncomment this line if we are using CSD level data. If not, disregard
-# on22 %>% 
-#   left_join(., on_statscan_csd, by=c("CSDuid"="GeoUID_csd"))->on22
-
 #Clean Underscores before names
 names(on22)<-str_remove_all(names(on22), "^_")
 names(on22)
 #Rename Experimental Group variables
 names(on22)
 on22 %>%
-  rename("National"=`v7`, "Individual"=`v8`, "Community"=`v9`, "Control"=starts_with('SCREEN10'))->on22
+  rename("National"=`v7`, "Individual"=`v8`, "Community"=`v9`) ->on22
+on22$National
+ on22%>% 
+  #rowwise() %>% 
+  mutate(experimental_missings=rowSums(select(., National:Community), na.rm=T)) %>% 
+   #select(National:Community, experimental_missings)
+  mutate(Control=case_when(
+    experimental_missings==0~1,
+TRUE ~ NA))->on22
+
+
+
+# Run the recodes
 names(on22)
+source("R_Scripts/2_recodes.R")
 
 
 #Look for variables

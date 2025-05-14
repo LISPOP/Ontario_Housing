@@ -1,6 +1,6 @@
 # how many respondents do we have??
 
-source("R_Scripts/1_data_import.R")
+#source("R_Scripts/1_data_import.R")
 
 nrow(on22)
 
@@ -9,24 +9,15 @@ library(pwr)
 
 #Power Test Number of coefficients
 # Controls
-# age, gender, education, income
+# age, gender, education, income 4
 # variables of interest
-# ideology (or vote choice) 1 continuous
+# partisanship 4 categories (PC, Liberal, NDP, Other)
+# housing status 1 
 # Experimental treatment 4 groups, so 3 dummies
-# Building type rated single-detached, row, low-rise, tower 4 so 3 dummies
-# Built environments percent single detached, percent row/semi-detached, percent low-rise
-# percent high rise = 4 continuous
+# Plus interation = 4-1 * 4-1 = 9
 
-# Main effects 
-# 1 continuous + 3 experimental + 3 building type + 4 continuous built environment = 7
-# two-way interactions
-# ideology + 3 experimental dummies = 4
-# ideology + 3 building type = 4
-# ideology + 4 continuous built environment = 4
-# experimental dummies x building type = 3*3 = 9
-# experimental dummies x continuous built environment = 3*4 = 12
-# Three-way Interactions
-# ideology + 3 experimental dummies # 3 building type + 4 continuous built environment = 8
+
+
 
 # Total k =  48
 library(pwr)

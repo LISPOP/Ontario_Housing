@@ -35,3 +35,9 @@ filter(., missing_pct<100) %>%
 data.2 %>% 
   ggplot(., aes(x=Progress))+geom_histogram()
 
+# This drops out the missing values variables and puts them in data.missing
+data.2 %>% 
+  select(ResponseId,ends_with("_seen"), ends_with("_miss"), ends_with("_pct")) ->data.missing
+
+data.2 %>% 
+  select(-ends_with("_seen"), -ends_with("_miss"), -ends_with("_pct"))->data.2

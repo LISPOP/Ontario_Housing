@@ -32,6 +32,7 @@ on_statscan_da %>%
          apartment_in_duplex_pct=apartment_in_duplex/total_occupied_private_dwellings,
          apartment_in_building_less_5_pct=apartment_in_building_less_5/total_occupied_private_dwellings,
          apartment_in_building_plus_5_pct=apartment_in_building_plus_5/total_occupied_private_dwellings)->on_statscan_da
+on_statscan_da$Population
 #Create population density
 on_statscan_da %>%
   mutate(pop_density=Population/`Area (sq km)`)->on_statscan_da
@@ -53,6 +54,7 @@ on_statscan_da %>%
   left_join(., csd_population, by=c("CSD_UID"="GeoUID"))->on_statscan_da
 #Convert DA to Numeric
 on_statscan_da$DA2021<-as.numeric(on_statscan_da$DA2021)
+names(on_statscan_da)
 #This writes the data out for the record.
 write_csv(on_statscan_da, file=here("Data/ontario_statscan_data_da.csv"))
 #Get CSD level data
