@@ -52,11 +52,24 @@ on22 %>%
 names(on22)
 
 nrow(on22)
-#This script gets the dissemination areas 
-source("R_Scripts/2_pccf_merge_weight.R")
+
+# in this script, on22 gets turned into data.2
+source("R_Scripts/2_merge_pccf.R")
 # Run the diagnostics script
+# This looks for straightliners and speeders
 source("R_Scripts/2_diagnostics.R")
+#Now Run The Missing Values Script
 source("R_Scripts/2_missing_values.R")
+nrow(data.2)# 1918
+data.2 %>% 
+  filter(duration_z > -2) %>% 
+  filter(missing_z <2) %>% 
+  filter(!is.na(DA2021))->data.2
+nrow(data.2) # 1805
+#This script weights the dataset data.2 after diagnostics and 
+# missing values have been excluded
+source("R_Scripts/2_weight.R")
+
 
 # This script downloads the statistics canada census data for all Dissemination Areas in Ontario
 
