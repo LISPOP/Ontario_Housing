@@ -696,6 +696,7 @@ nrow(mip)
 mip %>% 
   distinct()->mip
 #Filter out unique responses
+
 on22 %>% 
   left_join(.,mip, by=c("mip"="mip"))->on22
 names(on22)

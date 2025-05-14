@@ -2,49 +2,9 @@ source("R_Scripts/2_recodes.R")
 source("R_Scripts/0_Functions.R")
 
 #### Experiment
-#lookfor(on22, "social")
-
-# experimental_variable_labels <- on22 %>% 
-#   select(ends_with('_exp')) %>% 
-#   var_label()
-# 
-# on22 <- on22 %>%
-#   # This renames the names of the Developmental approval ratings
-#   # With the type of development
-#   rename_with(~ unlist(experimental_variable_labels), ends_with('_exp'))
-#Check
-
-#on22$Experimental_Group<-Recode(on22$Experimental_Group,as.factor=T, "'Control'='Control' ; 'Private'='Individual' ; 'Public'='Community';'Social'='National'", 
-#levels=c("Control" ,"Individual", "Community", "National"))
-on22 <- on22 %>% 
-  mutate(Experimental_Group = factor(Experimental_Group,
-                                  levels=c("Control", "Individual", "Community", "National"))
-         )
-
-table(on22$Experimental_Group)
 names(on22)
-#This sets the data-set up for regressions in on_exp
-#This has a dataframe of     columns
-#The variable `data` is a data frame of the proper number of observations
-#Each row in this data-set corresponds to the data provided for each response in the experinment
-on_exp <- on22 %>% 
-  pivot_longer(., cols="rental_6_storey":"semi_detached", 
-               names_to="Development", values_to="Development Support") %>% 
-  nest(data = -Development)
-#This does the same thing but sets the on22 dataframe up for easy graphing
-#Note that the nrow because very large here because we are providing six rows for each respondent.
-#Thsu the confidence intervals here are probably not correct. 
-on22 <- on22 %>% 
-  pivot_longer(., cols="rental_6_storey":"semi_detached", 
-               names_to="Development", values_to="Development Support") 
 
-on22$Development<-factor(on22$Development, levels=c("6 Storey rental building", 
-                                                    "15 Storey rental tower", 
-                                                    "6 Storey condominium building", 
-                                                    "15 Storey condominium Tower", 
-                                                    "Single detached house", 
-                                                    "Semi-detached house"))
-
+on22_stacked$Development
 # Estimate main effect of treatments 
 
 REG_VARS <- c("Experimental_Group", "Development")
