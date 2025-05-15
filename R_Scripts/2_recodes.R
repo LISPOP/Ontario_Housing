@@ -29,15 +29,29 @@ names(on22)
 
 # Making partisanship variable for self-identifying partisans
 
+# on22 %>%
+#   mutate(partisanship=case_when(
+#     Q23 == 1 & Q24 <3 ~ "Liberal",
+#     Q23 == 2 & Q24 <3  ~ "NDP",
+#     Q23 == 3 & Q24 <3 ~ "PC",
+#     Q23 == 4 & Q24 <3 ~ "Green",
+#       TRUE ~ "Independent"
+#   ))->on22
+
+on22$Q23
 on22 %>%
   mutate(partisanship=case_when(
-    Q23 == 1 & Q24 <3 ~ "Liberal",
-    Q23 == 2 & Q24 <3  ~ "NDP",
-    Q23 == 3 & Q24 <3 ~ "PC",
-    Q23 == 4 & Q24 <3 ~ "Green",
-      TRUE ~ "Independent"
+    Q23 == 1  ~ "Liberal",
+    Q23 == 2   ~ "NDP",
+    Q23 == 3  ~ "PC",
+    Q23>3|is.na(Q23) ~ "Other",
+#      TRUE ~ "Independent"
   ))->on22
-on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberal", "Green", "Independent"))
+
+
+#on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberal", "Green", "Independent"))
+on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberal", "Other"))
+
 #Use mutate and case_when()
 table(on22$Q28)
 var_label(on22$Q28)
