@@ -873,11 +873,11 @@ on22$income_digits
 on22$Q43
 on22$Q42
 var_labels(on22$Q43)
-table(on22$Q43, on22$income_digits, ue)
+
 on22 %>% 
   filter(Q42>200000) %>% 
   summarize(median(Q42))
-  mutate()
+
 on22 %>% 
   mutate(income=case_when(
 Q43==2~ 15000,
@@ -903,19 +903,23 @@ on22 %>%
   pivot_longer(., cols="rental_6_storey":"semi_detached", 
                names_to="Development", values_to="Development_Support")->on22_stacked
 on22_stacked$Development<-factor(on22_stacked$Development,
-                                 levels=c("rental_6_storey",
-                                          "rental_15_storey",
-                                          "condo_6_storey",
+                                 levels=c("single_detached",
+                                          "semi_detached",
+                                            "condo_6_storey",
+                                          "rental_6_storey",
                                           "condo_15_storey",
-                                          "single_detached",
-                                          "semi_detached"))
+                                          "rental_15_storey"
+                                          ))
 
 
 # Checks
-names(on22)
-on22$weight
-nrow(on22)
-mean(on22$weight, na.rm=T)
-summary(on22$weight)
-
-
+# names(on22)
+# on22$weight
+# nrow(on22)
+# mean(on22$weight, na.rm=T)
+# summary(on22$weight)
+# mean(on22$weight)
+# mean(on22$income, na.rm=T)
+# table(on22$partisanship)
+# 
+# nrow(on22_stacked)
