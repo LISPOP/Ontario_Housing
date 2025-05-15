@@ -850,6 +850,33 @@ nrow(on22)
 on22$Experimental_Group<-factor(on22$Experimental_Group, levels=c("Control", "Individual", "Community", "National"))
 table(on22$Experimental_Group)
 names(on22)
+
+#### Add Income Middle Category
+
+lookfor(on22, "income")
+on22$Q43
+on22$income_digits
+on22$Q43
+on22$Q42
+var_labels(on22$Q43)
+table(on22$Q43, on22$income_digits, ue)
+on22 %>% 
+  filter(Q42>200000) %>% 
+  summarize(median(Q42))
+  mutate()
+on22 %>% 
+  mutate(income=case_when(
+Q43==2~ 15000,
+Q43==3~45000,
+Q43==4~75000,
+Q43==5~100000,
+Q43==6~130000,
+Q43==7~175000,
+Q43==8~300000,
+Q43==1~0,
+is.na(Q43)~Q42
+  ))->on22
+
 #### Stack for the experiment ####
 # This code stacks on22 with six rows for each respondent, one row for each respondent's 
 # level of support for a type of development
