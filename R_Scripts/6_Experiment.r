@@ -3,29 +3,38 @@ source("R_Scripts/0_Functions.R")
 
 #### Experiment
 names(on22)
+# Reorder Development for reporting
 
 on22_stacked$Development
-# Estimate main effect of treatments 
+#### Mod h1a
 
 REG_VARS <- c("Experimental_Group", "Development")
-CONTROLS <- c("age", "gender", "Vote")
+CONTROLS <- c("age", "male", "income", "Degree")
 
-main_effect_controls <- lm_robust(
-  reformulate(c(REG_VARS, CONTROLS), response = "Development_Support"),
+mod_h1a <- lm_robust(
+  reformulate(c(REG_VARS, CONTROLS, "partisanship"), response = "Development_Support"),
   data = on22_stacked,
   se_type = "CR2", #HC2 SEs are used for experiments 
   clusters = ResponseId) #Clustered by Respondent 
-  
-main_effect <- lm_robust(
-  reformulate(REG_VARS, response = "Development_Support"),
+
+modelsummary(mod_h1a, stars=T)
+#### Mod h1b
+mod_h1b <- lm_robust(
+  reformulate(c(REG_VARS,CONTROLS) ,response = "Development_Support"),
           data = on22_stacked,
           se_type = "CR2", #HC2 SEs are used for experiments 
           clusters = ResponseId) #Clustered by Respondent 
+modelsummary(mod_h1b, stars=T)
 
-
-
+#### Mod h1c
+mod_h1c <- lm_robust(
+  reformulate(c(REG_VARS,CONTROLS) ,response = "Development_Support"),
+  data = on22_stacked,
+  se_type = "CR2", #HC2 SEs are used for experiments 
+  clusters = ResponseId) #Clustered by Respondent 
+modelsummary(mod_h1c, stars=T)
 graph_regression(list(main_effect_controls, main_effect), "main_effect")
-
+table(on22_stacked$Development)
 
 #### Heterogeneous Effects by Halo Effect ####
 
