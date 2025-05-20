@@ -1,6 +1,6 @@
 
 source("R_Scripts/0_Functions.R") # To load packages
-#source("R_Scripts/1_data_import.R")
+source("R_Scripts/1_data_import.R")
 
 library(car)
 nrow(on22)
@@ -525,7 +525,7 @@ on22$Degree<-Recode(as.numeric(on22$Q39), "9:11='Degree'; else='No degree'",
                     levels=c("No degree", "Degree"))
 lookfor(on22, "urban")
 on22$Density<-as_factor(on22$Q41)
-levels(on22$Density)<-c("Suburban", "Urban", "Rural")
+#levels(on22$Density)<-c("Suburban", "Urban", "Rural")
 #Renter variabvle
 
 #levels(on22$Housing_Status)<-c("Satisfied Homeowner", "First-Time Homebuyer", "Speculator", "Satisfied Renter", "Other")

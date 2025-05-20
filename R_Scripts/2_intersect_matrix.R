@@ -66,7 +66,7 @@ da.intersect.2 %>%
 # YOU HAVE TO DO THE JOIN USING THE VARIABLE DA2021_INTERSECT=DA_2021
 # SO THAT WE GRAB THE STATS FOR THE= THE INTERSECTING DAS 
 on_statscan_da %>% 
-  left_join(., da.intersect.1, by="DA2021") %>% view()
+  left_join(., da.intersect.1, by="DA2021")# %>% view()
 da.intersect.1 %>% 
   #If you insert a view() after this line, you should see
   # Several rows for each dissemination area; one row for each DA that intersects each DA

@@ -36,6 +36,83 @@ modelsummary(mod_h1c, stars=T)
 graph_regression(list(main_effect_controls, main_effect), "main_effect")
 table(on22_stacked$Development)
 
+#### Mod H1d ####
+
+# With Density 
+mod_h1d <- lm_robust(
+  reformulate(c("Density*Development", REG_VARS[-2],CONTROLS) ,response = "Development_Support"),
+  data = on22_stacked,
+  se_type = "CR2", #HC2 SEs are used for experiments 
+  clusters = ResponseId) #Clustered by Respondent 
+modelsummary(mod_h1d, stars=T)
+
+plot_predictions(mod_h1d, by = c("Development", "Density")) +
+  geom_hline(yintercept = 0, lty = 4, col = "red")
+
+
+# With % Tower 
+
+
+built_environment <- "Development * (row_house_pct_da + apartment_in_duplex_pct_da +
+                      single_detached_houses_pct_da + semi_detached_house_pct_da + 
+                       + apartment_in_building_less_5_pct_da + apartment_in_building_plus_5_pct_da)"
+
+ENVI_VARS <- c("row_house_pct_da", "apartment_in_duplex_pct_da",
+                 "single_detached_houses_pct_da", "semi_detached_house_pct_da", 
+                 "apartment_in_building_less_5_pct_da", "apartment_in_building_plus_5_pct_da")
+
+mod_h1d_tower <- lm_robust(
+  reformulate(c(built_environment, REG_VARS[-2],CONTROLS) ,response = "Development_Support"),
+  data = on22_stacked,
+  se_type = "CR2", #HC2 SEs are used for experiments 
+  clusters = ResponseId) #Clustered by Respondent 
+
+modelsummary(mod_h1d_tower, stars=T)
+
+h1d_tower_graphs <- list()
+for(i in 1:length(ENVI_VARS)){
+  h1d_tower_graphs[[i]] <- plot_slopes(mod_h1d_tower,  variables = ENVI_VARS[i], by = "Development") +
+    geom_hline(yintercept = 0, lty = 4, col = "red") + 
+    labs(y = ENVI_VARS[i]) +
+    theme_bw()
+}
+
+#### Neighboring H1e
+
+# should be multi level model 
+
+on22_stacked <- on22_stacked %>% 
+  mutate(higher = ifelse(pop_density_da_intersect1 > pop_density_da, 1, 0))
+
+mod_h1e <- lm(reformulate(c("Development*higher", "Experimental_Group", CONTROLS), 
+                          response = "Development_Support"),
+data = on22_stacked,
+se_type = "CR2", #HC2 SEs are used for experiments 
+clusters = ResponseId 
+)
+
+plot_predictions(mod_h1e, by = c("Development", "higher")) + theme_bw()
+
+#### h1f - Main model
+
+mod_h1f_main <- lm_robust(
+  reformulate(c("Renter", REG_VARS,CONTROLS) ,response = "Development_Support"),
+  data = on22_stacked,
+  se_type = "CR2", #HC2 SEs are used for experiments 
+  clusters = ResponseId) #Clustered by Respondent 
+
+modelsummary(mod_h1f_main, stars = TRUE)
+
+#### h1f - renter by development type
+
+mod_h1f_develop <- lm_robust(
+  reformulate(c("Renter*Development", REG_VARS[-2],CONTROLS) ,response = "Development_Support"),
+  data = on22_stacked,
+  se_type = "CR2", #HC2 SEs are used for experiments 
+  clusters = ResponseId) #Clustered by Respondent 
+
+plot_predictions(mod_h1f_develop, by = c("Development", "Renter"))
+
 #### Heterogeneous Effects by Halo Effect ####
 
 

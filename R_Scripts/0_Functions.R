@@ -4,7 +4,10 @@ pacman::p_load(tidyverse,
                estimatr,
                sf,
                sjlabelled,
-               PracTools)
+               PracTools,
+               haven,
+               modelsummary,
+               marginaleffects)
 
 
 #### GRAPH REGRESSION MODELS ####
