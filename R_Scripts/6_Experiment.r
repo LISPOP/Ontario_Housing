@@ -113,6 +113,48 @@ mod_h1f_develop <- lm_robust(
 
 plot_predictions(mod_h1f_develop, by = c("Development", "Renter"))
 
+#### H2 ####
+
+#### H2a 
+
+mod_h2a <- lm_robust(
+  reformulate(c("partisanship*Experimental_Group",
+                "Development", CONTROLS) ,response = "Development_Support"),
+  data = on22_stacked,
+  se_type = "CR2", #HC2 SEs are used for experiments 
+  clusters = ResponseId) #Clustered by Respondent 
+
+
+plot_slopes(mod_h2a, variables = "Experimental_Group", by = "partisanship") +
+  geom_hline(yintercept = 0, lty = 4, col = "red") +
+  theme_bw()
+
+#### h2a2
+
+mod_h2a2 <- lm_robust(
+  reformulate(c("partisanship*Experimental_Group*Renter",
+                "Development", CONTROLS) ,response = "Development_Support"),
+  data = on22_stacked,
+  se_type = "CR2", #HC2 SEs are used for experiments 
+  clusters = ResponseId) #Clustered by Respondent 
+
+
+plot_slopes(mod_h2a2, variables = "Experimental_Group", by = c("partisanship", "Renter")) +
+  geom_hline(yintercept = 0, lty = 4, col = "red") +
+  theme_bw()
+
+#### H2b 
+
+mod_h2b <- lm_robust(
+  reformulate(c("partisanship*Development",
+                CONTROLS) ,response = "Development_Support"),
+  data = on22_stacked,
+  se_type = "CR2", #HC2 SEs are used for experiments 
+  clusters = ResponseId) #Clustered by Respondent 
+
+plot_predictions(mod_h2b, condition = c("Development", "partisanship")) + theme_bw()
+
+
 #### Heterogeneous Effects by Halo Effect ####
 
 
