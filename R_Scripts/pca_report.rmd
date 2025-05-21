@@ -1,0 +1,14 @@
+---
+title: "Results of Principal Component Analysis"
+author: "Simon J. Kiss"
+date: "2023-06-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+source("4_pca.R")
+```
+
