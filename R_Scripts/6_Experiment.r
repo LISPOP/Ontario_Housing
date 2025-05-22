@@ -6,6 +6,7 @@ names(on22)
 # Reorder Development for reporting
 
 on22_stacked$Development
+
 #### Mod h1a
 
 REG_VARS <- c("Experimental_Group", "Development")
@@ -15,7 +16,8 @@ mod_h1a <- lm_robust(
   reformulate(c(REG_VARS, CONTROLS, "partisanship"), response = "Development_Support"),
   data = on22_stacked,
   se_type = "CR2", #HC2 SEs are used for experiments 
-  clusters = ResponseId) #Clustered by Respondent 
+  clusters = ResponseId,
+  weights = weight) #Clustered by Respondent 
 
 modelsummary(mod_h1a, stars=T)
 
@@ -25,7 +27,8 @@ mod_h1b <- lm_robust(
   reformulate(c(REG_VARS,CONTROLS) ,response = "Development_Support"),
           data = on22_stacked,
           se_type = "CR2", #HC2 SEs are used for experiments 
-          clusters = ResponseId) #Clustered by Respondent 
+          clusters = ResponseId,
+  weights = weight) #Clustered by Respondent 
 modelsummary(mod_h1b, stars=T)
 
 tidy(mod_h1b, conf.int = TRUE) %>% 
@@ -41,7 +44,8 @@ mod_h1c <- lm_robust(
   reformulate(c(REG_VARS,CONTROLS) ,response = "Development_Support"),
   data = on22_stacked,
   se_type = "CR2", #HC2 SEs are used for experiments 
-  clusters = ResponseId) #Clustered by Respondent 
+  clusters = ResponseId,
+  weights = weight) #Clustered by Respondent 
 modelsummary(mod_h1c, stars=T)
 #graph_regression(list(main_effect_controls, main_effect), "main_effect")
 table(on22_stacked$Development)
@@ -53,7 +57,8 @@ mod_h1d <- lm_robust(
   reformulate(c("Density*Development", REG_VARS[-2],CONTROLS) ,response = "Development_Support"),
   data = on22_stacked,
   se_type = "CR2", #HC2 SEs are used for experiments 
-  clusters = ResponseId) #Clustered by Respondent 
+  clusters = ResponseId,
+  weights = weight) #Clustered by Respondent 
 modelsummary(mod_h1d, stars=T)
 
 plot_predictions(mod_h1d, by = c("Development", "Density")) +
@@ -83,7 +88,9 @@ on22_stacked <- on22_stacked %>%
 
 
 mod_h1d_tower <- lmer(
-  reformulate(c("pct_towers*Development", REG_VARS[-2],CONTROLS, "(1 | DA2021)"), response = "Development_Support"),
+  reformulate(c("pct_towers*Development", REG_VARS[-2],CONTROLS, "(1 | DA2021)"),
+              response = "Development_Support"),
+  weights = weight,
   data = on22_stacked) 
 
 modelsummary(mod_h1d_tower, stars=T)
@@ -116,6 +123,7 @@ on22_stacked <- on22_stacked %>%
 
 mod_h1e <- lmer(reformulate(c("Development*higher_density", "Experimental_Group", CONTROLS, "(1 | DA2021)"), 
                           response = "Development_Support"),
+                weights = weight,
 data = on22_stacked
 )
 
@@ -123,6 +131,7 @@ plot_predictions(mod_h1e, by = c("Development", "higher_density")) + theme_bw()
 
 mod_h1e_towers1 <- lmer(reformulate(c("Development*more_towers_in1", "Experimental_Group", CONTROLS, "(1 | DA2021)"), 
                           response = "Development_Support"),
+                        weights = weight,
               data = on22_stacked
 )
 
@@ -131,6 +140,7 @@ plot_predictions(mod_h1e_towers1, by = c("Development", "more_towers_in1")) + th
 
 mod_h1e_towers2 <- lmer(reformulate(c("Development*more_towers_in2", "Experimental_Group", CONTROLS, "(1 | DA2021)"), 
                                   response = "Development_Support"),
+                        weights = weight,
                       data = on22_stacked
 )
 
@@ -142,6 +152,7 @@ mod_h1f_main <- lm_robust(
   reformulate(c("Renter", REG_VARS, CONTROLS) ,response = "Development_Support"),
   data = on22_stacked,
   se_type = "CR2", #HC2 SEs are used for experiments 
+  weights = weight,
   clusters = ResponseId) #Clustered by Respondent 
 
 modelsummary(mod_h1f_main, stars = TRUE)
@@ -152,6 +163,7 @@ mod_h1f_develop <- lm_robust(
   reformulate(c("Renter*Development", REG_VARS[-2],CONTROLS) ,response = "Development_Support"),
   data = on22_stacked,
   se_type = "CR2", #HC2 SEs are used for experiments 
+  weights = weight,
   clusters = ResponseId) #Clustered by Respondent 
 
 plot_predictions(mod_h1f_develop, by = c("Development", "Renter"))
@@ -165,6 +177,7 @@ mod_h2a <- lm_robust(
                 "Development", CONTROLS) ,response = "Development_Support"),
   data = on22_stacked,
   se_type = "CR2", #HC2 SEs are used for experiments 
+  weights = weight,
   clusters = ResponseId) #Clustered by Respondent 
 
 
@@ -179,6 +192,7 @@ mod_h2a2 <- lm_robust(
                 "Development", CONTROLS) ,response = "Development_Support"),
   data = on22_stacked,
   se_type = "CR2", #HC2 SEs are used for experiments 
+  weights = weight,
   clusters = ResponseId) #Clustered by Respondent 
 
 
@@ -194,6 +208,7 @@ mod_h2b <- lm_robust(
                 CONTROLS) ,response = "Development_Support"),
   data = on22_stacked,
   se_type = "CR2", #HC2 SEs are used for experiments 
+  weights = weight,
   clusters = ResponseId) #Clustered by Respondent 
 
 plot_predictions(mod_h2b, condition = c("Development", "partisanship")) + theme_bw()
