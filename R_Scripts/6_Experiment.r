@@ -88,7 +88,7 @@ on22_stacked <- on22_stacked %>%
 
 
 mod_h1d_tower <- lmer(
-  reformulate(c("pct_towers*Development", REG_VARS[-2],CONTROLS, "(1 | DA2021)"),
+  reformulate(c("pct_towers*Development", REG_VARS[-2],CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"),
               response = "Development_Support"),
   weights = weight,
   data = on22_stacked) 
@@ -121,7 +121,7 @@ on22_stacked <- on22_stacked %>%
     more_towers_in1 = ifelse(pct_towers_intersect1 > pct_towers, 1, 0),
     more_towers_in2 = ifelse(pct_towers_intersect2 > pct_towers, 1, 0))
 
-mod_h1e <- lmer(reformulate(c("Development*higher_density", "Experimental_Group", CONTROLS, "(1 | DA2021)"), 
+mod_h1e <- lmer(reformulate(c("Development*higher_density", "Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                           response = "Development_Support"),
                 weights = weight,
 data = on22_stacked
@@ -129,7 +129,7 @@ data = on22_stacked
 
 plot_predictions(mod_h1e, by = c("Development", "higher_density")) + theme_bw()
 
-mod_h1e_towers1 <- lmer(reformulate(c("Development*more_towers_in1", "Experimental_Group", CONTROLS, "(1 | DA2021)"), 
+mod_h1e_towers1 <- lmer(reformulate(c("Development*more_towers_in1", "Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                           response = "Development_Support"),
                         weights = weight,
               data = on22_stacked
@@ -138,7 +138,7 @@ mod_h1e_towers1 <- lmer(reformulate(c("Development*more_towers_in1", "Experiment
 plot_predictions(mod_h1e_towers1, by = c("Development", "more_towers_in1")) + theme_bw()
 
 
-mod_h1e_towers2 <- lmer(reformulate(c("Development*more_towers_in2", "Experimental_Group", CONTROLS, "(1 | DA2021)"), 
+mod_h1e_towers2 <- lmer(reformulate(c("Development*more_towers_in2", "Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                                   response = "Development_Support"),
                         weights = weight,
                       data = on22_stacked
