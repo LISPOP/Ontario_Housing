@@ -8,7 +8,9 @@ pacman::p_load(tidyverse,
                haven,
                modelsummary,
                marginaleffects,
-               lme4)
+               lme4,
+               gt,
+               webshot2)
 
 
 #### GRAPH REGRESSION MODELS ####

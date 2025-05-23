@@ -57,7 +57,7 @@ plot_h1b <- tidy(mod_h1b, conf.int = TRUE) %>%
   geom_point() + 
   geom_linerange() +
   labs(x = NULL, y = NULL)
-  theme_bw()
+
   
 ggsave("Plots/h1b.png", plot_h1b, height = 4, width = 7)
 
@@ -93,6 +93,7 @@ plot_predictions(mod_h1c, by = "Development") + theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(x = NULL, y = "Predicted Support for Each Development Type") +
   scale_x_discrete(labels = DEVELOPMENT_LABELS)
+
 
 #### Mod H1d ####
 
@@ -173,11 +174,11 @@ h1d_plot_tower <- h1d_predict %>%
                                                         "6 Story Apartment \n Buildings (Rental)",
                                                         "15 Story Condo \n Buildings",
                                                         "15 Story Apartment \n Buildings (Rental)"))) %>% 
-  ggplot(aes(x = pct_towers, y = estimate, ymin = conf.low, ymax = conf.high, col = Development)) + 
+  ggplot(aes(x = pct_towers, y = estimate, ymin = conf.low, ymax = conf.high, col = Development, size = Development)) + 
   geom_line() + 
   theme_bw() +
   labs(x = "Percentage of Towers in Respodent's Disemination Area",
-       y = NULL,
+       y = "Predicted Support for Each Type of Development",
        col = "Development Type") + 
   theme(legend.position = "bottom") +
   scale_colour_manual(values = c(
@@ -187,10 +188,70 @@ h1d_plot_tower <- h1d_predict %>%
     "6 Story Apartment \n Buildings (Rental)" = "#F0E442", # Yellow
     "15 Story Condo \n Buildings" = "#D55E00",       # Orange-Red
     "15 Story Apartment \n Buildings (Rental)" = "#CC79A7"  # Purple
-  )) 
+  )) + 
+  scale_size_manual(values = c("Single Detached \n Houses" = 0.75,
+                    "Semi-Detached \n Houses" = 0.75,
+                    "6 Story Condo \n Buildings" = 0.5,
+                    "6 Story Apartment \n Buildings (Rental)" = 0.5,
+                    "15 Story Condo \n Buildings" = 0.5,      
+                    "15 Story Apartment \n Buildings (Rental)" = 0.5  )
+                    ) +
+  guides(
+    colour = guide_legend(override.aes = list(size = 1.5)),
+    size = "none"
+  )
 
 
 ggsave("Plots/h1d_tower.png", h1d_plot_tower, width = 7, height = 4)
+
+
+
+modelsummary(list("H1a" = mod_h1a,
+                  "H1b" = mod_h1b,
+                  "H1c (OLS)" = mod_h1c,
+                  "H1c (Logistic Regression)" = mod_h1c_logit,
+                  "H1d (Population Density)" = mod_h1d,
+                  "H1d (Percent Towers)" = mod_h1d_tower),
+             stars = TRUE,
+             coef_map = c("(Intercept)" = "(Intercept)",
+                          "partisanshipLiberal" = "Liberal Partisans \n (Ref. NDP)",
+                          "partisanshipOther" = "Green Partisans/Non-partisans",
+                          "partisanshipPC" = "PC Partisans",
+                          "Experimental_GroupIndividual" = "Individual Benefits",
+                          "Experimental_GroupCommunity" = "Community Benefits",
+                          "Experimental_GroupNational" = "National Benefits",
+                          "Developmentsemi_detached" = "Semi-Detached House \n (Ref. Single Detached House)",
+                          "Developmentcondo_6_storey" = "6 Story Condos",
+                          "Developmentrental_6_storey" = "6 Story Rentals",
+                          "Developmentcondo_15_storey" = "15 Story Condos",
+                          "Developmentrental_15_storey" = "15 Story Rentals",
+                          "DensitySuburban" = "Self-Reported Suburban (Ref. Urban)",
+                          "DensityRural" = "Rural",
+                          "DensitySuburban:Developmentsemi_detached" = "Suburban × Semi-Detached House",
+                          "DensityRural:Developmentsemi_detached" = "Rural x Semi-Detached House",
+                          "DensitySuburban:Developmentcondo_6_storey" = "Suburban x 6 Story Condos",
+                          "DensityRural:Developmentcondo_6_storey" = "Rural x 6 Story Condos",
+                          "DensitySuburban:Developmentrental_6_storey" = "Suburban x 6 Story Rentals",
+                          "DensityRural:Developmentrental_6_storey" = "Rural x 6 Story Rentals",
+                          "DensitySuburban:Developmentcondo_15_storey" = "Suburban x 15 Story Condos",
+                          "DensityRural:Developmentcondo_15_storey" = "Rural x 15 Story Condos",
+                          "DensitySuburban:Developmentrental_15_storey" = "Suburban x 15 Story Rentals",
+                          "DensityRural:Developmentrental_15_storey" = "Rural x 15 Story Rental",
+                          "pct_towers" = "% Towers in a DA",
+                          "pct_towers:Developmentsemi_detached" = "% Towers x Semi-Detached Houses",
+                          "pct_towers:Developmentcondo_6_storey" = "% Towers x 6 Story Condos",
+                          "pct_towers:Developmentrental_6_storey" = "% Towers x 6 Story Rentals",
+                          "pct_towers:Developmentcondo_15_storey" = "% Towers x 15 Story Condos",
+                          "pct_towers:Developmentrental_15_storey" = "% Towers x 15 Story Rentals",
+                          "age" = "Age",
+                          "maleMale" = "Male",
+                          "income" = "Income",
+                          "DegreeNo degree" = "No Degree"
+             ),
+             output = "Tables/temp/h1a-h1c_models.html") 
+
+webshot("Tables/temp/h1a-h1c_models.html", "Tables/h1a-h1c_models.png", vwidth = 1000, vheight = 1000)
+
 
 #### Neighboring H1e
 
@@ -292,6 +353,75 @@ mod_h1e_towers2_plot <- plot_predictions(mod_h1e_towers2, by = c("Development", 
 
 ggsave("Plots/h1e_towers2.png", mod_h1e_towers2_plot, width = 7, height = 4)
 
+modelsummary(list("H1e (Density Neigbouring DAs)" = mod_h1e_density1,
+                  "H1e (Density Next Neigbouring DAs)" = mod_h1e_density2,
+                  "H1e (% Towers Neigbouring DAs)" = mod_h1e_towers1,
+                  "H1e (% Towers Next Neigbouring DAs)" = mod_h1e_density2),
+             stars = TRUE,
+             coef_map = c("(Intercept)" = "(Intercept)",
+                          "higher_density_in1" = "(Next-)Neigbouring DA is Higher",
+                          "Developmentsemi_detached:higher_density_in1" = "Semi Detached x (Next-)Neigbouring DA is Higher",
+                          "Developmentcondo_6_storey:higher_density_in1" = "6 Story Condos x (Next-)Neigbouring DA is Higher",
+                          "Developmentrental_6_storey:higher_density_in1" = "6 Story Rentals x (Next-)Neigbouring DA is Higher",
+                          "Developmentcondo_15_storey:higher_density_in1" = "15 Story Condos x (Next-)Neigbouring DA is Higher",
+                          "Developmentrental_15_storey:higher_density_in1" = "15 Story Rentals x (Next-)Neigbouring DA is Higher",
+                          "higher_density_in2" = "(Next-)Neigbouring DA is Higher",
+                          "Developmentsemi_detached:higher_density_in2" = "Semi Detached x (Next-)Neigbouring DA is Higher",
+                          "Developmentcondo_6_storey:higher_density_in2" = "6 Story Condos x (Next-)Neigbouring DA is Higher",
+                          "Developmentrental_6_storey:higher_density_in2" = "6 Story Rentals x (Next-)Neigbouring DA is Higher",
+                          "Developmentcondo_15_storey:higher_density_in2" = "15 Story Condos x (Next-)Neigbouring DA is Higher",
+                          "Developmentrental_15_storey:higher_density_in2" = "15 Story Rentals x (Next-)Neigbouring DA is Higher",
+                          "more_towers_in1" = "(Next-)Neigbouring DA is Higher",
+                          "Developmentsemi_detached:more_towers_in1" = "Semi Detached x (Next-)Neigbouring DA is Higher",
+                          "Developmentcondo_6_storey:more_towers_in1" = "6 Story Condos x (Next-)Neigbouring DA is Higher",
+                          "Developmentrental_6_storey:more_towers_in1" = "6 Story Rentals x (Next-)Neigbouring DA is Higher",
+                          "Developmentcondo_15_storey:more_towers_in1" = "15 Story Condos x (Next-)Neigbouring DA is Higher",
+                          "Developmentrental_15_storey:more_towers_in1" = "15 Story Rentals x (Next-)Neigbouring DA is Higher",
+                          "more_towers_in2" = "(Next-)Neigbouring DA is Higher",
+                          "Developmentsemi_detached:more_towers_in2" = "Semi Detached x (Next-)Neigbouring DA is Higher",
+                          "Developmentcondo_6_storey:more_towers_in2" = "6 Story Condos x (Next-)Neigbouring DA is Higher",
+                          "Developmentrental_6_storey:more_towers_in2" = "6 Story Rentals x (Next-)Neigbouring DA is Higher",
+                          "Developmentcondo_15_storey:more_towers_in2" = "15 Story Condos x (Next-)Neigbouring DA is Higher",
+                          "Developmentrental_15_storey:more_towers_in2" = "15 Story Rentals x (Next-)Neigbouring DA is Higher",
+                          "partisanshipLiberal" = "Liberal Partisans \n (Ref. NDP)",
+                          "partisanshipOther" = "Green Partisans/Non-partisans",
+                          "partisanshipPC" = "PC Partisans",
+                          "Experimental_GroupIndividual" = "Individual Benefits",
+                          "Experimental_GroupCommunity" = "Community Benefits",
+                          "Experimental_GroupNational" = "National Benefits",
+                          "Developmentsemi_detached" = "Semi-Detached House \n (Ref. Single Detached House)",
+                          "Developmentcondo_6_storey" = "6 Story Condos",
+                          "Developmentrental_6_storey" = "6 Story Rentals",
+                          "Developmentcondo_15_storey" = "15 Story Condos",
+                          "Developmentrental_15_storey" = "15 Story Rentals",
+                          "DensitySuburban" = "Self-Reported Suburban (Ref. Urban)",
+                          "DensityRural" = "Rural",
+                          "DensitySuburban:Developmentsemi_detached" = "Suburban × Semi-Detached House",
+                          "DensityRural:Developmentsemi_detached" = "Rural x Semi-Detached House",
+                          "DensitySuburban:Developmentcondo_6_storey" = "Suburban x 6 Story Condos",
+                          "DensityRural:Developmentcondo_6_storey" = "Rural x 6 Story Condos",
+                          "DensitySuburban:Developmentrental_6_storey" = "Suburban x 6 Story Rentals",
+                          "DensityRural:Developmentrental_6_storey" = "Rural x 6 Story Rentals",
+                          "DensitySuburban:Developmentcondo_15_storey" = "Suburban x 15 Story Condos",
+                          "DensityRural:Developmentcondo_15_storey" = "Rural x 15 Story Condos",
+                          "DensitySuburban:Developmentrental_15_storey" = "Suburban x 15 Story Rentals",
+                          "DensityRural:Developmentrental_15_storey" = "Rural x 15 Story Rental",
+                          "pct_towers" = "% Towers in a DA",
+                          "pct_towers:Developmentsemi_detached" = "% Towers x Semi-Detached Houses",
+                          "pct_towers:Developmentcondo_6_storey" = "% Towers x 6 Story Condos",
+                          "pct_towers:Developmentrental_6_storey" = "% Towers x 6 Story Rentals",
+                          "pct_towers:Developmentcondo_15_storey" = "% Towers x 15 Story Condos",
+                          "pct_towers:Developmentrental_15_storey" = "% Towers x 15 Story Rentals",
+                          "age" = "Age",
+                          "maleMale" = "Male",
+                          "income" = "Income",
+                          "DegreeNo degree" = "No Degree"
+             ),
+             output = "Tables/temp/h1emodels.html") 
+
+
+webshot("Tables/temp/h1emodels.html", "Tables/h1e_models.png", vwidth = 1000, vheight = 1000)
+
 #### h1f - Main model
 
 mod_h1f_main <- lm_robust(
@@ -323,7 +453,82 @@ h1f_develop_plot <- plot_predictions(mod_h1f_develop, by = c("Development", "Ren
   ylim(0.4, 0.8) +
   theme(legend.position = "bottom") 
 
+
+
 ggsave("Plots/h2f.png", h1f_develop_plot, height = 4, width = 7)
+
+modelsummary(list("H1f (Pooled Model)" = mod_h1f_main,
+                  "H1f (Heterogenous by Development Type)" = mod_h1f_develop),
+             stars = TRUE,
+             coef_map = c("(Intercept)" = "(Intercept)",
+                          "RenterRenter" = "Renter",
+                          "RenterRenter:Developmentsemi_detached" = "Renter × Semi-Detached House",
+                          "RenterRenter:Developmentcondo_6_storey" = "Renter x 6 Story Condos",
+                          "RenterRenter:Developmentrental_6_storey" = "Renter x 6 Story Rentals",
+                          "RenterRenter:Developmentcondo_15_storey" = "Renter x 15 Story Condos",
+                          "RenterRenter:Developmentrental_15_storey" = "Rental x 15 Story Rentals",
+                          "higher_density_in1" = "(Next-)Neigbouring DA is Higher",
+                          "Developmentsemi_detached:higher_density_in1" = "Semi Detached x (Next-)Neigbouring DA is Higher",
+                          "Developmentcondo_6_storey:higher_density_in1" = "6 Story Condos x (Next-)Neigbouring DA is Higher",
+                          "Developmentrental_6_storey:higher_density_in1" = "6 Story Rentals x (Next-)Neigbouring DA is Higher",
+                          "Developmentcondo_15_storey:higher_density_in1" = "15 Story Condos x (Next-)Neigbouring DA is Higher",
+                          "Developmentrental_15_storey:higher_density_in1" = "15 Story Rentals x (Next-)Neigbouring DA is Higher",
+                          "higher_density_in2" = "(Next-)Neigbouring DA is Higher",
+                          "Developmentsemi_detached:higher_density_in2" = "Semi Detached x (Next-)Neigbouring DA is Higher",
+                          "Developmentcondo_6_storey:higher_density_in2" = "6 Story Condos x (Next-)Neigbouring DA is Higher",
+                          "Developmentrental_6_storey:higher_density_in2" = "6 Story Rentals x (Next-)Neigbouring DA is Higher",
+                          "Developmentcondo_15_storey:higher_density_in2" = "15 Story Condos x (Next-)Neigbouring DA is Higher",
+                          "Developmentrental_15_storey:higher_density_in2" = "15 Story Rentals x (Next-)Neigbouring DA is Higher",
+                          "more_towers_in1" = "(Next-)Neigbouring DA is Higher",
+                          "Developmentsemi_detached:more_towers_in1" = "Semi Detached x (Next-)Neigbouring DA is Higher",
+                          "Developmentcondo_6_storey:more_towers_in1" = "6 Story Condos x (Next-)Neigbouring DA is Higher",
+                          "Developmentrental_6_storey:more_towers_in1" = "6 Story Rentals x (Next-)Neigbouring DA is Higher",
+                          "Developmentcondo_15_storey:more_towers_in1" = "15 Story Condos x (Next-)Neigbouring DA is Higher",
+                          "Developmentrental_15_storey:more_towers_in1" = "15 Story Rentals x (Next-)Neigbouring DA is Higher",
+                          "more_towers_in2" = "(Next-)Neigbouring DA is Higher",
+                          "Developmentsemi_detached:more_towers_in2" = "Semi Detached x (Next-)Neigbouring DA is Higher",
+                          "Developmentcondo_6_storey:more_towers_in2" = "6 Story Condos x (Next-)Neigbouring DA is Higher",
+                          "Developmentrental_6_storey:more_towers_in2" = "6 Story Rentals x (Next-)Neigbouring DA is Higher",
+                          "Developmentcondo_15_storey:more_towers_in2" = "15 Story Condos x (Next-)Neigbouring DA is Higher",
+                          "Developmentrental_15_storey:more_towers_in2" = "15 Story Rentals x (Next-)Neigbouring DA is Higher",
+                          "partisanshipLiberal" = "Liberal Partisans \n (Ref. NDP)",
+                          "partisanshipOther" = "Green Partisans/Non-partisans",
+                          "partisanshipPC" = "PC Partisans",
+                          "Experimental_GroupIndividual" = "Individual Benefits",
+                          "Experimental_GroupCommunity" = "Community Benefits",
+                          "Experimental_GroupNational" = "National Benefits",
+                          "Developmentsemi_detached" = "Semi-Detached House \n (Ref. Single Detached House)",
+                          "Developmentcondo_6_storey" = "6 Story Condos",
+                          "Developmentrental_6_storey" = "6 Story Rentals",
+                          "Developmentcondo_15_storey" = "15 Story Condos",
+                          "Developmentrental_15_storey" = "15 Story Rentals",
+                          "DensitySuburban" = "Self-Reported Suburban (Ref. Urban)",
+                          "DensityRural" = "Rural",
+                          "DensitySuburban:Developmentsemi_detached" = "Suburban × Semi-Detached House",
+                          "DensityRural:Developmentsemi_detached" = "Rural x Semi-Detached House",
+                          "DensitySuburban:Developmentcondo_6_storey" = "Suburban x 6 Story Condos",
+                          "DensityRural:Developmentcondo_6_storey" = "Rural x 6 Story Condos",
+                          "DensitySuburban:Developmentrental_6_storey" = "Suburban x 6 Story Rentals",
+                          "DensityRural:Developmentrental_6_storey" = "Rural x 6 Story Rentals",
+                          "DensitySuburban:Developmentcondo_15_storey" = "Suburban x 15 Story Condos",
+                          "DensityRural:Developmentcondo_15_storey" = "Rural x 15 Story Condos",
+                          "DensitySuburban:Developmentrental_15_storey" = "Suburban x 15 Story Rentals",
+                          "DensityRural:Developmentrental_15_storey" = "Rural x 15 Story Rental",
+                          "pct_towers" = "% Towers in a DA",
+                          "pct_towers:Developmentsemi_detached" = "% Towers x Semi-Detached Houses",
+                          "pct_towers:Developmentcondo_6_storey" = "% Towers x 6 Story Condos",
+                          "pct_towers:Developmentrental_6_storey" = "% Towers x 6 Story Rentals",
+                          "pct_towers:Developmentcondo_15_storey" = "% Towers x 15 Story Condos",
+                          "pct_towers:Developmentrental_15_storey" = "% Towers x 15 Story Rentals",
+                          "age" = "Age",
+                          "maleMale" = "Male",
+                          "income" = "Income",
+                          "DegreeNo degree" = "No Degree"
+             ),
+             output = "Tables/temp/h1f_models.html") 
+
+webshot("Tables/temp/h1f_models.html", "Tables/h1f_models.png", vwidth = 1000, vheight = 1000)
+
 
 #### H2 ####
 
