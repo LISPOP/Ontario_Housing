@@ -50,7 +50,7 @@ on22 %>%
 
 
 #on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberal", "Green", "Independent"))
-on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberal", "Other"))
+on22$partisanship<-factor(on22$partisanship, levels=c("NDP", "Liberal", "Other", "PC"))
 
 #Use mutate and case_when()
 table(on22$Q28)

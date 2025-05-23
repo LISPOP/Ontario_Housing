@@ -5,6 +5,13 @@ source("R_Scripts/0_Functions.R")
 names(on22)
 # Reorder Development for reporting
 
+DEVELOPMENT_LABELS <- c("single_detached" = "Single Detached \n Houses",
+                          "semi_detached" = "Semi-Detached \n Houses",
+                          "condo_6_storey" = "6 Story Condo \n Buildings",
+                          "rental_6_storey" = "6 Story Apartment \n Buildings (Rental)",
+                          "condo_15_storey" = "15 Story Condo \n Buildings",
+                          "rental_15_storey" = "15 Story Apartment \n Buildings (Rental)"
+                          )
 on22_stacked$Development
 
 #### Mod h1a
@@ -21,7 +28,13 @@ mod_h1a <- lm_robust(
 
 modelsummary(mod_h1a, stars=T)
 
-plot_predictions(mod_h1a, by = "partisanship")
+plot_h1a <- plot_predictions(mod_h1a, by = "partisanship") + 
+  theme_bw() +
+  labs(x = "Partisan Identity",
+       y = "Predicted Support for Housing Developments \n (Standard Errors are Clustered by Respondent)")
+
+ ggsave("plots/h1a.png", height = 4, width = 7, plot_h1a)
+ 
 #### Mod h1b
 mod_h1b <- lm_robust(
   reformulate(c(REG_VARS,CONTROLS) ,response = "Development_Support"),
@@ -31,14 +44,39 @@ mod_h1b <- lm_robust(
   weights = weight) #Clustered by Respondent 
 modelsummary(mod_h1b, stars=T)
 
-tidy(mod_h1b, conf.int = TRUE) %>% 
+plot_h1b <- tidy(mod_h1b, conf.int = TRUE) %>% 
   filter(term %in% c("Experimental_GroupIndividual", "Experimental_GroupCommunity", "Experimental_GroupNational")) %>% 
+  mutate(term = case_match(term,
+                           "Experimental_GroupIndividual" ~ "Individual \n Benefits",
+                           "Experimental_GroupCommunity" ~ "Community \n Benefits",
+                           "Experimental_GroupNational" ~ "Natational \n Benefits"
+                           )) %>% 
   ggplot(aes(y = term, x = estimate, xmin = conf.low, xmax = conf.high)) +
   theme_bw() + 
   geom_vline(xintercept = 0, lty = 4, col = "red") + 
   geom_point() + 
   geom_linerange() +
+  labs(x = NULL, y = NULL)
   theme_bw()
+  
+ggsave("Plots/h1b.png", plot_h1b, height = 4, width = 7)
+
+on22_stacked <- on22_stacked %>% 
+  mutate(Support_development = case_when(Development_Support < 0.5 ~ 0,
+                                         Development_Support >= 0.5 ~ 1))
+  
+mod_h1c_logit <- glm(reformulate(c(REG_VARS,CONTROLS), response = "Support_development"),
+                     data = on22_stacked,
+                     family = "binomial")
+
+mod_h1c_logit_plot <- plot_predictions(mod_h1c_logit, by = "Development") + theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = NULL, y = "Predicted Probabilty of Supporting a Development") +
+  scale_x_discrete(labels = DEVELOPMENT_LABELS)
+
+ggsave("Plots/h1c_predicted_probabilties.png",
+       mod_h1c_logit_plot, height = 4, width = 7)
+
 #### Mod h1c
 mod_h1c <- lm_robust(
   reformulate(c(REG_VARS,CONTROLS) ,response = "Development_Support"),
@@ -46,9 +84,15 @@ mod_h1c <- lm_robust(
   se_type = "CR2", #HC2 SEs are used for experiments 
   clusters = ResponseId,
   weights = weight) #Clustered by Respondent 
+
 modelsummary(mod_h1c, stars=T)
 #graph_regression(list(main_effect_controls, main_effect), "main_effect")
 table(on22_stacked$Development)
+
+plot_predictions(mod_h1c, by = "Development") + theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x = NULL, y = "Predicted Support for Each Development Type") +
+  scale_x_discrete(labels = DEVELOPMENT_LABELS)
 
 #### Mod H1d ####
 
@@ -61,9 +105,20 @@ mod_h1d <- lm_robust(
   weights = weight) #Clustered by Respondent 
 modelsummary(mod_h1d, stars=T)
 
-plot_predictions(mod_h1d, by = c("Development", "Density")) +
-  geom_hline(yintercept = 0, lty = 4, col = "red")
+h1d_plot <- plot_predictions(mod_h1d, by = c("Development", "Density")) + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x = NULL, y = "Predicted Support for Each Development Type \n by Self-Reported Density") +
+  scale_x_discrete(labels = DEVELOPMENT_LABELS) + 
+  scale_color_manual(values = c(
+    "Urban" = "#0072B2",
+    "Suburban" = "#E69F00",
+    "Rural" = "#009E73"
+  )) + 
+  theme(legend.position = "bottom") +
+  ylim(0.3, 0.8)
 
+ggsave("Plots/h1d.png", h1d_plot, height = 4, width = 7)
 
 # With % Tower 
 
@@ -80,7 +135,7 @@ ENVI_VARS <- c("row_house_pct_da", "apartment_in_duplex_pct_da",
 
 on22_stacked <- on22_stacked %>% 
   mutate(pct_towers = apartment_in_building_less_5_pct_da + apartment_in_building_plus_5_pct_da)
-
+table(on22_stacked$pct_towers)
 # Plot as predictions 
 # mod_h1d_built <- lmer(
 #   reformulate(c("built_environment*Development", REG_VARS[-2],CONTROLS, "(1 | DA2021)"), response = "Development_Support"),
@@ -95,9 +150,47 @@ mod_h1d_tower <- lmer(
 
 modelsummary(mod_h1d_tower, stars=T)
 
-plot_predictions(mod_h1d_tower, condition = c("Development", "pct_towers")) 
+h1d_grid <- datagrid(
+  model = mod_h1d_tower,
+  pct_towers = seq(0, 1, length.out = 100),
+  Development = unique(on22_stacked$Development)
+)
+
+h1d_predict <- predictions(mod_h1d_tower, h1d_grid) %>% 
+  as.data.frame()
+
+h1d_plot_tower <- h1d_predict %>%
+  mutate(Development = case_match(Development, 
+                                  "single_detached" ~ "Single Detached \n Houses",
+                                  "semi_detached" ~ "Semi-Detached \n Houses",
+                                  "condo_6_storey" ~ "6 Story Condo \n Buildings",
+                                  "rental_6_storey" ~ "6 Story Apartment \n Buildings (Rental)",
+                                  "condo_15_storey" ~ "15 Story Condo \n Buildings",
+                                  "rental_15_storey" ~ "15 Story Apartment \n Buildings (Rental)"),
+         Development = factor(Development, levels = c(  "Single Detached \n Houses",
+                                                        "Semi-Detached \n Houses",
+                                                        "6 Story Condo \n Buildings", 
+                                                        "6 Story Apartment \n Buildings (Rental)",
+                                                        "15 Story Condo \n Buildings",
+                                                        "15 Story Apartment \n Buildings (Rental)"))) %>% 
+  ggplot(aes(x = pct_towers, y = estimate, ymin = conf.low, ymax = conf.high, col = Development)) + 
+  geom_line() + 
+  theme_bw() +
+  labs(x = "Percentage of Towers in Respodent's Disemination Area",
+       y = NULL,
+       col = "Development Type") + 
+  theme(legend.position = "bottom") +
+  scale_colour_manual(values = c(
+    "Single Detached \n Houses" = "#0072B2",         # Blue
+    "Semi-Detached \n Houses" = "#56B4E9",           # Light Blue
+    "6 Story Condo \n Buildings" = "#009E73",        # Green
+    "6 Story Apartment \n Buildings (Rental)" = "#F0E442", # Yellow
+    "15 Story Condo \n Buildings" = "#D55E00",       # Orange-Red
+    "15 Story Apartment \n Buildings (Rental)" = "#CC79A7"  # Purple
+  )) 
 
 
+ggsave("Plots/h1d_tower.png", h1d_plot_tower, width = 7, height = 4)
 
 #### Neighboring H1e
 
@@ -112,7 +205,8 @@ plot_predictions(mod_h1d_tower, condition = c("Development", "pct_towers"))
 
 
 on22_stacked <- on22_stacked %>% 
-  mutate(higher_density = ifelse(pop_density_da_intersect1 > pop_density_da, 1, 0))
+  mutate(higher_density_in1 = ifelse(pop_density_da_intersect1 > pop_density_da, 1, 0),
+         higher_density_in2 = ifelse(pop_density_da_intersect2 > pop_density_da, 1, 0))
 
 
 on22_stacked <- on22_stacked %>% 
@@ -121,13 +215,44 @@ on22_stacked <- on22_stacked %>%
     more_towers_in1 = ifelse(pct_towers_intersect1 > pct_towers, 1, 0),
     more_towers_in2 = ifelse(pct_towers_intersect2 > pct_towers, 1, 0))
 
-mod_h1e <- lmer(reformulate(c("Development*higher_density", "Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
+mod_h1e_density1 <- lmer(reformulate(c("Development*higher_density_in1", "Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                           response = "Development_Support"),
                 weights = weight,
 data = on22_stacked
 )
 
-plot_predictions(mod_h1e, by = c("Development", "higher_density")) + theme_bw()
+
+mod_h1e_density1_plot <- plot_predictions(mod_h1e_density1, by = c("Development", "higher_density_in1")) + theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "Higher Density Disemination Area") +
+  scale_x_discrete(labels = DEVELOPMENT_LABELS) + 
+  scale_colour_manual(
+    values = c("0" = "#D55E00", "1" = "#009E73"),  # Custom colors
+    labels = c("0" = "Respodent's DA", "1" = "Neigbouring DA")
+  ) +
+  ylim(0.4, 0.8) +
+  theme(legend.position = "bottom") 
+
+ggsave("Plots/h1e_density1.png", mod_h1e_density1_plot, height = 4, width = 7)
+
+mod_h1e_density2 <- lmer(reformulate(c("Development*higher_density_in2", "Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
+                            response = "Development_Support"),
+                weights = weight,
+                data = on22_stacked
+)
+
+mod_h1e_density2_plot <- plot_predictions(mod_h1e_density2, by = c("Development", "higher_density_in2")) + theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "Higher Density Disemination Area") +
+  scale_x_discrete(labels = DEVELOPMENT_LABELS) + 
+  scale_colour_manual(
+    values = c("0" = "#D55E00", "1" = "#009E73"),  # Custom colors
+    labels = c("0" = "Respodent's DA", "1" = "Next Neigbouring DA")
+  ) +
+  ylim(0.4, 0.8) +
+  theme(legend.position = "bottom") 
+
+ggsave("Plots/h1e_density2.png", mod_h1e_density2_plot, height = 4, width = 7)
 
 mod_h1e_towers1 <- lmer(reformulate(c("Development*more_towers_in1", "Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                           response = "Development_Support"),
@@ -135,8 +260,18 @@ mod_h1e_towers1 <- lmer(reformulate(c("Development*more_towers_in1", "Experiment
               data = on22_stacked
 )
 
-plot_predictions(mod_h1e_towers1, by = c("Development", "more_towers_in1")) + theme_bw()
+mod_h1e_towers1_plot <- plot_predictions(mod_h1e_towers1, by = c("Development", "more_towers_in1")) + theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "Disemination Area with More Apartment Towers") +
+  scale_x_discrete(labels = DEVELOPMENT_LABELS) + 
+  scale_colour_manual(
+    values = c("0" = "#D55E00", "1" = "#009E73"),  # Custom colors
+    labels = c("0" = "Respodent's DA", "1" = "Neigbouring DA")
+  ) +
+  ylim(0.4, 0.8) +
+  theme(legend.position = "bottom") 
 
+ggsave("Plots/h1e_towers1_plot.png", mod_h1e_towers1_plot, width = 7, height = 4)
 
 mod_h1e_towers2 <- lmer(reformulate(c("Development*more_towers_in2", "Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                                   response = "Development_Support"),
@@ -144,7 +279,18 @@ mod_h1e_towers2 <- lmer(reformulate(c("Development*more_towers_in2", "Experiment
                       data = on22_stacked
 )
 
-plot_predictions(mod_h1e_towers2, by = c("Development", "more_towers_in2")) + theme_bw()
+mod_h1e_towers2_plot <- plot_predictions(mod_h1e_towers2, by = c("Development", "more_towers_in2")) + theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "Disemination Area with more Apartment Towers") +
+  scale_x_discrete(labels = DEVELOPMENT_LABELS) + 
+  scale_colour_manual(
+    values = c("0" = "#D55E00", "1" = "#009E73"),  # Custom colors
+    labels = c("0" = "Respodent's DA", "1" = "Next Neigbouring DA")
+  ) +
+  ylim(0.4, 0.8) +
+  theme(legend.position = "bottom") 
+
+ggsave("Plots/h1e_towers2.png", mod_h1e_towers2_plot, width = 7, height = 4)
 
 #### h1f - Main model
 
@@ -166,7 +312,18 @@ mod_h1f_develop <- lm_robust(
   weights = weight,
   clusters = ResponseId) #Clustered by Respondent 
 
-plot_predictions(mod_h1f_develop, by = c("Development", "Renter"))
+h1f_develop_plot <- plot_predictions(mod_h1f_develop, by = c("Development", "Renter")) + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "Disemination Area with more Apartment Towers") +
+  scale_x_discrete(labels = DEVELOPMENT_LABELS) + 
+  scale_colour_manual(
+    values = c("Renter" = "#0072B2", "Other" = "#009E73")
+  ) +
+  ylim(0.4, 0.8) +
+  theme(legend.position = "bottom") 
+
+ggsave("Plots/h2f.png", h1f_develop_plot, height = 4, width = 7)
 
 #### H2 ####
 
@@ -181,9 +338,22 @@ mod_h2a <- lm_robust(
   clusters = ResponseId) #Clustered by Respondent 
 
 
-plot_slopes(mod_h2a, variables = "Experimental_Group", by = "partisanship") +
+
+h2a_plot <- slopes(mod_h2a, variables = "Experimental_Group", by = "partisanship") %>% 
+  as.data.frame() %>% 
+  mutate(contrast = case_match(contrast, "mean(Community) - mean(Control)" ~ "Community Benefits",
+                           "mean(Individual) - mean(Control)" ~ "Individual Benefits",
+                           "mean(National) - mean(Control)" ~ "National Benefits")) %>% 
+  ggplot(aes(x = partisanship, y = estimate, ymin = conf.low, ymax = conf.high)) +
+  geom_point() +
+  geom_linerange()+
+  facet_wrap(~contrast) +
   geom_hline(yintercept = 0, lty = 4, col = "red") +
+  labs(y = "Marginal Effect of Treatments by Partisan Identity \n (95% Confidence Intervals are Clustered by Respondent)",
+       x = NULL) +
   theme_bw()
+
+ggsave("Plots/h2a.png", h2a_plot, height = 4, width = 7)
 
 #### h2a2
 
@@ -196,9 +366,24 @@ mod_h2a2 <- lm_robust(
   clusters = ResponseId) #Clustered by Respondent 
 
 
-plot_slopes(mod_h2a2, variables = "Experimental_Group", by = c("partisanship", "Renter")) +
+h2a2_plot <- slopes(mod_h2a2, variables = "Experimental_Group", by = c("partisanship", "Renter")) %>% 
+  as.data.frame() %>% 
+  mutate(contrast = case_match(contrast, "mean(Community) - mean(Control)" ~ "Community Benefits",
+                               "mean(Individual) - mean(Control)" ~ "Individual Benefits",
+                               "mean(National) - mean(Control)" ~ "National Benefits")) %>% 
+  ggplot(aes(x = partisanship, y = estimate, ymin = conf.low, ymax = conf.high, col = Renter)) +
+  geom_point(position = position_dodge(width = 0.3)) +
+  geom_linerange(position = position_dodge(width = 0.3))+
+  facet_wrap(~contrast) +
   geom_hline(yintercept = 0, lty = 4, col = "red") +
+  labs(y = "Marginal Effect of Treatments by Renter Status and Partisan Identity \n (95% Confidence Intervals are Clustered by Respondent)",
+       x = NULL) +
+  scale_colour_manual(
+    values = c("Renter" = "#0072B2", "Other" = "#009E73")
+  ) +
   theme_bw()
+
+ggsave("Plots/h2a2.png", h2a2_plot, width = 7, height = 4)
 
 
 #### H2b 
@@ -211,7 +396,46 @@ mod_h2b <- lm_robust(
   weights = weight,
   clusters = ResponseId) #Clustered by Respondent 
 
-plot_predictions(mod_h2b, condition = c("Development", "partisanship")) + theme_bw()
+h2b_plot <- plot_predictions(mod_h2b, condition = c("Development", "partisanship")) + theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "Partisan Identiy") +
+  scale_x_discrete(labels = DEVELOPMENT_LABELS) + 
+  scale_colour_manual(
+    values = c("NDP" = "#F58220", "Liberal" = "#D71920", "Other" = "darkgrey", "PC" = "#002E6D")
+  ) +
+  ylim(0.4, 0.8) +
+  theme(legend.position = "bottom") 
+
+ggsave("Plots/h2b.png", h2b_plot, height = 4, width = 7)
+#### EXPLORATORY ANALYSES ####
+
+#### Treatment by Renter
+
+mod_renter <- lm_robust(
+  reformulate(c("Experimental_Group*Renter",
+                "Development", CONTROLS) ,response = "Development_Support"),
+  data = on22_stacked,
+  se_type = "CR2", #HC2 SEs are used for experiments 
+  weights = weight,
+  clusters = ResponseId) #Clustered by Respondent 
+
+plot_slopes(mod_renter, variables = "Experimental_Group", "Renter") + 
+  geom_hline(yintercept = 0, lty = 4, col = "red") +
+  theme_bw()
+
+#### Treatment by YIMBY 
+
+mod_yimby <- lm_robust(
+  reformulate(c("Experimental_Group*YIMBY",
+                "Development", CONTROLS) ,response = "Development_Support"),
+  data = on22_stacked,
+  se_type = "CR2", #HC2 SEs are used for experiments 
+  weights = weight,
+  clusters = ResponseId) #Clustered by Respondent 
+
+plot_slopes(mod_yimby, variables = "Experimental_Group", "YIMBY") + 
+  geom_hline(yintercept = 0, lty = 4, col = "red") +
+  theme_bw()
 
 
 #### Heterogeneous Effects by Halo Effect ####

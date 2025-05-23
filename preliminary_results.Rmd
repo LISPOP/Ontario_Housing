@@ -1,0 +1,122 @@
+---
+title: "Home Sweet Home: Preliminary Results"
+author: "Rafael Campos-Gottardo"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("R_Scripts/6_Experiment.r")
+```
+
+## Hypotheses
+
+| Hypothesis \# | Hypothesis | Support ? |
+|----------|----------|----------|
+| H1a  | Support for any kind of development will decline moving from self-identified Progressive Conservatives to Liberals to New Democrats.  | No significant differences  |
+| H1b  | Support for any development will be higher among respondents that were provided with one of 3 experimental prompts (individual level benefits, community level benefits or national level benefits)  | No support  |
+|  H1c  | The probability that a respondent will approve of a development will decline as the development gets larger | Support  |
+| H1d | Respondents support higher density developments that match their built environment. | Support |
+| H1e | Respondents will oppose higher density developments when their next-neighbouring dissemination areas are higher-density than their own | Support
+| H1f | Support for all types of development will be greater among renters than homeowners | Support |
+| H2a |Experimental treatment effects tested in H1b will be moderated by party ID, specifically PC voters prompted with an appeal to individual benefits will report higher support for a development than for NDP or Liberal voters prompted with an appeal to individual benefits. Conversely, NDP or Liberal voters prompted with an appeal to national or community benefits will report higher support for a development than for PC voters.| No support |
+| H2a2 | The interactive effects tested in H2a will be greater for renters than for homeowners (Nall and Marble 20XX). | No Support |
+| H2b |  Party ID moderates the effect of type of development on support for a development. Specifically, we expect NDP and Liberal partisans to have higher levels of support for six- and 15-storey towers. | No Support | 
+
+
+## *H1a:* Support for any kind of development will decline moving from self-identified Progressive Conservatives to Liberals to New Democrats.  
+
+```{r echo=FALSE, warning=FALSE}
+plot_h1a
+```
+
+There is not significant difference in overall support for development between different partisans.
+
+
+## *H2b:* Support for any development will be higher among respondents that were provided with one of 3 experimental prompts (individual level benefits, community level benefits or national level benefits).
+
+```{r echo=FALSE, warning=FALSE}
+plot_h1b
+```
+
+No support for H2b: none of the treatments have a significant effect. 
+
+## *H1c:* The probability that a respondent will approve of a development will decline as the development gets larger.
+
+```{r echo=FALSE, warning=FALSE}
+mod_h1c_logit_plot
+```
+
+As developments increase in size individuals become less supportive, there are no significant differences between condos and rentals. 
+
+## *H1d:* Respondents support higher density developments that match their built environment.
+
+First we calculate the difference in support for development by self reported density.
+
+```{r echo=FALSE, warning=FALSE}
+h1d_plot
+```
+The results show that those who live in Urban areas are more supportive of density and those who live in rural areas are the least supportive of density. 
+
+Next we look at the percentage of towers in an individual's dissemination area using a multi-level model.
+
+```{r echo=FALSE, warning=FALSE}
+h1d_plot_tower
+```
+These results show that those who live in a neighbourhood with a high proportion of towers are more supportive of high density developments and those who live in neigbourhoods with a low proportion of towers are less supportive of towers. 
+
+## *H1e:* Respondents will oppose higher density developments when their next-neighbouring dissemination areas are higher-density than their own.
+
+First we test H1e using the population density of neighboring DAs. 
+
+```{r echo=FALSE, warning=FALSE}
+mod_h1e_density1_plot
+mod_h1e_density2_plot
+```
+
+These results show that there is no significant difference in support for development for those who live in a neigbourhood surrounded by higher density neigbouhoods and those that are not. 
+
+Next we look at the % of towers in neigbouring DAs. 
+
+First for the immediate next DA and then for the following next DA. We find that as the high density developments get further away individuals become less supportive of high density developments in their neigbourhood. 
+
+```{r echo=FALSE, warning=FALSE}
+mod_h1e_towers1_plot
+mod_h1e_towers2_plot
+```
+
+## *H1f:* Support for all types of development will be greater among renters than homeowners.
+
+```{r echo=FALSE, warning=FALSE}
+h1f_develop_plot
+```
+We find support for H1f overall ($\beta = 0.05(0.011)^{***}$). However, this relationship varies by type of development with renters being more supportive of high density developments but less supportive of single detached an semi-detached homes. 
+
+## *H2a:* Experimental treatment effects tested in H1b will be moderated by party ID, specifically PC voters prompted with an appeal to individual benefits will report higher support for a development than for NDP or Liberal voters prompted with an appeal to individual benefits. Conversely, NDP or Liberal voters prompted with an appeal to national or community benefits will report higher support for a development than for PC voters. 
+
+```{r echo=FALSE, warning=FALSE}
+h2a_plot
+```
+
+None of the treatments have a significant effect for those who identify with any of Ontario's parties.
+
+## *H2a2:* The interactive effects tested in H2a will be greater for renters than for homeowners (Nall and Marble 20XX). 
+
+```{r echo=FALSE, warning=FALSE}
+h2a2_plot
+
+```
+
+There is not significant effect of treatment for any group. 
+
+## *H2b:* Party ID moderates the effect of type of development on support for a development. Specifically, we expect NDP and Liberal partisans to have higher levels of support for six- and 15-storey towers.
+
+```{r echo=FALSE, warning=FALSE}
+h2b_plot
+
+```
+
+We find that NDP supporters are more supportive of 6 Story Rentals than Conservative Supporters. Otherwise, there are no significant differences in support for different kinds of development by party ID. 
+
+
