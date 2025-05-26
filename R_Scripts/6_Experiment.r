@@ -727,7 +727,15 @@ plot_slopes(mod_yimby, variables = "Experimental_Group", "YIMBY") +
   geom_hline(yintercept = 0, lty = 4, col = "red") +
   theme_bw()
 
+#### Treatment by development ###
 
+lm_robust(
+  reformulate(c("Experimental_Group*Development", CONTROLS) ,response = "Development_Support"),
+  data = on22_stacked,
+  se_type = "CR2", #HC2 SEs are used for experiments 
+  weights = weight,
+  clusters = ResponseId) %>%  #Clustered by Respondent 
+plot_predictions(by = c("Development","Experimental_Group"))
 #### Heterogeneous Effects by Halo Effect ####
 # 
 # 
