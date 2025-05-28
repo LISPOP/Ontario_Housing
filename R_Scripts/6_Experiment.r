@@ -696,6 +696,52 @@ modelsummary(list("H2a" = mod_h2a,
 
 webshot("Tables/temp/h2_models.html", "Tables/h2_models.png", vwidth = 1000, vheight = 1000)
 
+#### DESCRIPTIVE STATISTICS ####
+
+on22 %>% 
+  select(age, male, income, Degree, partisanship, Experimental_Group) %>% 
+  tbl_summary(by = Experimental_Group,
+              label = list(age ~ "Age",
+                           male ~ "Gender",
+                           income ~ "Income",
+                          Degree ~ "Degree Status",
+                          partisanship ~ 'Partisan Identity')
+              ) %>% 
+  as_gt() %>% 
+  gtsave("Tables/Descriptives.png")
+
+
+#### BALANCE TABLE ####
+
+on22 <- on22 %>% 
+  drop_na(Experimental_Group, age, male, income, Degree, partisanship)
+
+covars <- covars %>% 
+  select(age, male, income, Degree, partisanship)
+  
+bal_table <- bal.tab(on22$Experimental_Group ~ covars,
+                     continuous = "std",
+                     binary = "std",
+                     disp.means = TRUE,
+                     disp.sds = TRUE,
+                     disp.v.ratio = TRUE,
+                     disp.ks = TRUE,
+                     abs = TRUE,
+                     pairwise = FALSE, 
+                     s.weights = on22$weight)
+
+bal_tab_vars <- c("Age", "Male", "Income", "Respodent has a Degree", "NDP Partisan",
+                  "Liberal Party Partisan", "Non Partisan", "PC Party Partisan")
+
+bal_std <- bal_table[[1]]$`All vs. Control`[[1]] %>% 
+  rownames_to_column() %>%
+  mutate(rowname = factor(bal_tab_vars, levels = bal_tab_vars)) %>% 
+  ggplot(aes(x = Diff.Un, y = rowname)) + geom_point() + theme_bw() + 
+  geom_vline(xintercept = 0.10, lty = 4) + 
+  labs(x = "Standardised Mean Differences (SMD)", y = "") 
+
+ggsave("Plots/bal_std.png", bal_std, width = 7, height = 4)
+
 
 #### EXPLORATORY ANALYSES ####
 
