@@ -276,7 +276,7 @@ on22_stacked <- on22_stacked %>%
     more_towers_in1 = ifelse(pct_towers_intersect1 > pct_towers, 1, 0),
     more_towers_in2 = ifelse(pct_towers_intersect2 > pct_towers, 1, 0))
 
-mod_h1e_density1 <- lmer(reformulate(c("Development*higher_density_in1", "Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
+mod_h1e_density1 <- lmer(reformulate(c("Development*higher_density_in1", "pop_density_da","Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                           response = "Development_Support"),
                 weights = weight,
 data = on22_stacked
@@ -296,7 +296,7 @@ mod_h1e_density1_plot <- plot_predictions(mod_h1e_density1, by = c("Development"
 
 ggsave("Plots/h1e_density1.png", mod_h1e_density1_plot, height = 4, width = 7)
 
-mod_h1e_density2 <- lmer(reformulate(c("Development*higher_density_in2", "Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
+mod_h1e_density2 <- lmer(reformulate(c("Development*higher_density_in2", "pop_density_da","Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                             response = "Development_Support"),
                 weights = weight,
                 data = on22_stacked
@@ -315,7 +315,7 @@ mod_h1e_density2_plot <- plot_predictions(mod_h1e_density2, by = c("Development"
 
 ggsave("Plots/h1e_density2.png", mod_h1e_density2_plot, height = 4, width = 7)
 
-mod_h1e_towers1 <- lmer(reformulate(c("Development*more_towers_in1", "Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
+mod_h1e_towers1 <- lmer(reformulate(c("Development*more_towers_in1","pct_towers" ,"Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                           response = "Development_Support"),
                         weights = weight,
               data = on22_stacked
@@ -334,7 +334,7 @@ mod_h1e_towers1_plot <- plot_predictions(mod_h1e_towers1, by = c("Development", 
 
 ggsave("Plots/h1e_towers1_plot.png", mod_h1e_towers1_plot, width = 7, height = 4)
 
-mod_h1e_towers2 <- lmer(reformulate(c("Development*more_towers_in2", "Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
+mod_h1e_towers2 <- lmer(reformulate(c("Development*more_towers_in2","pct_towers" ,"Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                                   response = "Development_Support"),
                         weights = weight,
                       data = on22_stacked
@@ -741,6 +741,10 @@ bal_std <- bal_table[[1]]$`All vs. Control`[[1]] %>%
   labs(x = "Standardised Mean Differences (SMD)", y = "") 
 
 ggsave("Plots/bal_std.png", bal_std, width = 7, height = 4)
+
+on22_stacked %>% 
+  group_by(Development) %>% 
+  summarise(Mean = mean(Support_development, na.rm = TRUE), SD = sd(Support_development, na.rm = TRUE))
 
 
 #### EXPLORATORY ANALYSES ####
