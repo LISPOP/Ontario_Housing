@@ -87,10 +87,10 @@ da.intersect.1 %>%
   # intersect matrix does;We don't want to lose that structured
   # But it should contain multiple rows of the same statistics for each DA, because that is after averaging
   # The values of the intersecting DAs. 
-  mutate(., across(households_more_than_30_da:pop_density_da, ~mean(.,  na.rm=T), .names="{.col}_intersect1")) %>% 
+  mutate(., across(c(households_more_than_30_da:pop_density_da, `Average Height`), ~mean(.,  na.rm=T), .names="{.col}_intersect1")) %>% 
   #This drops the columns that contain the individual statistics for the intersecting DAs
   # WE only want the averages which are stored with the suffix _intersect1
-  select(-c(total_occupied_private_dwellings_da:Population)) ->da.intersect.1
+  select(-c(total_occupied_private_dwellings_da:Population, `Average Height`)) ->da.intersect.1
 #Repeat with the second-order intersecting DAs
 da.intersect.2 %>% 
   left_join(., on_statscan_da, by=c("DA2021_intersect"="DA2021")) %>% 
@@ -98,8 +98,8 @@ da.intersect.2 %>%
               select(`Average Height`, DAUID) %>% 
               mutate(DAUID = as.numeric(DAUID)), by = c("DA2021_intersect" = "DAUID")) %>% 
   group_by(DA2021) %>% 
-  mutate(., across(households_more_than_30_da:pop_density_da, ~mean(.,  na.rm=T), .names="{.col}_intersect2")) %>% 
-  select(-c(total_occupied_private_dwellings_da:Population)) ->da.intersect.2
+  mutate(., across(c(households_more_than_30_da:pop_density_da, `Average Height`), ~mean(.,  na.rm=T), .names="{.col}_intersect2")) %>% 
+  select(-c(total_occupied_private_dwellings_da:Population, `Average Height`)) ->da.intersect.2
 
 #Get Vectors
 
