@@ -10,7 +10,9 @@ pacman::p_load(tidyverse,
                marginaleffects,
                lme4,
                gt,
-               webshot2)
+               webshot2,
+               gtsummary,
+               cobalt)
 
 
 #### GRAPH REGRESSION MODELS ####

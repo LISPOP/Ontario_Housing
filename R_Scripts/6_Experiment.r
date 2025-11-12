@@ -276,7 +276,7 @@ on22_stacked <- on22_stacked %>%
     more_towers_in1 = ifelse(pct_towers_intersect1 > pct_towers, 1, 0),
     more_towers_in2 = ifelse(pct_towers_intersect2 > pct_towers, 1, 0))
 
-mod_h1e_density1 <- lmer(reformulate(c("Development*higher_density_in1", "Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
+mod_h1e_density1 <- lmer(reformulate(c("Development*higher_density_in1", "pop_density_da","Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                           response = "Development_Support"),
                 weights = weight,
 data = on22_stacked
@@ -296,7 +296,7 @@ mod_h1e_density1_plot <- plot_predictions(mod_h1e_density1, by = c("Development"
 
 ggsave("Plots/h1e_density1.png", mod_h1e_density1_plot, height = 4, width = 7)
 
-mod_h1e_density2 <- lmer(reformulate(c("Development*higher_density_in2", "Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
+mod_h1e_density2 <- lmer(reformulate(c("Development*higher_density_in2", "pop_density_da","Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                             response = "Development_Support"),
                 weights = weight,
                 data = on22_stacked
@@ -315,7 +315,7 @@ mod_h1e_density2_plot <- plot_predictions(mod_h1e_density2, by = c("Development"
 
 ggsave("Plots/h1e_density2.png", mod_h1e_density2_plot, height = 4, width = 7)
 
-mod_h1e_towers1 <- lmer(reformulate(c("Development*more_towers_in1", "Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
+mod_h1e_towers1 <- lmer(reformulate(c("Development*more_towers_in1","pct_towers" ,"Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                           response = "Development_Support"),
                         weights = weight,
               data = on22_stacked
@@ -334,7 +334,7 @@ mod_h1e_towers1_plot <- plot_predictions(mod_h1e_towers1, by = c("Development", 
 
 ggsave("Plots/h1e_towers1_plot.png", mod_h1e_towers1_plot, width = 7, height = 4)
 
-mod_h1e_towers2 <- lmer(reformulate(c("Development*more_towers_in2", "Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
+mod_h1e_towers2 <- lmer(reformulate(c("Development*more_towers_in2","pct_towers" ,"Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                                   response = "Development_Support"),
                         weights = weight,
                       data = on22_stacked
@@ -695,6 +695,56 @@ modelsummary(list("H2a" = mod_h2a,
              output = "Tables/temp/h2_models.html") 
 
 webshot("Tables/temp/h2_models.html", "Tables/h2_models.png", vwidth = 1000, vheight = 1000)
+
+#### DESCRIPTIVE STATISTICS ####
+
+on22 %>% 
+  select(age, male, income, Degree, partisanship, Experimental_Group) %>% 
+  tbl_summary(by = Experimental_Group,
+              label = list(age ~ "Age",
+                           male ~ "Gender",
+                           income ~ "Income",
+                          Degree ~ "Degree Status",
+                          partisanship ~ 'Partisan Identity')
+              ) %>% 
+  as_gt() %>% 
+  gtsave("Tables/Descriptives.png")
+
+
+#### BALANCE TABLE ####
+
+on22 <- on22 %>% 
+  drop_na(Experimental_Group, age, male, income, Degree, partisanship)
+
+covars <- covars %>% 
+  select(age, male, income, Degree, partisanship)
+  
+bal_table <- bal.tab(on22$Experimental_Group ~ covars,
+                     continuous = "std",
+                     binary = "std",
+                     disp.means = TRUE,
+                     disp.sds = TRUE,
+                     disp.v.ratio = TRUE,
+                     disp.ks = TRUE,
+                     abs = TRUE,
+                     pairwise = FALSE, 
+                     s.weights = on22$weight)
+
+bal_tab_vars <- c("Age", "Male", "Income", "Respodent has a Degree", "NDP Partisan",
+                  "Liberal Party Partisan", "Non Partisan", "PC Party Partisan")
+
+bal_std <- bal_table[[1]]$`All vs. Control`[[1]] %>% 
+  rownames_to_column() %>%
+  mutate(rowname = factor(bal_tab_vars, levels = bal_tab_vars)) %>% 
+  ggplot(aes(x = Diff.Un, y = rowname)) + geom_point() + theme_bw() + 
+  geom_vline(xintercept = 0.10, lty = 4) + 
+  labs(x = "Standardised Mean Differences (SMD)", y = "") 
+
+ggsave("Plots/bal_std.png", bal_std, width = 7, height = 4)
+
+on22_stacked %>% 
+  group_by(Development) %>% 
+  summarise(Mean = mean(Support_development, na.rm = TRUE), SD = sd(Support_development, na.rm = TRUE))
 
 
 #### EXPLORATORY ANALYSES ####
