@@ -83,6 +83,7 @@ source("R_Scripts/2_intersect_matrix.R")
 on22 %>% 
   #Join respondents to statistics pulled for each DA in on_statscan_da
   left_join(on_statscan_da, by="DA2021") %>% 
+  left_join(DA_height, by = c("DA2021" = "DAUID")) %>% 
   #Join that to the intersecting DAs; note because we have kept the 
   # Underlying structure of Tim's intersection matrix there are multiple rows of 
   # each dissemination area ; but each row contains the averages of the intersecting DAs

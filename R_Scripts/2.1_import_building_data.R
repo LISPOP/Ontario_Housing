@@ -3,7 +3,7 @@
 ################# https://open.toronto.ca/dataset/3d-massing/ #################
 ###############################################################################
 
-
+source("R_Scripts/0_Functions.R")
 
 ### Import building data
 
@@ -23,4 +23,5 @@ buildings_DA <- st_join(buildings, DAs, join = st_within)
 
 DA_height <- buildings_DA %>% 
   group_by(DAUID) %>% 
-  summarise(`Average Height` = mean(MAX_HEIGHT, na.rm = TRUE))
+  summarise(Average_Height = mean(MAX_HEIGHT, na.rm = TRUE)) %>% 
+  mutate(DAUID = as.numeric(DAUID))

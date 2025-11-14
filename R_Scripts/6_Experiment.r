@@ -142,6 +142,61 @@ table(on22_stacked$pct_towers)
 #   reformulate(c("built_environment*Development", REG_VARS[-2],CONTROLS, "(1 | DA2021)"), response = "Development_Support"),
 #   data = on22_stacked) 
 
+mod_h1b_height <- lmer(
+  reformulate(c("Average_Height*Development", REG_VARS[-2],CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"),
+              response = "Development_Support"),
+  weights = weight,
+  data = on22_stacked) 
+
+h1d_grid_height <- datagrid(
+  model = mod_h1b_height,
+  Average_Height = seq(0, 77, by = 1),
+  Development = unique(on22_stacked$Development)
+)
+
+h1d_tower_predict <- predictions(mod_h1b_height, h1d_grid_height) %>% 
+  as.data.frame()
+
+h1d_plot_height <- h1d_tower_predict %>%
+  mutate(Development = case_match(Development, 
+                                  "single_detached" ~ "Single Detached \n Houses",
+                                  "semi_detached" ~ "Semi-Detached \n Houses",
+                                  "condo_6_storey" ~ "6 Storey Condo \n Buildings",
+                                  "rental_6_storey" ~ "6 Storey Apartment \n Buildings (Rental)",
+                                  "condo_15_storey" ~ "15 Storey Condo \n Buildings",
+                                  "rental_15_storey" ~ "15 Storey Apartment \n Buildings (Rental)"),
+         Development = factor(Development, levels = c(  "Single Detached \n Houses",
+                                                        "Semi-Detached \n Houses",
+                                                        "6 Storey Condo \n Buildings", 
+                                                        "6 Storey Apartment \n Buildings (Rental)",
+                                                        "15 Storey Condo \n Buildings",
+                                                        "15 Storey Apartment \n Buildings (Rental)"))) %>% 
+  ggplot(aes(x = Average_Height, y = estimate, ymin = conf.low, ymax = conf.high, col = Development, size = Development)) + 
+  geom_line() + 
+  theme_bw() +
+  labs(x = "Percentage of Towers in Respodent's Disemination Area",
+       y = "Predicted Support for Each Type of Development",
+       col = "Development Type") + 
+  theme(legend.position = "bottom") +
+  scale_colour_manual(values = c(
+    "Single Detached \n Houses" = "#0072B2",         # Blue
+    "Semi-Detached \n Houses" = "#56B4E9",           # Light Blue
+    "6 Storey Condo \n Buildings" = "#009E73",        # Green
+    "6 Storey Apartment \n Buildings (Rental)" = "#F0E442", # Yellow
+    "15 Storey Condo \n Buildings" = "#D55E00",       # Orange-Red
+    "15 Storey Apartment \n Buildings (Rental)" = "#CC79A7"  # Purple
+  )) + 
+  scale_size_manual(values = c("Single Detached \n Houses" = 0.75,
+                               "Semi-Detached \n Houses" = 0.75,
+                               "6 Storey Condo \n Buildings" = 0.5,
+                               "6 Storey Apartment \n Buildings (Rental)" = 0.5,
+                               "15 Storey Condo \n Buildings" = 0.5,      
+                               "15 Storey Apartment \n Buildings (Rental)" = 0.5  )
+  ) +
+  guides(
+    colour = guide_legend(override.aes = list(size = 1.5)),
+    size = "none"
+  )
 
 mod_h1d_tower <- lmer(
   reformulate(c("pct_towers*Development", REG_VARS[-2],CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"),
@@ -274,7 +329,9 @@ on22_stacked <- on22_stacked %>%
   mutate(pct_towers_intersect1 = apartment_in_building_less_5_pct_da_intersect1 + apartment_in_building_plus_5_pct_da_intersect1,
          pct_towers_intersect2 = apartment_in_building_less_5_pct_da_intersect2 + apartment_in_building_plus_5_pct_da_intersect2,
     more_towers_in1 = ifelse(pct_towers_intersect1 > pct_towers, 1, 0),
-    more_towers_in2 = ifelse(pct_towers_intersect2 > pct_towers, 1, 0))
+    more_towers_in2 = ifelse(pct_towers_intersect2 > pct_towers, 1, 0),
+    taller_towers_in1 = ifelse(Average_Height_intersect1 > Average_Height, 1, 0),
+    taller_towers_in2 = ifelse(Average_Height_intersect2 > Average_Height, 1, 0))
 
 mod_h1e_density1 <- lmer(reformulate(c("Development*higher_density_in1", "pop_density_da","Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                           response = "Development_Support"),
@@ -315,6 +372,8 @@ mod_h1e_density2_plot <- plot_predictions(mod_h1e_density2, by = c("Development"
 
 ggsave("Plots/h1e_density2.png", mod_h1e_density2_plot, height = 4, width = 7)
 
+#### tower numbers ####
+
 mod_h1e_towers1 <- lmer(reformulate(c("Development*more_towers_in1","pct_towers" ,"Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                           response = "Development_Support"),
                         weights = weight,
@@ -352,6 +411,62 @@ mod_h1e_towers2_plot <- plot_predictions(mod_h1e_towers2, by = c("Development", 
   theme(legend.position = "bottom") 
 
 ggsave("Plots/h1e_towers2.png", mod_h1e_towers2_plot, width = 7, height = 4)
+
+#### tower height ####
+
+
+mod_h1e_height1 <- lmer(reformulate(c("Development*taller_towers_in1","Average_Height" ,"Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
+                                    response = "Development_Support"),
+                        weights = weight,
+                        data = on22_stacked
+)
+
+
+mod_h1e_height1_grid <- datagrid(
+  model = mod_h1e_height1,
+  taller_towers_in1 = c(0, 1),
+  Development = unique(on22_stacked$Development)
+)
+
+predictions_h1e_height1 <- predictions(mod_h1e_height1, mod_h1e_height1_grid) %>% 
+  as.data.frame()
+
+mod_h1e_height1_plot <- predictions_h1e_height1 %>% 
+  ggplot(aes(x = Development, y = estimate, ymin = conf.low, ymax = conf.high, col = as.factor(taller_towers_in1))) + 
+  geom_point(position = position_dodge(width = 0.5)) +
+  geom_linerange(position = position_dodge(width = 0.5)) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "Disemination Area with Taller Towers") +
+  scale_x_discrete(labels = DEVELOPMENT_LABELS) + 
+  scale_colour_manual(
+    values = c("0" = "#D55E00", "1" = "#009E73"),  # Custom colors
+    labels = c("0" = "Respodent's DA", "1" = "Neigbouring DA")
+  ) +
+  ylim(0.4, 0.8) +
+  theme(legend.position = "bottom") 
+
+ggsave("Plots/mod_h1e_height1_plot.png", mod_h1e_height1_plot, width = 7, height = 4)
+
+mod_h1e_height2 <- lmer(reformulate(c("Development*taller_towers_in2","Average_Height" ,"Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
+                                    response = "Development_Support"),
+                        weights = weight,
+                        data = on22_stacked
+)
+
+
+mod_h1e_height2_plot <- plot_predictions(mod_h1e_height2, by = c("Development", "taller_towers_in2")) + theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "Disemination Area with Taller Towers") +
+  scale_x_discrete(labels = DEVELOPMENT_LABELS) + 
+  scale_colour_manual(
+    values = c("0" = "#D55E00", "1" = "#009E73"),  # Custom colors
+    labels = c("0" = "Respodent's DA", "1" = "Next Neigbouring DA")
+  ) +
+  ylim(0.4, 0.8) +
+  theme(legend.position = "bottom") 
+
+ggsave("Plots/mod_h1e_height2_plot.png", mod_h1e_height2_plot, width = 7, height = 4)
 
 modelsummary(list("H1e (Density Neigbouring DAs)" = mod_h1e_density1,
                   "H1e (Density Next Neigbouring DAs)" = mod_h1e_density2,
