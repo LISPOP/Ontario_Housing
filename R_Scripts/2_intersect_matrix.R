@@ -3,6 +3,7 @@ library(sf)
 library(here)
 library(dplyr)
 library(tidyverse)
+library(cancensus)
 #Get the geometry files for dissemination areas for Ontario
 #This usues a function in the cancensus package to directly download the geemotries from 
 # Statistics Canada
@@ -129,8 +130,93 @@ da.intersect.2 %>%
   mutate(., across(households_more_than_30_da:pop_density_da, ~mean(.,  na.rm=T), .names="{.col}_intersect2")) %>% 
   select(-c(total_occupied_private_dwellings_da:Population)) ->da.intersect.2
 
-#da.intersect.1 %>% view()
-  
+
+#Get Vectors
+
+laurier <- da.2021.1 %>% 
+  filter(DA2021 == 35300298)
+
+neigbours <- da.2021.1 %>% 
+  filter(st_touches(., laurier, sparse = FALSE)[,1]) %>% 
+  mutate(type = "Neigbouring DA")
+
+
+second_neighbors_index <- st_touches(da.2021.1, neigbours)
+second_neighbors_ids <- unique(unlist(second_neighbors_index))
+
+second_neighbors <- da.2021.1[second_neighbors_ids, ]
+
+exclude_ids <- c(laurier$DA2021, neigbours$DA2021)
+
+next_neighbors <- second_neighbors %>%
+  filter(!(DA2021 %in% exclude_ids)) %>%
+  mutate(type = "Next Neighbor")
+
+laurier$type <- "Wilfrid Laurier University"
+
+
+intersect_example <- bind_rows(laurier, neigbours, next_neighbors)
+
+str_starts()
+
+waterloo <- read_sf("Data/Municipal_Boundary_-8493345633645527618/Municipal_Boundary.shp") 
+
+waterloo <- waterloo %>% 
+  filter(MUNICIPALI == "WATERLOO")
+
+waterloo <- st_transform(waterloo, st_crs(da.2021.1))
+
+# Filter DAs that intersect or are within the city boundary
+waterloo_das <- da.2021.1 %>%
+  filter(st_intersects(., waterloo, sparse = FALSE)[,1])
+
+
+
+laurier <- waterloo_das %>% 
+  filter(DA2021 == 35300298)
+
+neigbours <- waterloo_das %>% 
+  filter(st_touches(., laurier, sparse = FALSE)[,1]) %>% 
+  filter(DA2021 != laurier$DA2021) %>%
+  mutate(type = "Neigbouring DA")
+
+
+candidate_pool <- da.2021.1 %>%
+  filter(st_intersects(., st_union(neigbours), sparse = FALSE)[,1])
+
+
+next_neighbors <- candidate_pool %>%
+  # filter(st_intersects(., neigbours, sparse = FALSE)[,1]) %>%
+  filter(!(DA2021 %in% c(laurier$DA2021, neigbours$DA2021))) %>%
+  mutate(type = "Next Neighbour")
+# 
+# second_neighbors_index <- st_touches(waterloo_das, neigbours)
+# second_neighbors_ids <- unique(unlist(second_neighbors_index))
+
+# second_neighbors <- waterloo_das[second_neighbors_ids, ]
+# 
+# exclude_ids <- c(laurier$DA2021, neigbours$DA2021)
+# 
+# next_neighbors <- second_neighbors %>%
+#   filter(!(DA2021 %in% exclude_ids)) %>%
+#   mutate(type = "Next Neighbor")
+
+laurier$type <- "Wilfrid Laurier University"
+
+
+intersect_example <- bind_rows(laurier, neigbours, next_neighbors)
+intersect_example <- intersect_example %>% 
+  mutate(type = factor(type, levels = c("Wilfrid Laurier University", "Neigbouring DA", "Next Neighbour")))
+waterloo_das <- waterloo_das %>% 
+  filter(!DA2021 %in% c(35300943, 35300747, 35300904, 35301007, 35300832, 35300774, 35300819))
+  ggplot() +
+geom_sf(data =  waterloo_das, fill = "grey90", color = "white") +
+  geom_sf(data = intersect_example, aes(fill = type), color = "black", size = 0.4) +
+  theme_minimal() +
+  labs(title = "Laurier with Neighbors and Next Neighbors", fill = "Dissemination Area") +
+    theme(legend.position = "bottom")
+
+
 # Export 
 # write_csv(da.intersect.1, here("data/ON DA intersections.csv"))
 # write_csv(da.intersect.2, here("data/ON DA 1-2 order intersections.csv"))
