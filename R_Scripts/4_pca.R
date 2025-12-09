@@ -1,60 +1,73 @@
-source("R_Scripts/3_diagnostics.R")
+source("R_Scripts/2_recodes.R")
  look_for(on22, "cause")
 library(psych)
  #May be necessary to install Hmisc
  #install.packages("Hmisc")
 
 #Make the corerlation matrix for cause variables
-on22 %>% 
-  #Select the cause variables
-  select(Q32_1_x:Q32_9_x) %>% 
-  #Change the names using the pre-established cause_var_labels
-  setNames(., cause_var_labels$label) %>% 
-  #Scale each variable so mean is 0 and SD is 1
- # mutate(across(.fns=scale)) %>% 
- as.matrix() ->cause_scores
-cause_scores %>% 
-  Hmisc::rcorr() ->cause_correlation
+# on22 %>% 
+#   #Select the cause variables
+#   select(Q32_1_x:Q32_9_x) %>% 
+#   #Change the names using the pre-established cause_var_labels
+#   setNames(., cause_var_labels$label) %>% 
+#   #Scale each variable so mean is 0 and SD is 1
+#  # mutate(across(.fns=scale)) %>% 
+#  as.matrix() ->cause_scores
+# cause_scores %>% 
+#   Hmisc::rcorr() ->cause_correlation
 
 
 #Runa scree plot
 #scree(cause_correlation, main="Scree plot of Q32_1_x to Q32_9_x")
 look_for(on22, "support")
-#Repeat for support variables
+
+#check for normality
+solution_var_labels %>% view()
 on22 %>% 
-  select(Q33a_1_x:Q80_6_x) %>% 
-  setNames(., solution_var_labels$label) %>% 
- # mutate(across(.fns=scale)) %>% 
-  as.matrix() ->support_scores
-support_scores %>% 
-  Hmisc::rcorr()->support_correlation
-support_correlation
+  select(Q33a_1_x:Q80_6_x) %>%
+  setNames(., solution_var_labels$label_short) %>%
+  select(-`increase_supply`) %>% pivot_longer(.,cols=everything()) %>% 
+  ggplot(., aes(x=value))+geom_histogram()+facet_wrap(~name, nrow=2)
+# mutate(across(.fns=scale)) %>% 
+ # as.matrix() ->support_scores
+#check for normality
+on22 %>% 
+  select(Q33a_1_x:Q80_6_x) %>%
+  setNames(., solution_var_labels$label_short) %>%
+  select(-`increase_supply`) %>%
+  psych::polychoric()->support_correlation
+
+cor.plot(support_correlation$rho, upper=F)
+
+# support_scores %>% 
+#   Hmisc::rcorr()->support_correlation
+
 #Show scree plots
-scree(cause_correlation$r, main="Causes")
+#scree(cause_correlation$r, main="Causes")
 scree(support_correlation$r, main="Solutions")
 
 #Conclusion could do two or three for either #
 #Leaning 3 for solutions, 2 for causes
 
 # Do parrallel analysis.
-fa.parallel(cause_correlation$r, main="Causes")
+#fa.parallel(cause_correlation$r, main="Causes")
 fa.parallel(support_correlation$r, main="Solutions")
 #Suggests two for solutions; 1 for causes
 
 # Do RMSEA
-cause_pca2<-principal(cause_correlation$r, nfactors=2)
-cause_pca3<-principal(cause_correlation$r, nfactors=3)
+# cause_pca2<-principal(cause_correlation$r, nfactors=2)
+# cause_pca3<-principal(cause_correlation$r, nfactors=3)
 support_pca2<-principal(support_correlation$r, nfactors=2)
 support_pca3<-principal(support_correlation$r, nfactors=3)
-factor.stats(cause_correlation$r, cause_pca2, n.obs=max(cause_correlation$n))$RMSEA
-factor.stats(cause_correlation$r, cause_pca3, n.obs=max(cause_correlation$n))$RMSEA
-
-factor.stats(support_correlation$r, support_pca2, n.obs=max(cause_correlation$n))$RMSEA
-factor.stats(support_correlation$r, support_pca3, n.obs=max(cause_correlation$n))$RMSEA
+#factor.stats(cause_correlation$r, cause_pca2, n.obs=max(cause_correlation$n))$RMSEA
+#factor.stats(cause_correlation$r, cause_pca3, n.obs=max(cause_correlation$n))$RMSEA
+?factor.stats
+factor.stats(support_correlation$r, support_pca2, n.obs=max(support_correlation$n))$RMSEA
+factor.stats(support_correlation$r, support_pca3, n.obs=max(support_correlation$n))$RMSEA
 
 #Run pca with varimax, 2 factors
-cause_pca2<-principal(cause_correlation$r, nfactors=2, rotate="varimax")
-cause_pca3<-principal(cause_correlation$r, nfactors=3, rotate="varimax")
+#cause_pca2<-principal(cause_correlation$r, nfactors=2, rotate="varimax")
+#cause_pca3<-principal(cause_correlation$r, nfactors=3, rotate="varimax")
 
 support_pca2<-principal(support_correlation$r, nfactors=2, rotate=
                           "varimax")
@@ -162,6 +175,6 @@ on22 %>%
   geom_vline(linetype=2, xintercept=0.5)
 
 # Regression
-on22 %>% 
-  write_sav(., path=here("Data/opes_2022_with_PCA.sav"))
-packageVersion('haven')
+# on22 %>% 
+#   write_sav(., path=here("Data/opes_2022_with_PCA.sav"))
+

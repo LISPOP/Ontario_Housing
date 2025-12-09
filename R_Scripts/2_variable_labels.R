@@ -103,6 +103,16 @@ var_label(on22$Q32_6_x)<-c("Causes - Urban sprawl")
 var_label(on22$Q32_7_x)<-c("Causes - Low public housing investment")
 var_label(on22$Q32_8_x)<-c("Causes - Low rent control ")
 var_label(on22$Q32_9_x)<-c("Causes - Too many immigrants")
+
+var_label(on22$Q32_1_y)<-c("Causes - Investor speculation")
+var_label(on22$Q32_2_y)<-c("Causes - Low interest rates")
+var_label(on22$Q32_3_y)<-c("Causes - Environmental protections")
+var_label(on22$Q32_4_y)<-c("Causes - Municipal red tape")
+var_label(on22$Q32_5_y)<-c("Causes - NIMBYs")
+var_label(on22$Q32_6_y)<-c("Causes - Urban sprawl")
+var_label(on22$Q32_7_y)<-c("Causes - Low public housing investment")
+var_label(on22$Q32_8_y)<-c("Causes - Low rent control ")
+var_label(on22$Q32_9_y)<-c("Causes - Too many immigrants")
 #Q33a
 on22 %>% 
   select(starts_with("Q33a")) %>% 

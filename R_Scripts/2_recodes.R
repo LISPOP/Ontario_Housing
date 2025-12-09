@@ -232,17 +232,26 @@ on22 %>%
   mutate(
     across(matches("Q32_[0-9]$"), ~scales::rescale(car::Recode(as.numeric(.x), "11=5")), .names="{.col}_x")) ->on22
 on22 %>% 
-  select(ends_with("_x")) %>% 
+  select(matches("Q32_[0-9]$")) %>% 
   var_label()
 
 
-table(on22$Q32_1, on22$Q32_1_x)
-lookfor(on22, "rent")
-table(on22$Q32_8, on22$Housing_Status)
+### Reocde Q32 to categorical variable
+
 on22 %>% 
-  group_by(Housing_Status) %>% 
-  summarize(Average=mean(Q32_8_x, na.rm=T))
+  mutate(across(matches("^Q32_[0-9]$"), 
+                .fns=function(x) car::Recode(as.numeric(x), 
+                                             "6:10='Support'; 0:5='Not Support'; 11='Not Support'", 
+                                             levels=c("Not Support", "Support"), as.factor=T), .names="{.col}_y"))->on22
+
+
+
 #Assign variable labels
+
+# We have to take the variable labels  in the original cause variables and match them to the ones that end in _x
+# 
+#Get variable labels and Store them. 
+
 
 #Check
 on22 %>% 
@@ -276,6 +285,7 @@ on22 %>%
 on22 %>% 
   select(starts_with("Q33a")) %>% 
   summary() 
+
 on22 %>% 
   mutate(
     across(
@@ -302,6 +312,7 @@ on22 %>%
     across(matches("Q80_[0-9]$"), ~
              .x-1
     ))->on22
+
 #Rescale Q80
 on22 %>% 
   mutate(
@@ -315,7 +326,7 @@ on22 %>%
 on22 %>% 
   mutate(across(matches("Q33a_[0-9]$|Q80_[0-9]$"), 
                 .fns=function(x) car::Recode(as.numeric(x), 
-"5:10='Support'; 0:4='Not Support'; 11='Not Support'", 
+"6:10='Support'; 0:5='Not Support'; 11='Not Support'", 
 levels=c("Not Support", "Support")), .names="{.col}_y"))->on22
 
 #### Rescale Q34
@@ -819,17 +830,15 @@ on22$Interest<-cut(on22$Q4_1, breaks=3, labels=c("Low", "Medium", "High"))
 source("R_Scripts/2_value_labels.R")
 source("R_Scripts/2_variable_labels.R")
 
-# We have to take the variable labels  in the original cause variables and match them to the ones that end in _x
-# 
-#Get variable labels and Store them. 
 #This is great way to get a batch of variable labels
 on22 %>% 
   #Select what you are looking to work with
-  #In this case it is the batch of rescaled cause variables
-  select(Q32_1_x:Q32_9_x) %>% 
   #Use the command look_for() in the labelled library, must be loaded!
   #Store in something meaningful
-  look_for()->cause_var_labels
+  select(Q32_1:Q32_9) %>% look_for()->cause_var_labels
+
+
+
 #Inspect
 cause_var_labels#Note that the variable name is stored in variable and the actual label is stored in label
 #Here we remove the bit about Causes - from each entry and save it back into the label variable
@@ -837,13 +846,28 @@ cause_var_labels$label<-str_remove_all(cause_var_labels$label, "Causes - ")
 #Check what has happened
 cause_var_labels
 #make solution variable label data frame
-
 on22 %>% 
   select(Q33a_1_x:Q80_6_x) %>% 
   look_for()->solution_var_labels
 
 #Inspect
 solution_var_labels$label<-str_remove_all(solution_var_labels$label, "Support for policy - ")
+#Provide Shorter version
+solution_var_labels %>% 
+  mutate(label_short=case_match(label,
+                                "More affordable public housing"~"more_affordable_public",
+                                "Taxes for owning multiple houses"~"tax_multiple_homes",
+                                "Increasing taxes for foreign home-buyers"~"increase_taxes_foreign",
+                                "More non-single housing properties"~"more_non_single",
+                                "Require developers to build more affordable housing"~"require_developers",
+                                "Add more properties to existing units"~"add_units_properties",
+                                "Reduce heritage designation laws"~"reduce_heritage",
+                                "Eliminate density and height restrictions"~"eliminate_density_height",
+                                "Increase housing supply"~"increase_supply",
+                                "Eliminate housing transfer taxes"~"eliminate_taxes",
+                                "Government loans for new buyers"~"government_loans",
+                                "More rent control"~"more_rent_control"
+  )) ->solution_var_labels
 
 lookfor(on22, "purchase")
 
@@ -911,15 +935,3 @@ on22_stacked$Development<-factor(on22_stacked$Development,
                                           "rental_15_storey"
                                           ))
 
-
-# Checks
-# names(on22)
-# on22$weight
-# nrow(on22)
-# mean(on22$weight, na.rm=T)
-# summary(on22$weight)
-# mean(on22$weight)
-# mean(on22$income, na.rm=T)
-# table(on22$partisanship)
-# 
-# nrow(on22_stacked)

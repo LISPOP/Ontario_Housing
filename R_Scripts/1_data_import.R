@@ -91,7 +91,7 @@ on22 %>%
   left_join(., distinct(ungroup(da.intersect.1),DA2021, .keep_all=T)) %>%  
   select(-DA2021_intersect) %>% 
   left_join(., distinct(ungroup(da.intersect.2), DA2021, .keep_all=T)) ->on22
-
+names(on22)
 #Correlate the a few measures of respondent DA with intersecting DA
 on22 %>% 
   select(contains("owned")) %>% 

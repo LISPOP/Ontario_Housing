@@ -1,5 +1,5 @@
 library(here)
-source(here("R_Scripts/3_diagnostics.R"))
+source(here("R_Scripts/2_recodes.R"))
 #### This script is for descriptive statistics and tables
 #Table of Descriptives for Housing Status
 library(janitor)
@@ -80,11 +80,7 @@ on22 %>%
 
 
 # Other stuff! Feel free to freelance. 
-on22$Q33a_6
-on22$Q80_1
-on22$Q80_2
-on22$Q80_3
-table(on22$Q80_3_y)
+
 on22 %>% 
   tabyl(.,  NIMBY, Vote_Intention_Likely) %>% 
   adorn_percentages()
@@ -163,5 +159,23 @@ on22 %>%
   adorn_pct_formatting(digits = 2) %>% 
   adorn_ns() %>% 
   gt()
+
+
+lookfor(on22, "million")
+table(on22$YIMBY)
+lookfor(on22, "policy")
+on22 %>% 
+  select(Q33a_4, Q33a_6, Q80_1, Q80_2, Q80_3) %>% 
+  pivot_longer(., cols=everything()) %>% 
+  group_by(name, value) %>% count() %>% print(n=15)
+library(Crosstable)
+#install.packages("crosstable")
+library(crosstable)
+library(flextable)
+on22 %>% 
+  select(Q33a_4_y, Q33a_6_y, Q80_1_y, Q80_2_y, Q80_3_y) %>% 
+crosstable(., -Q80_3_y, by=c(Q80_3_y), showNA="no", percent_digits=0, percent_pattern = "{n} ({p_tot})") %>% 
+  as_flextable() %>% 
+  set_caption(., "Consistency in support for building more homes and policies that would lead to the construction of more homes. Percentages are corner percentages. Diagonal cells are ideologically consistent. Respondents are classified as supporting if they score 6 or higher on a scale of 0 to 10.")
 
 

@@ -31,7 +31,8 @@ modelsummary(mod_h1a, stars=T)
 plot_h1a <- plot_predictions(mod_h1a, by = "partisanship") + 
   theme_bw() +
   labs(x = "Partisan Identity",
-       y = "Predicted Support for Housing Developments \n (Standard Errors are Clustered by Respondent)")
+       y = "Predicted Support for Housing Developments \n (Standard Errors are Clustered by Respondent)",
+       title= " Support for Development by Provincial Party ID")
 
  ggsave("plots/h1a.png", height = 4, width = 7, plot_h1a)
  
@@ -56,8 +57,8 @@ plot_h1b <- tidy(mod_h1b, conf.int = TRUE) %>%
   geom_vline(xintercept = 0, lty = 4, col = "red") + 
   geom_point() + 
   geom_linerange() +
-  labs(x = NULL, y = NULL)
-
+  labs(x = NULL, y = "Average Marginal Effect", title="Effect of Experimental Treatment On Support For Development")
+plot_h1b
   
 ggsave("Plots/h1b.png", plot_h1b, height = 4, width = 7)
 
@@ -73,7 +74,7 @@ mod_h1c_logit_plot <- plot_predictions(mod_h1c_logit, by = "Development") + them
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(x = NULL, y = "Predicted Probabilty of Supporting a Development") +
   scale_x_discrete(labels = DEVELOPMENT_LABELS)
-
+mod_h1c_logit
 ggsave("Plots/h1c_predicted_probabilties.png",
        mod_h1c_logit_plot, height = 4, width = 7)
 
@@ -91,9 +92,9 @@ table(on22_stacked$Development)
 
 plot_predictions(mod_h1c, by = "Development") + theme_bw() + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(x = NULL, y = "Predicted Support for Each Development Type") +
+  labs(x = NULL, y = "Predicted Support for Each Development Type", title="Effect of project characteristics") +
   scale_x_discrete(labels = DEVELOPMENT_LABELS)
-
+ggsave(filename=here("Plots/mod_h1c_predictions.png"), width=7, height=4)
 
 #### Mod H1d ####
 
@@ -109,7 +110,7 @@ modelsummary(mod_h1d, stars=T)
 h1d_plot <- plot_predictions(mod_h1d, by = c("Development", "Density")) + 
   theme_bw() + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(x = NULL, y = "Predicted Support for Each Development Type \n by Self-Reported Density") +
+  labs(x = NULL, title = "Predicted Support for Each Development Type \n by Self-Reported Density", y="Predicted Support") +
   scale_x_discrete(labels = DEVELOPMENT_LABELS) + 
   scale_color_manual(values = c(
     "Urban" = "#0072B2",
@@ -148,18 +149,21 @@ mod_h1d_tower <- lmer(
               response = "Development_Support"),
   weights = weight,
   data = on22_stacked) 
-
+# mod_h1d_tower
+# plot_slopes(mod_h1d_tower, 
+#             variables="pct_towers", condition="Development")
+# ?po
 modelsummary(mod_h1d_tower, stars=T)
 
 h1d_grid <- datagrid(
   model = mod_h1d_tower,
-  pct_towers = seq(0, 1, length.out = 100),
+  pct_towers = seq(0, 1, by=0.25),
   Development = unique(on22_stacked$Development)
 )
 
 h1d_predict <- predictions(mod_h1d_tower, h1d_grid) %>% 
   as.data.frame()
-
+h1d_predict
 h1d_plot_tower <- h1d_predict %>%
   mutate(Development = case_match(Development, 
                                   "single_detached" ~ "Single Detached \n Houses",
@@ -174,35 +178,35 @@ h1d_plot_tower <- h1d_predict %>%
                                                         "6 Storey Apartment \n Buildings (Rental)",
                                                         "15 Storey Condo \n Buildings",
                                                         "15 Storey Apartment \n Buildings (Rental)"))) %>% 
-  ggplot(aes(x = pct_towers, y = estimate, ymin = conf.low, ymax = conf.high, col = Development, size = Development)) + 
-  geom_line() + 
+  ggplot(aes(x = as.factor(pct_towers), y = estimate, ymin = conf.low, ymax = conf.high, fill = Development)) + 
+  geom_col(position="dodge") + 
   theme_bw() +
   labs(x = "Percentage of Towers in Respodent's Disemination Area",
        y = "Predicted Support for Each Type of Development",
        col = "Development Type") + 
   theme(legend.position = "bottom") +
-  scale_colour_manual(values = c(
+  scale_fill_manual(values = c(
     "Single Detached \n Houses" = "#0072B2",         # Blue
     "Semi-Detached \n Houses" = "#56B4E9",           # Light Blue
     "6 Storey Condo \n Buildings" = "#009E73",        # Green
     "6 Storey Apartment \n Buildings (Rental)" = "#F0E442", # Yellow
     "15 Storey Condo \n Buildings" = "#D55E00",       # Orange-Red
     "15 Storey Apartment \n Buildings (Rental)" = "#CC79A7"  # Purple
-  )) + 
-  scale_size_manual(values = c("Single Detached \n Houses" = 0.75,
-                    "Semi-Detached \n Houses" = 0.75,
-                    "6 Storey Condo \n Buildings" = 0.5,
-                    "6 Storey Apartment \n Buildings (Rental)" = 0.5,
-                    "15 Storey Condo \n Buildings" = 0.5,      
-                    "15 Storey Apartment \n Buildings (Rental)" = 0.5  )
-                    ) +
-  guides(
-    colour = guide_legend(override.aes = list(size = 1.5)),
-    size = "none"
-  )
+  ))
+  # scale_size_manual(values = c("Single Detached \n Houses" = 0.75,
+  #                   "Semi-Detached \n Houses" = 0.75,
+  #                   "6 Storey Condo \n Buildings" = 0.5,
+  #                   "6 Storey Apartment \n Buildings (Rental)" = 0.5,
+  #                   "15 Storey Condo \n Buildings" = 0.5,      
+  #                   "15 Storey Apartment \n Buildings (Rental)" = 0.5  )
+  #                   ) +
+  # guides(
+  #   colour = guide_legend(override.aes = list(linewidth = 1.5)),
+  #   size = "none"
+  # )
 
-
-ggsave("Plots/h1d_tower.png", h1d_plot_tower, width = 7, height = 4)
+h1d_plot_tower
+ggsave("Plots/h1d_plot_tower.png", h1d_plot_tower, width = 7, height = 4)
 
 
 
@@ -248,7 +252,7 @@ modelsummary(list("H1a" = mod_h1a,
                           "income" = "Income",
                           "DegreeNo degree" = "No Degree"
              ),
-             output = "Tables/temp/h1a-h1c_models.html") 
+             output = "Tables/temp/h1a-h1c_models.html", fmt=2) 
 
 webshot("Tables/temp/h1a-h1c_models.html", "Tables/h1a-h1c_models.png", vwidth = 1000, vheight = 1000)
 
@@ -285,16 +289,16 @@ data = on22_stacked
 
 mod_h1e_density1_plot <- plot_predictions(mod_h1e_density1, by = c("Development", "higher_density_in1")) + theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "Higher Density Disemination Area") +
+  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "") +
   scale_x_discrete(labels = DEVELOPMENT_LABELS) + 
   scale_colour_manual(
     values = c("0" = "#D55E00", "1" = "#009E73"),  # Custom colors
-    labels = c("0" = "Respodent's DA", "1" = "Neigbouring DA")
+    labels = c("0" = "Neighbouring DA does not have more density", "1" = "Neighbouring DA is more dense")
   ) +
   ylim(0.4, 0.8) +
-  theme(legend.position = "bottom") 
+  theme(legend.position = "bottom")+guides(col=guide_legend(nrow=2))
 
-ggsave("Plots/h1e_density1.png", mod_h1e_density1_plot, height = 4, width = 7)
+ggsave("Plots/h1e_density1.png", mod_h1e_density1_plot, height = 4, width = 4)
 
 mod_h1e_density2 <- lmer(reformulate(c("Development*higher_density_in2", "pop_density_da","Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                             response = "Development_Support"),
@@ -304,16 +308,16 @@ mod_h1e_density2 <- lmer(reformulate(c("Development*higher_density_in2", "pop_de
 
 mod_h1e_density2_plot <- plot_predictions(mod_h1e_density2, by = c("Development", "higher_density_in2")) + theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "Higher Density Disemination Area") +
+  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "") +
   scale_x_discrete(labels = DEVELOPMENT_LABELS) + 
   scale_colour_manual(
     values = c("0" = "#D55E00", "1" = "#009E73"),  # Custom colors
-    labels = c("0" = "Respodent's DA", "1" = "Next Neigbouring DA")
+    labels = c("0" = "Next neighbouring DA does not have more density", "1" = "Next neighbouring DA is more dense")
   ) +
   ylim(0.4, 0.8) +
-  theme(legend.position = "bottom") 
-
-ggsave("Plots/h1e_density2.png", mod_h1e_density2_plot, height = 4, width = 7)
+  theme(legend.position = "bottom")+guides(col=guide_legend(nrow=2))
+mod_h1e_density2_plot
+ggsave("Plots/h1e_density2.png", mod_h1e_density2_plot, height = 4, width = 4)
 
 mod_h1e_towers1 <- lmer(reformulate(c("Development*more_towers_in1","pct_towers" ,"Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                           response = "Development_Support"),
@@ -323,16 +327,16 @@ mod_h1e_towers1 <- lmer(reformulate(c("Development*more_towers_in1","pct_towers"
 
 mod_h1e_towers1_plot <- plot_predictions(mod_h1e_towers1, by = c("Development", "more_towers_in1")) + theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "Disemination Area with More Apartment Towers") +
+  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "") +
   scale_x_discrete(labels = DEVELOPMENT_LABELS) + 
   scale_colour_manual(
     values = c("0" = "#D55E00", "1" = "#009E73"),  # Custom colors
-    labels = c("0" = "Respodent's DA", "1" = "Neigbouring DA")
+    labels = c("0" = "Neighbouring DA does not have more towers", "1" = "Neighbouring DA has more towers")
   ) +
   ylim(0.4, 0.8) +
-  theme(legend.position = "bottom") 
-
-ggsave("Plots/h1e_towers1_plot.png", mod_h1e_towers1_plot, width = 7, height = 4)
+  theme(legend.position = "bottom")+guides(col=guide_legend(nrow=2))
+mod_h1e_towers1_plot
+ggsave("Plots/h1e_towers1_plot.png", mod_h1e_towers1_plot, width = 4, height = 4)
 
 mod_h1e_towers2 <- lmer(reformulate(c("Development*more_towers_in2","pct_towers" ,"Experimental_Group", CONTROLS, "(1 | DA2021)", "(1 | ResponseId)"), 
                                   response = "Development_Support"),
@@ -342,21 +346,20 @@ mod_h1e_towers2 <- lmer(reformulate(c("Development*more_towers_in2","pct_towers"
 
 mod_h1e_towers2_plot <- plot_predictions(mod_h1e_towers2, by = c("Development", "more_towers_in2")) + theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "Disemination Area with more Apartment Towers") +
+  labs(x = NULL,col="", y = "Predicted Support for Each Development Type", col = "Disemination Area with more Apartment Towers") +
   scale_x_discrete(labels = DEVELOPMENT_LABELS) + 
   scale_colour_manual(
     values = c("0" = "#D55E00", "1" = "#009E73"),  # Custom colors
-    labels = c("0" = "Respodent's DA", "1" = "Next Neigbouring DA")
+    labels = c("0" = "Neighbouring DA does not have more towers", "1" = "Neighbouring DA has more towers")
   ) +
   ylim(0.4, 0.8) +
-  theme(legend.position = "bottom") 
-
-ggsave("Plots/h1e_towers2.png", mod_h1e_towers2_plot, width = 7, height = 4)
+  theme(legend.position = "bottom")+guides(col=guide_legend(nrow=2))
+ggsave("Plots/h1e_towers2.png", mod_h1e_towers2_plot, width = 4, height = 4)
 
 modelsummary(list("H1e (Density Neigbouring DAs)" = mod_h1e_density1,
                   "H1e (Density Next Neigbouring DAs)" = mod_h1e_density2,
                   "H1e (% Towers Neigbouring DAs)" = mod_h1e_towers1,
-                  "H1e (% Towers Next Neigbouring DAs)" = mod_h1e_density2),
+                  "H1e (% Towers Next Neigbouring DAs)" = mod_h1e_towers2),
              stars = TRUE,
              coef_map = c("(Intercept)" = "(Intercept)",
                           "higher_density_in1" = "(Next-)Neigbouring DA is Higher",
@@ -445,7 +448,7 @@ mod_h1f_develop <- lm_robust(
 h1f_develop_plot <- plot_predictions(mod_h1f_develop, by = c("Development", "Renter")) + 
   theme_bw() + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "Disemination Area with more Apartment Towers") +
+  labs(x = NULL, y = "Predicted Support for Each Development Type", col = "Homeowner Status") +
   scale_x_discrete(labels = DEVELOPMENT_LABELS) + 
   scale_colour_manual(
     values = c("Renter" = "#0072B2", "Other" = "#009E73")
@@ -453,9 +456,9 @@ h1f_develop_plot <- plot_predictions(mod_h1f_develop, by = c("Development", "Ren
   ylim(0.4, 0.8) +
   theme(legend.position = "bottom") 
 
+h1f_develop_plot
 
-
-ggsave("Plots/h2f.png", h1f_develop_plot, height = 4, width = 7)
+ggsave("Plots/h1f.png", h1f_develop_plot, height = 4, width = 7)
 
 modelsummary(list("H1f (Pooled Model)" = mod_h1f_main,
                   "H1f (Heterogenous by Development Type)" = mod_h1f_develop),
