@@ -923,3 +923,23 @@ on22_stacked$Development<-factor(on22_stacked$Development,
 # table(on22$partisanship)
 # 
 # nrow(on22_stacked)
+
+#Generate mean for general supply question
+on22 %>% 
+  summarise(supply_general=mean(Q80_3, na.rm=TRUE))
+
+#Generate mean for supply-market questions
+on22 %>% 
+  summarise(supply_market = mean(unlist(across(c(Q33a_4, Q33a_6, Q80_1, Q80_2))), na.rm = TRUE))
+
+#Generate mean for regulation questions
+on22 %>% 
+  summarise(supply_regulation = mean(unlist(across(c(Q33a_2, Q33a_3, Q33a_5, Q80_6))), na.rm = TRUE))
+
+#Generate mean for supply-government
+on22 %>% 
+  summarise(supply_govt=mean(Q33a_1, na.rm=TRUE))
+
+#Generate mean for demand questions
+on22 %>% 
+  summarise(supply_demand = mean(unlist(across(c(Q80_4, Q80_5))), na.rm = TRUE))
