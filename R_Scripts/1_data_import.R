@@ -88,10 +88,11 @@ on22 %>%
   # each dissemination area ; but each row contains the averages of the intersecting DAs
   # For each DA 
   # So can only have one row for each DA; so we run distinct() on da.intersect.1
-  left_join(., distinct(ungroup(da.intersect.1),DA2021, .keep_all=T)) %>%  
+  left_join(., distinct(ungroup(da.intersect.1),DA2021, .keep_all=T)) %>%
   select(-DA2021_intersect) %>% 
   left_join(., distinct(ungroup(da.intersect.2), DA2021, .keep_all=T)) ->on22
 names(on22)
+on22$Population
 #Correlate the a few measures of respondent DA with intersecting DA
 on22 %>% 
   select(contains("owned")) %>% 
@@ -117,12 +118,12 @@ ggsave(here("Plots/percent_single_detached_houses.png"), width=8, height=5)
 
 #Clean Underscores before names
 names(on22)<-str_remove_all(names(on22), "^_")
-names(on22)
+#names(on22)
 #Rename Experimental Group variables
-names(on22)
+#names(on22)
 on22 %>%
   rename("National"=`v7`, "Individual"=`v8`, "Community"=`v9`) ->on22
-on22$National
+#on22$National
  on22%>% 
   #rowwise() %>% 
   mutate(experimental_missings=rowSums(select(., National:Community), na.rm=T)) %>% 
@@ -134,13 +135,13 @@ TRUE ~ NA))->on22
 
 
 # Run the recodes
-names(on22)
+#names(on22)
 #source("R_Scripts/2_recodes.R")
 
 
 #Look for variables
 library(labelled)
-names(on22)
+# names(on22)
 
 
 # Spit out Most IMportant problem and hjousing
@@ -149,12 +150,12 @@ names(on22)
 # on22 %>% 
 #   select(pid, Q3) %>% 
 #   write.csv(., file=here("data", "most_important_problem.csv"))
-nrow(on22)
-names(on22)
+# nrow(on22)
+# names(on22)
 #clean names for SPSS export
 
-on22 %>% 
-  select(starts_with("Q32"))
+# on22 %>% 
+#   select(starts_with("Q32"))
 
 #Check value labels for solutions
 val_labels(on22$Q33a_1)
@@ -163,10 +164,10 @@ val_labels(on22$Q33a_3)
 val_labels(on22$Q33a_4)
 val_labels(on22$Q33a_5)
 val_labels(on22$Q33a_6)
-table(as_factor(on22$Q33a_1))
-table(as_factor(on22$Q33a_1), on22$Q33a_1)
+# table(as_factor(on22$Q33a_1))
+# table(as_factor(on22$Q33a_1), on22$Q33a_1)
 #Conclusion in the Q33 set, the #1 corresponded to 0 on the screen; 
 # the # 11, corresponded to the 10 on the screen and 12 corresponded to Dont' know
 #
-nrow(on22)
+#nrow(on22)
 

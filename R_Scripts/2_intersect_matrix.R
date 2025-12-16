@@ -157,7 +157,6 @@ laurier$type <- "Wilfrid Laurier University"
 
 intersect_example <- bind_rows(laurier, neigbours, next_neighbors)
 
-str_starts()
 
 waterloo <- read_sf("Data/Municipal_Boundary_-8493345633645527618/Municipal_Boundary.shp") 
 
