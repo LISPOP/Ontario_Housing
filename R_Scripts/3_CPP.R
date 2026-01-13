@@ -28,12 +28,24 @@ supply_correlation_matrix %>%
   #print the table
 kable(.,format="html", digits=2) %>% 
   save_kable(., file=here("Tables/supply_correlations.html"))
-
-cor.out %>% 
+on22$Q33a_1_x
+on22$Q80_3_x
+#Inefficient way, dependent variable by dependent variable
+mod1<-lm(Q33a_1_x~Q80_3_x, data=on22)
+summary(mod1)
+#Inefficient way, dependent variable by dependent variable
+mod2<-lm(Q33a_2_x~Q80_3_x, data=on22)
+summary(mod2)
+on22$Q33a_2_x
+#Start with the data frame
+on22 %>% 
+  #Select variables we will need for models, this will change as we go.
+  select(Q33a_1_x:Q80_6_x) %>% 
 pivot_longer(., cols=-Q80_3_x) %>% 
   nest(-name) %>% 
   mutate(model=map(data, ~lm(value~Q80_3_x,data=.x))) ->model.list
-
+model.list
+#modelsummary from modelsummary package
 modelsummary(model.list$model, stars=T)        
 
 on22 %>% 
