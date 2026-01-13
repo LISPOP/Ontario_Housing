@@ -942,17 +942,17 @@ on22 %>%
 names(on22)
 #Generate mean for supply-market questions
 on22 %>% 
- mutate(supply_market = mean(unlist(across(c(Q33a_4, Q33a_6, Q80_1, Q80_2))), na.rm = TRUE))->on22
+ mutate(supply_market = mean(unlist(across(c(Q33a_4_x, Q33a_6_x, Q80_1_x, Q80_2_x))), na.rm = TRUE))->on22
 
 #Generate mean for regulation questions
 on22 %>% 
-  mutate(supply_regulation = mean(unlist(across(c(Q33a_2, Q33a_3, Q33a_5, Q80_6))), na.rm = TRUE))->on22
+  mutate(supply_regulation = mean(unlist(across(c(Q33a_2_x, Q33a_3_x, Q33a_5_x, Q80_6_x))), na.rm = TRUE))->on22
 
 #Generate mean for supply-government
 on22 %>% 
-  mutate(supply_govt=mean(Q33a_1, na.rm=TRUE))->on22
+  mutate(supply_govt=mean(Q33a_1_x, na.rm=TRUE))->on22
 
 #Generate mean for demand questions
 on22 %>% 
-  mutate(supply_demand = mean(unlist(across(c(Q80_4, Q80_5))), na.rm = TRUE))->on22
+  mutate(supply_demand = mean(unlist(across(c(Q80_4, Q80_5_x))), na.rm = TRUE))->on22
 
