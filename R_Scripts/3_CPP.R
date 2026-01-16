@@ -37,16 +37,78 @@ summary(mod1)
 mod2<-lm(Q33a_2_x~Q80_3_x, data=on22)
 summary(mod2)
 on22$Q33a_2_x
+
 #Start with the data frame
 on22 %>% 
   #Select variables we will need for models, this will change as we go.
   select(Q33a_1_x:Q80_6_x) %>% 
 pivot_longer(., cols=-Q80_3_x) %>% 
-  nest(-name) %>% 
-  mutate(model=map(data, ~lm(value~Q80_3_x,data=.x))) ->model.list
-model.list
+  nest(data=-name) %>% 
+  mutate(model=map(data, ~lm(value~Q80_3_x,data=.x))) ->model.list1
+
+model.list1
 #modelsummary from modelsummary package
-modelsummary(model.list$model, stars=T)        
+
+#Generate the table and use gt:cols_label
+# Use the default internal names for the columns
+# which are usually `(1)` and `(2)` by default for unnamed lists
+model_1 <- modelsummary(model.list1$model, output = "gt", stars=T) |>
+  gt::cols_label(
+    "(1)" = "More affordable public housing",
+    "(2)" = "Taxes for owning multiple houses",
+    "(3)" = "Increasing taxes for foreign home-buyers",
+    "(4)" = "More non-single housing properties",
+    "(5)" = "Require developers to build more affordable housing",
+    "(6)" = "Add more properties to existing units",
+    "(7)" = "Reduce heritage designation laws",
+    "(8)" = "Eliminate density and height restrictions",
+    "(9)" = "Government loans for new buyers",
+    "(10)" = "Eliminate housing transfer taxes",
+    "(11)" = "More rent control"
+      )
+#output table for model 1
+model_1
+
+on22 %>% 
+    #Select variables we will need for models, used vote intention here.
+  select(Q33a_1_x:Q80_6_x, Vote_Intention_All) %>% 
+  pivot_longer(., cols=-Vote_Intention_All) %>% 
+  nest(data=-name) %>% 
+  mutate(model=map(data, ~lm(value~Vote_Intention_All,data=.x))) ->model.list2
+  
+  model.list2
+  
+  #Generate the table and use gt:cols_label
+  # Use the default internal names for the columns
+  # which are usually `(1)` and `(2)` by default for unnamed lists
+  model_2 <- modelsummary(model.list2$model, output = "gt", stars=T) |>
+    gt::cols_label(
+      "(1)" = "More affordable public housing",
+      "(2)" = "Taxes for owning multiple houses",
+      "(3)" = "Increasing taxes for foreign home-buyers",
+      "(4)" = "More non-single housing properties",
+      "(5)" = "Require developers to build more affordable housing",
+      "(6)" = "Add more properties to existing units",
+      "(7)" = "Reduce heritage designation laws",
+      "(8)" = "Eliminate density and height restrictions",
+      "(9)" = "Government loans for new buyers",
+      "(10)" = "Eliminate housing transfer taxes",
+      "(11)" = "More rent control"
+    )
+#output table for model 2
+model_2       
+
+#HAD SOME ISSUES WITH THE INTERACTION MODEL - ERROR 
+#Can't combine `Q33a_1_x` <double> and `Vote_Intention_All` <factor<51a55>>
+#Start with the data frame
+on22 %>% 
+  #Select variables we will need for models, interaction between vote intention and policy.
+  select(Q33a_1_x:Q80_6_x, Vote_Intention_All) %>% 
+  pivot_longer(., cols=-Q80_3_x) %>% 
+  nest(data=-name) %>% 
+  mutate(model=map(data, ~lm(value~Q80_3_x+Vote_Intention_All,data=.x))) ->model.list1
+
+model.list3
 
 on22 %>% 
   select(starts_with("Q33a")&ends_with("_y")|starts_with("Q80")&ends_with("_y")) %>% 
