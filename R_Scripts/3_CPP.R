@@ -1,4 +1,4 @@
-source("R_Scripts/2_recodes.R")
+#source("R_Scripts/2_recodes.R")
 library(crosstable)
 library(flextable)
 library(modelsummary)
@@ -72,7 +72,7 @@ model_1
 on22 %>% 
     #Select variables we will need for models, used vote intention here.
   select(Q33a_1_x:Q80_6_x, Vote_Intention_All) %>% 
-  pivot_longer(., cols=-Vote_Intention_All) %>% 
+  pivot_longer(., -c(Q80_3_x,Vote_Intention_All)) %>% 
   nest(data=-name) %>% 
   mutate(model=map(data, ~lm(value~Vote_Intention_All,data=.x))) ->model.list2
   
@@ -104,11 +104,24 @@ model_2
 on22 %>% 
   #Select variables we will need for models, interaction between vote intention and policy.
   select(Q33a_1_x:Q80_6_x, Vote_Intention_All) %>% 
-  pivot_longer(., cols=-Q80_3_x) %>% 
+  pivot_longer(., -c(Q80_3_x,Vote_Intention_All)) %>% 
   nest(data=-name) %>% 
-  mutate(model=map(data, ~lm(value~Q80_3_x+Vote_Intention_All,data=.x))) ->model.list1
+  mutate(model=map(data, ~lm(value~Q80_3_x+Vote_Intention_All,data=.x))) ->model.list3
 
-model.list3
+modelsummary(model.list3$model, output = "gt", stars=T) |>
+  gt::cols_label(
+    "(1)" = "More affordable public housing",
+    "(2)" = "Taxes for owning multiple houses",
+    "(3)" = "Increasing taxes for foreign home-buyers",
+    "(4)" = "More non-single housing properties",
+    "(5)" = "Require developers to build more affordable housing",
+    "(6)" = "Add more properties to existing units",
+    "(7)" = "Reduce heritage designation laws",
+    "(8)" = "Eliminate density and height restrictions",
+    "(9)" = "Government loans for new buyers",
+    "(10)" = "Eliminate housing transfer taxes",
+    "(11)" = "More rent control"
+  )
 
 on22 %>% 
   select(starts_with("Q33a")&ends_with("_y")|starts_with("Q80")&ends_with("_y")) %>% 
