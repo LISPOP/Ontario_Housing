@@ -52,13 +52,13 @@ model.list1
 #Generate the table and use gt:cols_label
 # Use the default internal names for the columns
 # which are usually `(1)` and `(2)` by default for unnamed lists
-model_1 <- modelsummary(model.list1$model, output = "gt", stars=T) |>
+model_1 <- modelsummary(model.list1$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, coef_rename = c("Q80_3_x" = "Housing Supply")) |>
   gt::cols_label(
     "(1)" = "More affordable public housing",
-    "(2)" = "Taxes for owning multiple houses",
-    "(3)" = "Increasing taxes for foreign home-buyers",
-    "(4)" = "More non-single housing properties",
-    "(5)" = "Require developers to build more affordable housing",
+    "(2)" = "Tax multiple/vacant homes",
+    "(3)" = "Taxes on foreign homebuyers",
+    "(4)" = "Allow more non-single family properties",
+    "(5)" = "Require developers to build affordable housing",
     "(6)" = "Add more properties to existing units",
     "(7)" = "Reduce heritage designation laws",
     "(8)" = "Eliminate density and height restrictions",
@@ -81,13 +81,13 @@ on22 %>%
   #Generate the table and use gt:cols_label
   # Use the default internal names for the columns
   # which are usually `(1)` and `(2)` by default for unnamed lists
-  model_2 <- modelsummary(model.list2$model, output = "gt", stars=T) |>
+  model_2 <- modelsummary(model.list2$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, coef_rename = c("Vote_Intention_AllLiberal" = "LIB", "Vote_Intention_AllNDP" = "NDP", "Vote_Intention_AllGreen" = "GRN")) |>
     gt::cols_label(
       "(1)" = "More affordable public housing",
-      "(2)" = "Taxes for owning multiple houses",
-      "(3)" = "Increasing taxes for foreign home-buyers",
-      "(4)" = "More non-single housing properties",
-      "(5)" = "Require developers to build more affordable housing",
+      "(2)" = "Tax multiple/vacant homes",
+      "(3)" = "Taxes on foreign homebuyers",
+      "(4)" = "Allow more non-single family properties",
+      "(5)" = "Require developers to build affordable housing",
       "(6)" = "Add more properties to existing units",
       "(7)" = "Reduce heritage designation laws",
       "(8)" = "Eliminate density and height restrictions",
@@ -98,8 +98,6 @@ on22 %>%
 #output table for model 2
 model_2       
 
-#HAD SOME ISSUES WITH THE INTERACTION MODEL - ERROR 
-#Can't combine `Q33a_1_x` <double> and `Vote_Intention_All` <factor<51a55>>
 #Start with the data frame
 on22 %>% 
   #Select variables we will need for models, interaction between vote intention and policy.
@@ -108,13 +106,13 @@ on22 %>%
   nest(data=-name) %>% 
   mutate(model=map(data, ~lm(value~Q80_3_x+Vote_Intention_All,data=.x))) ->model.list3
 
-modelsummary(model.list3$model, output = "gt", stars=T) |>
+model_3 <- modelsummary(model.list3$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, coef_rename = c("Vote_Intention_AllLiberal" = "LIB", "Vote_Intention_AllNDP" = "NDP", "Vote_Intention_AllGreen" = "GRN", "Q80_3_x" = "Housing Supply")) |>
   gt::cols_label(
     "(1)" = "More affordable public housing",
-    "(2)" = "Taxes for owning multiple houses",
-    "(3)" = "Increasing taxes for foreign home-buyers",
-    "(4)" = "More non-single housing properties",
-    "(5)" = "Require developers to build more affordable housing",
+    "(2)" = "Tax multiple/vacant homes",
+    "(3)" = "Taxes on foreign homebuyers",
+    "(4)" = "Allow more non-single family properties",
+    "(5)" = "Require developers to build affordable housing",
     "(6)" = "Add more properties to existing units",
     "(7)" = "Reduce heritage designation laws",
     "(8)" = "Eliminate density and height restrictions",
@@ -122,6 +120,77 @@ modelsummary(model.list3$model, output = "gt", stars=T) |>
     "(10)" = "Eliminate housing transfer taxes",
     "(11)" = "More rent control"
   )
+
+model_3
+
+on22 %>% 
+  #Select variables we will need for models, this will change as we go.
+  select(supply_general:supply_demand) %>% 
+  pivot_longer(., cols=-supply_general) %>% 
+  nest(data=-name) %>% 
+  mutate(model=map(data, ~lm(value~supply_general,data=.x))) ->model.list4
+
+model.list4
+#modelsummary from modelsummary package
+
+#Generate the table and use gt:cols_label
+# Use the default internal names for the columns
+# which are usually `(1)` and `(2)` by default for unnamed lists
+model_4 <- modelsummary(model.list4$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2) |>
+  gt::cols_label(
+    "(1)" = "Supply - Market-based",
+    "(2)" = "Supply - Government Regulation ",
+    "(3)" = "Supply - Government Investment",
+    "(4)" = "Demand"
+  )
+#output table for model 4
+model_4
+
+on22 %>% 
+  #Select variables we will need for models, this will change as we go.
+  select(supply_general:supply_demand, Vote_Intention_All) %>% 
+  pivot_longer(., cols=-c(supply_general,Vote_Intention_All)) %>% 
+  nest(data=-name) %>% 
+  mutate(model=map(data, ~lm(value~Vote_Intention_All,data=.x))) ->model.list5
+
+model.list5
+#modelsummary from modelsummary package
+
+#Generate the table and use gt:cols_label
+# Use the default internal names for the columns
+# which are usually `(1)` and `(2)` by default for unnamed lists
+model_5 <- modelsummary(model.list5$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2) |>
+  gt::cols_label(
+    "(1)" = "Supply - Market-based",
+    "(2)" = "Supply - Government Regulation ",
+    "(3)" = "Supply - Government Investment",
+    "(4)" = "Demand"
+  )
+#output table for model 5
+model_5
+
+on22 %>% 
+  #Select variables we will need for models, this will change as we go.
+  select(supply_general:supply_demand, Vote_Intention_All) %>% 
+  pivot_longer(., cols=-c(supply_general,Vote_Intention_All)) %>% 
+  nest(data=-name) %>% 
+  mutate(model=map(data, ~lm(value~supply_general+Vote_Intention_All,data=.x))) ->model.list6
+
+model.list6
+#modelsummary from modelsummary package
+
+#Generate the table and use gt:cols_label
+# Use the default internal names for the columns
+# which are usually `(1)` and `(2)` by default for unnamed lists
+model_6 <- modelsummary(model.list6$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2) |>
+  gt::cols_label(
+    "(1)" = "Supply - Market-based",
+    "(2)" = "Supply - Government Regulation ",
+    "(3)" = "Supply - Government Investment",
+    "(4)" = "Demand"
+  )
+#output table for model 6
+model_6
 
 on22 %>% 
   select(starts_with("Q33a")&ends_with("_y")|starts_with("Q80")&ends_with("_y")) %>% 
