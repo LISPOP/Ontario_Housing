@@ -42,21 +42,20 @@ names(on22)
 on22$Q23
 on22 %>%
   mutate(partisanship=case_when(
-    Q23 == 1  ~ "Liberal",
-    Q23 == 2   ~ "NDP",
-    Q23 == 3  ~ "PC",
-    Q23>3|is.na(Q23) ~ "Other",
-#      TRUE ~ "Independent"
+    Q23 == 1&Q24<3  ~ "Liberal",
+    Q23 == 2&Q24<3   ~ "NDP",
+    Q23 == 3 &Q24<3 ~ "PC",
+    (Q23==4|Q23==5)&Q24<3 ~ "Other",
+      TRUE ~ "Non-partisan"
   ))->on22
 
-
-#on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberal", "Green", "Independent"))
-on22$partisanship<-factor(on22$partisanship, levels=c("NDP", "Liberal", "Other", "PC"))
+#table(on22$partisanship, on22$Q23)
+on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberal", "Other", "Non-partisan"))
+#on22$partisanship<-factor(on22$partisanship, levels=c("NDP", "Liberal", "Other", "PC"))
 
 #Use mutate and case_when()
-table(on22$Q28)
-var_label(on22$Q28)
-var_label(on22$Q30)
+#table(on22$Q28)
+
 
 # lookfor(on22, "rent")
 # on22$Q27
@@ -826,7 +825,9 @@ on22$Ideology<-rowMeans(on22[ , c("Q16_x","Q17_x", "Q18_x", "Q19_x", "Q20_x", "Q
 #### Political Interest ####
 
 on22$Interest<-cut(on22$Q4_1, breaks=3, labels=c("Low", "Medium", "High"))
-
+summary(on22$Q4_1)
+summary(on22$Q5_1)
+on22$Q5_1
 #Run a script setting value and variable labels
 source("R_Scripts/2_value_labels.R")
 source("R_Scripts/2_variable_labels.R")
@@ -938,21 +939,26 @@ on22_stacked$Development<-factor(on22_stacked$Development,
 
 #Generate mean for general supply question
 on22 %>% 
-  mutate(supply_general=mean(Q80_3_x, na.rm=TRUE))->on22
+  mutate(supply_general=Q80_3_x)->on22
 names(on22)
 #Generate mean for supply-market questions
 on22 %>% 
- mutate(supply_market = mean(unlist(across(c(Q33a_4_x, Q33a_6_x, Q80_1_x, Q80_2_x))), na.rm = TRUE))->on22
+  mutate(supply_market=rowMeans(select(., c(Q33a_4_x, Q33a_6_x, Q80_1_x, Q80_2_x)))) ->on22
+  #select(c(Q33a_4_x, Q33a_6_x, Q80_1_x, Q80_2_x, supply_market)
 
 #Generate mean for regulation questions
+#on22 %>% 
+ # mu0tate(supply_regulation = mean(unlist(across(c(Q33a_2_x, Q33a_3_x, Q33a_5_x, Q80_6_x))), na.rm = TRUE))->on22
 on22 %>% 
-  mutate(supply_regulation = mean(unlist(across(c(Q33a_2_x, Q33a_3_x, Q33a_5_x, Q80_6_x))), na.rm = TRUE))->on22
-
+  mutate(supply_regulation=rowMeans(select(., c(Q33a_2_x, Q33a_3_x, Q33a_5_x, Q80_6_x)))) ->on22
 #Generate mean for supply-government
 on22 %>% 
-  mutate(supply_govt=mean(Q33a_1_x, na.rm=TRUE))->on22
+  mutate(supply_govt=Q33a_1_x)->on22
 
 #Generate mean for demand questions
+#on22 %>% 
+#  mutate(supply_demand = mean(unlist(across(c(Q80_4, Q80_5_x))), na.rm = TRUE))->on22
 on22 %>% 
-  mutate(supply_demand = mean(unlist(across(c(Q80_4, Q80_5_x))), na.rm = TRUE))->on22
+  mutate(supply_demand=rowMeans(select(., c(Q80_4_x, Q80_5_x)))) ->on22
+
 

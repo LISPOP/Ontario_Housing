@@ -1,4 +1,4 @@
-#source("R_Scripts/2_recodes.R")
+source("R_Scripts/2_recodes.R")
 library(crosstable)
 library(flextable)
 library(modelsummary)
@@ -130,7 +130,6 @@ on22 %>%
   nest(data=-name) %>% 
   mutate(model=map(data, ~lm(value~supply_general,data=.x))) ->model.list4
 
-model.list4
 #modelsummary from modelsummary package
 
 #Generate the table and use gt:cols_label
@@ -174,15 +173,18 @@ on22 %>%
   select(supply_general:supply_demand, Vote_Intention_All) %>% 
   pivot_longer(., cols=-c(supply_general,Vote_Intention_All)) %>% 
   nest(data=-name) %>% 
-  mutate(model=map(data, ~lm(value~supply_general+Vote_Intention_All,data=.x))) ->model.list6
+  mutate(model=map(data, ~lm(value~supply_general,data=.x)),
+         model1=map(data, ~lm(value~Vote_Intention_All,data=.x)),
+         model2=map(data, ~lm(value~supply_general*Vote_Intention_All,data=.x))) ->model.list6
 
-model.list6
+out<-list(model.list6$model[[1]], model.list6$model1[[1]], model.list6$model2[[1]])
+modelsummary(out)
 #modelsummary from modelsummary package
 
 #Generate the table and use gt:cols_label
 # Use the default internal names for the columns
 # which are usually `(1)` and `(2)` by default for unnamed lists
-model_6 <- modelsummary(model.list6$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2) |>
+model_6 <- modelsummary(model.list6$model1, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2) |>
   gt::cols_label(
     "(1)" = "Supply - Market-based",
     "(2)" = "Supply - Government Regulation ",
@@ -202,3 +204,4 @@ filter(variable!="NA") %>%
   as_flextable() %>% 
   save_as_html(., path=here("Tables/general_specific_support_categorical.html"))
 
+on22$Q24
