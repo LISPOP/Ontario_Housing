@@ -824,10 +824,31 @@ on22$Ideology<-rowMeans(on22[ , c("Q16_x","Q17_x", "Q18_x", "Q19_x", "Q20_x", "Q
 
 #### Political Interest ####
 
+#Rescale to 0-1 and generate new variable _x
+on22 %>% 
+  mutate(
+    across(matches("Q4_1"), ~scales::rescale(as.numeric(.x)), .names="Q4_1_x")
+  )->on22
+
+on22$Q4_1_x
+on22 %>% 
+  mutate(
+    across(matches("Q5_1"), ~scales::rescale(as.numeric(.x)), .names="Q5_1_x")
+  )->on22
+on22$Q5_1_x
+
+on22 %>% 
+  mutate(avg_interest=rowMeans(select(., c(Q5_1_x, Q4_1_x)))) ->on22
+on22$avg_interest
+
 on22$Interest<-cut(on22$Q4_1, breaks=3, labels=c("Low", "Medium", "High"))
 summary(on22$Q4_1)
 summary(on22$Q5_1)
 on22$Q5_1
+
+
+
+
 #Run a script setting value and variable labels
 source("R_Scripts/2_value_labels.R")
 source("R_Scripts/2_variable_labels.R")

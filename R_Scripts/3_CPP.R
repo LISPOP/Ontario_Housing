@@ -38,20 +38,18 @@ mod2<-lm(Q33a_2_x~Q80_3_x, data=on22)
 summary(mod2)
 on22$Q33a_2_x
 
-#Start with the data frame
+###REGRESSION MODELS###
+
+#MODEL 1
+#DV Increase Housing Supply
+#IVs Solutions (11)
 on22 %>% 
-  #Select variables we will need for models, this will change as we go.
   select(Q33a_1_x:Q80_6_x) %>% 
 pivot_longer(., cols=-Q80_3_x) %>% 
   nest(data=-name) %>% 
   mutate(model=map(data, ~lm(value~Q80_3_x,data=.x))) ->model.list1
 
-model.list1
-#modelsummary from modelsummary package
-
 #Generate the table and use gt:cols_label
-# Use the default internal names for the columns
-# which are usually `(1)` and `(2)` by default for unnamed lists
 model_1 <- modelsummary(model.list1$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, coef_rename = c("Q80_3_x" = "Housing Supply")) |>
   gt::cols_label(
     "(1)" = "More affordable public housing",
@@ -69,19 +67,17 @@ model_1 <- modelsummary(model.list1$model, output = "gt", stars=T, gof_omit = "A
 #output table for model 1
 model_1
 
+#MODEL 2
+#DV Partisanship
+#IVs Solutions (11)
 on22 %>% 
-    #Select variables we will need for models, used vote intention here.
-  select(Q33a_1_x:Q80_6_x, Vote_Intention_All) %>% 
-  pivot_longer(., -c(Q80_3_x,Vote_Intention_All)) %>% 
+  select(Q33a_1_x:Q80_6_x, partisanship) %>% 
+  pivot_longer(., -c(Q80_3_x, partisanship)) %>% 
   nest(data=-name) %>% 
-  mutate(model=map(data, ~lm(value~Vote_Intention_All,data=.x))) ->model.list2
-  
-  model.list2
+  mutate(model=map(data, ~lm(value~partisanship,data=.x))) ->model.list2
   
   #Generate the table and use gt:cols_label
-  # Use the default internal names for the columns
-  # which are usually `(1)` and `(2)` by default for unnamed lists
-  model_2 <- modelsummary(model.list2$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, coef_rename = c("Vote_Intention_AllLiberal" = "LIB", "Vote_Intention_AllNDP" = "NDP", "Vote_Intention_AllGreen" = "GRN")) |>
+  model_2 <- modelsummary(model.list2$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, coef_rename = c("partisanshipLiberal" = "LIB", "partisanshipNDP" = "NDP", "partisanshipOther" = "OTH", "partisanshipNon-partisan" = "Non-Partisan")) |>
     gt::cols_label(
       "(1)" = "More affordable public housing",
       "(2)" = "Tax multiple/vacant homes",
@@ -98,15 +94,16 @@ on22 %>%
 #output table for model 2
 model_2       
 
-#Start with the data frame
+#MODEL 3
+#DV Partisanship+General Housing Supply
+#IVs Solutions (11)
 on22 %>% 
-  #Select variables we will need for models, interaction between vote intention and policy.
-  select(Q33a_1_x:Q80_6_x, Vote_Intention_All) %>% 
-  pivot_longer(., -c(Q80_3_x,Vote_Intention_All)) %>% 
+  select(Q33a_1_x:Q80_6_x, partisanship) %>% 
+  pivot_longer(., -c(Q80_3_x,partisanship)) %>% 
   nest(data=-name) %>% 
-  mutate(model=map(data, ~lm(value~Q80_3_x+Vote_Intention_All,data=.x))) ->model.list3
+  mutate(model=map(data, ~lm(value~Q80_3_x+partisanship,data=.x))) ->model.list3
 
-model_3 <- modelsummary(model.list3$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, coef_rename = c("Vote_Intention_AllLiberal" = "LIB", "Vote_Intention_AllNDP" = "NDP", "Vote_Intention_AllGreen" = "GRN", "Q80_3_x" = "Housing Supply")) |>
+model_3 <- modelsummary(model.list3$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, coef_rename = c("partisanshipLiberal" = "LIB", "partisanshipNDP" = "NDP", "partisanshipOther" = "OTH", "partisanshipNon-partisan" = "Non-Partisan", "Q80_3_x" = "Housing Supply")) |>
   gt::cols_label(
     "(1)" = "More affordable public housing",
     "(2)" = "Tax multiple/vacant homes",
@@ -120,22 +117,20 @@ model_3 <- modelsummary(model.list3$model, output = "gt", stars=T, gof_omit = "A
     "(10)" = "Eliminate housing transfer taxes",
     "(11)" = "More rent control"
   )
-
+#output table for model 3
 model_3
 
+#MODEL 4
+#DV General Housing Supply
+#IVs Categorical Solutions (4)
 on22 %>% 
-  #Select variables we will need for models, this will change as we go.
   select(supply_general:supply_demand) %>% 
   pivot_longer(., cols=-supply_general) %>% 
   nest(data=-name) %>% 
   mutate(model=map(data, ~lm(value~supply_general,data=.x))) ->model.list4
 
-#modelsummary from modelsummary package
-
 #Generate the table and use gt:cols_label
-# Use the default internal names for the columns
-# which are usually `(1)` and `(2)` by default for unnamed lists
-model_4 <- modelsummary(model.list4$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2) |>
+model_4 <- modelsummary(model.list4$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, coef_rename = c("supply_general" = "Housing Supply")) |>
   gt::cols_label(
     "(1)" = "Supply - Market-based",
     "(2)" = "Supply - Government Regulation ",
@@ -145,20 +140,19 @@ model_4 <- modelsummary(model.list4$model, output = "gt", stars=T, gof_omit = "A
 #output table for model 4
 model_4
 
+#MODEL 5
+#DV Partisanship
+#IVs Categorical Solutions (4)
+
 on22 %>% 
   #Select variables we will need for models, this will change as we go.
-  select(supply_general:supply_demand, Vote_Intention_All) %>% 
-  pivot_longer(., cols=-c(supply_general,Vote_Intention_All)) %>% 
+  select(supply_general:supply_demand, partisanship) %>% 
+  pivot_longer(., cols=-c(supply_general,partisanship)) %>% 
   nest(data=-name) %>% 
-  mutate(model=map(data, ~lm(value~Vote_Intention_All,data=.x))) ->model.list5
-
-model.list5
-#modelsummary from modelsummary package
+  mutate(model=map(data, ~lm(value~partisanship,data=.x))) ->model.list5
 
 #Generate the table and use gt:cols_label
-# Use the default internal names for the columns
-# which are usually `(1)` and `(2)` by default for unnamed lists
-model_5 <- modelsummary(model.list5$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2) |>
+model_5 <- modelsummary(model.list5$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, coef_rename = c("partisanshipLiberal" = "LIB", "partisanshipNDP" = "NDP", "partisanshipOther" = "OTH", "partisanshipNon-partisan" = "Non-Partisan")) |>
   gt::cols_label(
     "(1)" = "Supply - Market-based",
     "(2)" = "Supply - Government Regulation ",
@@ -168,31 +162,81 @@ model_5 <- modelsummary(model.list5$model, output = "gt", stars=T, gof_omit = "A
 #output table for model 5
 model_5
 
+#MODEL 6
+#DV Partisanship x General Housing Supply
+#IVs Categorical Solutions (4)
 on22 %>% 
   #Select variables we will need for models, this will change as we go.
-  select(supply_general:supply_demand, Vote_Intention_All) %>% 
-  pivot_longer(., cols=-c(supply_general,Vote_Intention_All)) %>% 
+  select(supply_general:supply_demand, partisanship) %>% 
+  pivot_longer(., cols=-c(supply_general,partisanship)) %>% 
   nest(data=-name) %>% 
   mutate(model=map(data, ~lm(value~supply_general,data=.x)),
-         model1=map(data, ~lm(value~Vote_Intention_All,data=.x)),
-         model2=map(data, ~lm(value~supply_general*Vote_Intention_All,data=.x))) ->model.list6
+         model1=map(data, ~lm(value~partisanship,data=.x)),
+         model2=map(data, ~lm(value~supply_general*partisanship,data=.x))) ->model.list6
 
 out<-list(model.list6$model[[1]], model.list6$model1[[1]], model.list6$model2[[1]])
-modelsummary(out)
+#modelsummary(out)
 #modelsummary from modelsummary package
 
 #Generate the table and use gt:cols_label
-# Use the default internal names for the columns
-# which are usually `(1)` and `(2)` by default for unnamed lists
-model_6 <- modelsummary(model.list6$model1, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2) |>
+model_6 <- modelsummary(out, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, coef_rename = c("partisanshipLiberal" = "LIB", "partisanshipNDP" = "NDP", "partisanshipOther" = "OTH", "partisanshipNon-partisan" = "Non-Partisan", "supply_general" = "Housing Supply"))|>
+  gt::cols_label(
+    "(1)" = "Model 1",
+    "(2)" = "Model 2",
+    "(3)" = "Model 3"
+  )
+#output table for model 6
+model_6
+
+#MODEL 7
+#DV Interest in Politics
+#IVs Categorical Solutions (4)
+
+on22 %>% 
+  #Select variables we will need for models, this will change as we go.
+  select(supply_general:supply_demand, avg_interest) %>% 
+  pivot_longer(., cols=-c(supply_general,avg_interest)) %>% 
+  nest(data=-name) %>% 
+  mutate(model=map(data, ~lm(value~avg_interest,data=.x))) ->model.list7
+
+#Generate the table and use gt:cols_label
+model_7 <- modelsummary(model.list7$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, coef_rename = c("avg_interest" = "Interest in Politics")) |>
   gt::cols_label(
     "(1)" = "Supply - Market-based",
     "(2)" = "Supply - Government Regulation ",
     "(3)" = "Supply - Government Investment",
     "(4)" = "Demand"
   )
-#output table for model 6
-model_6
+#output table for model 7
+model_7
+
+#MODEL 8
+#DV Interest in Politics x Partisanship
+#IVs Categorical Solutions (4)
+
+on22 %>% 
+  #Select variables we will need for models, this will change as we go.
+  select(supply_general:supply_demand, partisanship, avg_interest) %>% 
+  pivot_longer(., cols=-c(avg_interest,partisanship)) %>% 
+  nest(data=-name) %>% 
+  mutate(model=map(data, ~lm(value~avg_interest,data=.x)),
+         model1=map(data, ~lm(value~partisanship,data=.x)),
+         model2=map(data, ~lm(value~avg_interest*partisanship,data=.x))) ->model.list8
+
+out<-list(model.list8$model[[1]], model.list8$model1[[1]], model.list8$model2[[1]])
+#modelsummary(out)
+#modelsummary from modelsummary package
+
+#Generate the table and use gt:cols_label
+model_8 <- modelsummary(out, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, coef_rename = c("partisanshipLiberal" = "LIB", "partisanshipNDP" = "NDP", "partisanshipOther" = "OTH", "partisanshipNon-partisan" = "Non-Partisan", "supply_general" = "Housing Supply", "avg_interest" = "Interest in Politics"))|>
+  gt::cols_label(
+    "(1)" = "Model 1",
+    "(2)" = "Model 2",
+    "(3)" = "Model 3"
+  )
+#output table for model 8
+model_8
+
 
 on22 %>% 
   select(starts_with("Q33a")&ends_with("_y")|starts_with("Q80")&ends_with("_y")) %>% 
