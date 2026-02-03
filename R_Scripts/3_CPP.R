@@ -194,11 +194,11 @@ model_6 <- modelsummary(out, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R
                         coef_rename = c("partisanshipLiberal" = "LIB", "partisanshipNDP" = "NDP", "partisanshipOther" = "OTH", "partisanshipNon-partisan" = "Non-Partisan", "supply_general" = "Housing Supply"))
 #This needs to be reworked to provide some kind of titling
 # check into panels or stub heads for gt tables. 
-  gt::cols_label(
-    "(1)" = "Model 1",
-    "(2)" = "Model 2",
-    "(3)" = "Model 3"
-  )
+  # gt::cols_label(
+  #   "(1)" = "Model 1",
+  #   "(2)" = "Model 2",
+  #   "(3)" = "Model 3"
+  # )
 #output table for model 6
 model_6
 
