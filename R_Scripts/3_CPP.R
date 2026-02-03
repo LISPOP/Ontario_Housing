@@ -173,13 +173,27 @@ on22 %>%
   mutate(model=map(data, ~lm(value~supply_general,data=.x)),
          model1=map(data, ~lm(value~partisanship,data=.x)),
          model2=map(data, ~lm(value~supply_general*partisanship,data=.x))) ->model.list6
+model.list6
 
-out<-list(model.list6$model[[1]], model.list6$model1[[1]], model.list6$model2[[1]])
+out<-list(
+  #Add models of relationship between general and supply market
+  model.list6$model[[1]], model.list6$model1[[1]], model.list6$model2[[1]],
+  #Add models of relationship between general and supply regulation
+          model.list6$model[[2]], model.list6$model1[[2]], model.list6$model2[[2]],
+  #Add models of relationship between general and supply government
+  model.list6$model[[3]], model.list6$model1[[3]], model.list6$model2[[3]],
+  #Add models of relationship between general and demand manipulation
+  model.list6$model[[4]], model.list6$model1[[4]], model.list6$model2[[4]]
+          )
+out
 #modelsummary(out)
 #modelsummary from modelsummary package
 
 #Generate the table and use gt:cols_label
-model_6 <- modelsummary(out, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, coef_rename = c("partisanshipLiberal" = "LIB", "partisanshipNDP" = "NDP", "partisanshipOther" = "OTH", "partisanshipNon-partisan" = "Non-Partisan", "supply_general" = "Housing Supply"))|>
+model_6 <- modelsummary(out, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, 
+                        coef_rename = c("partisanshipLiberal" = "LIB", "partisanshipNDP" = "NDP", "partisanshipOther" = "OTH", "partisanshipNon-partisan" = "Non-Partisan", "supply_general" = "Housing Supply"))
+#This needs to be reworked to provide some kind of titling
+# check into panels or stub heads for gt tables. 
   gt::cols_label(
     "(1)" = "Model 1",
     "(2)" = "Model 2",
@@ -197,7 +211,7 @@ on22 %>%
   select(supply_general:supply_demand, avg_interest) %>% 
   pivot_longer(., cols=-c(supply_general,avg_interest)) %>% 
   nest(data=-name) %>% 
-  mutate(model=map(data, ~lm(value~avg_interest,data=.x))) ->model.list7
+  mutate(model=map(data, ~lm(value~avg_interest*supply_general,data=.x))) ->model.list7
 
 #Generate the table and use gt:cols_label
 model_7 <- modelsummary(model.list7$model, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, coef_rename = c("avg_interest" = "Interest in Politics")) |>
@@ -222,7 +236,7 @@ on22 %>%
   mutate(model=map(data, ~lm(value~avg_interest,data=.x)),
          model1=map(data, ~lm(value~partisanship,data=.x)),
          model2=map(data, ~lm(value~avg_interest*partisanship,data=.x))) ->model.list8
-
+model.list8
 out<-list(model.list8$model[[1]], model.list8$model1[[1]], model.list8$model2[[1]])
 #modelsummary(out)
 #modelsummary from modelsummary package
