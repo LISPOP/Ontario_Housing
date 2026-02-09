@@ -191,14 +191,34 @@ out
 
 #Generate the table and use gt:cols_label
 model_6 <- modelsummary(out, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, 
-                        coef_rename = c("partisanshipLiberal" = "LIB", "partisanshipNDP" = "NDP", "partisanshipOther" = "OTH", "partisanshipNon-partisan" = "Non-Partisan", "supply_general" = "Housing Supply"))
+                        coef_rename = c("partisanshipLiberal" = "LIB", "partisanshipNDP" = "NDP", "partisanshipOther" = "OTH", "partisanshipNon-partisan" = "Non-Partisan", "supply_general" = "Housing Supply")) |>
+  tab_spanner(
+    label = "Supply - Market-based",
+    columns = c(
+      2,3,4
+    ))|>
+  tab_spanner(
+    label = "Supply - Govt Regulation",
+    columns = c(
+      5,6,7
+    ))|>
+  tab_spanner(
+    label = "Supply - Govt Investment",
+    columns = c(
+      8,9,10
+    ))|>
+  tab_spanner(
+    label = "Demand",
+    columns = c(
+      11,12,13
+    ))
 #This needs to be reworked to provide some kind of titling
 # check into panels or stub heads for gt tables. 
   # gt::cols_label(
   #   "(1)" = "Model 1",
   #   "(2)" = "Model 2",
   #   "(3)" = "Model 3"
-  # )
+  #)
 #output table for model 6
 model_6
 
