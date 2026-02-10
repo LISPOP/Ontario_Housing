@@ -846,16 +846,6 @@ summary(on22$Q4_1)
 summary(on22$Q5_1)
 on22$Q5_1
 
-###Supply Gap Variable###
-on22 %>%
-  mutate(supply_gap_market = supply_general - supply_market)  -> on22
-
-on22 %>%
-  mutate(supply_gap_govt = supply_general - supply_govt)  -> on22
-
-on22 %>%
-  mutate(supply_gap_demand = supply_general - supply_demand)  -> on22
-
 #Run a script setting value and variable labels
 source("R_Scripts/2_value_labels.R")
 source("R_Scripts/2_variable_labels.R")
@@ -989,4 +979,12 @@ on22 %>%
 on22 %>% 
   mutate(supply_demand=rowMeans(select(., c(Q80_4_x, Q80_5_x)))) ->on22
 
+###Supply Gap Variable###
+on22 %>%
+  mutate(supply_gap_market = supply_general - supply_market)  -> on22
 
+on22 %>%
+  mutate(supply_gap_govt = supply_general - supply_govt)  -> on22
+
+on22 %>%
+  mutate(supply_gap_demand = supply_general - supply_demand)  -> on22
