@@ -282,4 +282,19 @@ filter(variable!="NA") %>%
   as_flextable() %>% 
   save_as_html(., path=here("Tables/general_specific_support_categorical.html"))
 
-on22$Q24
+#### partisanship x attention
+
+solution_var_labels
+on22$Interest
+#more non-single-family homes
+lookfor(on22, "")
+mod_supply_4<-lm(Q33a_4_x~partisanship*avg_interest, data=on22)
+summary(mod_supply_4)
+mod_supply_6<-lm(Q33a_6_x~partisanship*avg_interest, data=on22)
+summary(mod_supply_6)
+mod_supply_10<-lm(Q80_4_x~partisanship*avg_interest, data=on22)
+summary(mod_supply_10)
+mod_supply_11<-lm(Q80_5_x~partisanship*avg_interest, data=on22)
+summary(mod_supply_11)
+mod_supply_12<-lm(Q80_6_x~partisanship*avg_interest, data=on22)
+summary(mod_supply_12)
