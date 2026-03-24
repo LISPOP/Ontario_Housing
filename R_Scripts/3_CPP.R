@@ -298,3 +298,4 @@ mod_supply_11<-lm(Q80_5_x~partisanship*avg_interest, data=on22)
 summary(mod_supply_11)
 mod_supply_12<-lm(Q80_6_x~partisanship*avg_interest, data=on22)
 summary(mod_supply_12)
+on22$Renter
