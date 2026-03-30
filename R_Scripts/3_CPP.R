@@ -288,14 +288,95 @@ solution_var_labels
 on22$Interest
 #more non-single-family homes
 lookfor(on22, "")
+mod_supply_1<-lm(Q33a_1_x~partisanship*avg_interest, data=on22)
+summary(mod_supply_1)
+mod_supply_2<-lm(Q33a_2_x~partisanship*avg_interest, data=on22)
+summary(mod_supply_2)
+mod_supply_3<-lm(Q33a_3_x~partisanship*avg_interest, data=on22)
+summary(mod_supply_3)
 mod_supply_4<-lm(Q33a_4_x~partisanship*avg_interest, data=on22)
 summary(mod_supply_4)
+mod_supply_5<-lm(Q33a_5_x~partisanship*avg_interest, data=on22)
+summary(mod_supply_5)
 mod_supply_6<-lm(Q33a_6_x~partisanship*avg_interest, data=on22)
 summary(mod_supply_6)
+mod_supply_7<-lm(Q80_1_x~partisanship*avg_interest, data=on22)
+summary(mod_supply_7)
+mod_supply_8<-lm(Q80_2_x~partisanship*avg_interest, data=on22)
+summary(mod_supply_8)
+mod_supply_9<-lm(Q80_3_x~partisanship*avg_interest, data=on22)
+summary(mod_supply_9)
 mod_supply_10<-lm(Q80_4_x~partisanship*avg_interest, data=on22)
 summary(mod_supply_10)
 mod_supply_11<-lm(Q80_5_x~partisanship*avg_interest, data=on22)
 summary(mod_supply_11)
 mod_supply_12<-lm(Q80_6_x~partisanship*avg_interest, data=on22)
 summary(mod_supply_12)
+
+out<-list(mod_supply_1, mod_supply_2, mod_supply_3, mod_supply_4, mod_supply_5, mod_supply_6, mod_supply_7, mod_supply_8, mod_supply_9, mod_supply_10, mod_supply_11, mod_supply_12)
+model_9<-modelsummary(out, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, 
+                        coef_rename = c("partisanshipLiberal" = "LIB", "partisanshipNDP" = "NDP", "partisanshipOther" = "OTH", "partisanshipNon-partisan" = "Non-Partisan", "supply_general" = "Housing Supply", "avg_interest" = "Interest in Politics"))|>
+  gt::cols_label(
+    "(1)" = "More affordable public housing",
+    "(2)" = "Taxes for owning multiple houses",
+    "(3)" = "Increasing taxes for foreign home-buyers",
+    "(4)" = "More non-single housing properties",
+    "(5)" = "Require developers to build more affordable housing",
+    "(6)" = "Add more properties to existing units",
+    "(7)" = "Reduce heritage designation laws",
+    "(8)" = "Eliminate density and height restrictions",
+    "(9)" = "Increase housing supply",
+    "(10)" = "Government loans for new buyers",
+    "(11)" = "Eliminate housing transfer taxes",
+    "(12)" = "More rent control",
+  )
+#output table for model 9
+model_9
+
+#### Renter x attention
+mod_supply_13<-lm(Q33a_1_x~Renter*avg_interest, data=on22)
+summary(mod_supply_13)
+mod_supply_14<-lm(Q33a_2_x~Renter*avg_interest, data=on22)
+summary(mod_supply_14)
+mod_supply_15<-lm(Q33a_3_x~Renter*avg_interest, data=on22)
+summary(mod_supply_15)
+mod_supply_16<-lm(Q33a_4_x~Renter*avg_interest, data=on22)
+summary(mod_supply_16)
+mod_supply_17<-lm(Q33a_5_x~Renter*avg_interest, data=on22)
+summary(mod_supply_17)
+mod_supply_18<-lm(Q33a_6_x~Renter*avg_interest, data=on22)
+summary(mod_supply_18)
+mod_supply_19<-lm(Q80_1_x~Renter*avg_interest, data=on22)
+summary(mod_supply_19)
+mod_supply_20<-lm(Q80_2_x~Renter*avg_interest, data=on22)
+summary(mod_supply_20)
+mod_supply_21<-lm(Q80_3_x~Renter*avg_interest, data=on22)
+summary(mod_supply_21)
+mod_supply_22<-lm(Q80_4_x~Renter*avg_interest, data=on22)
+summary(mod_supply_22)
+mod_supply_23<-lm(Q80_5_x~Renter*avg_interest, data=on22)
+summary(mod_supply_23)
+mod_supply_24<-lm(Q80_6_x~Renter*avg_interest, data=on22)
+summary(mod_supply_24)
+
+out<-list(mod_supply_13, mod_supply_14, mod_supply_15, mod_supply_16, mod_supply_17, mod_supply_18, mod_supply_19, mod_supply_20, mod_supply_21, mod_supply_22, mod_supply_23, mod_supply_24)
+model_10<-modelsummary(out, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, 
+                      coef_rename = c("partisanshipLiberal" = "LIB", "partisanshipNDP" = "NDP", "partisanshipOther" = "OTH", "partisanshipNon-partisan" = "Non-Partisan", "supply_general" = "Housing Supply", "avg_interest" = "Interest in Politics", "RenterRenter" = "Renter"))|>
+  gt::cols_label(
+    "(1)" = "More affordable public housing",
+    "(2)" = "Taxes for owning multiple houses",
+    "(3)" = "Increasing taxes for foreign home-buyers",
+    "(4)" = "More non-single housing properties",
+    "(5)" = "Require developers to build more affordable housing",
+    "(6)" = "Add more properties to existing units",
+    "(7)" = "Reduce heritage designation laws",
+    "(8)" = "Eliminate density and height restrictions",
+    "(9)" = "Increase housing supply",
+    "(10)" = "Government loans for new buyers",
+    "(11)" = "Eliminate housing transfer taxes",
+    "(12)" = "More rent control",
+  )
+#output table for model 10
+model_10
+
 on22$Renter
