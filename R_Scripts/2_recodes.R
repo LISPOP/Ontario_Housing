@@ -78,7 +78,7 @@ on22 %>%
     Q27==3 & Q30==2 ~ "Not seeking to purchase", #Those who live with fam and want to stay
     Q27==2 & Q30==3 ~ "Not seeking to purchase", #Those who rent and want to move to another rental
     Q27==3 & Q30==3 ~ "Not seeking to purchase", #Those who live with fam and want to move to a rental
-    TRUE ~ "Other"
+    TRUE ~ "Not seeking to purchase"
     #To actually save the results one needs to reassign the results of the foregoing back into on22
   ))->on22
 # table(on22$Housing_Status)

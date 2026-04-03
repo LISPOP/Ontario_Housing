@@ -365,18 +365,17 @@ model_10<-modelsummary(out, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2
   gt::cols_label(
     "(1)" = "More affordable public housing",
     "(2)" = "Taxes for owning multiple houses",
-    "(3)" = "Increasing taxes for foreign home-buyers",
+    "(3)" = "Increasing taxes for foreign home-Renters",
     "(4)" = "More non-single housing properties",
     "(5)" = "Require developers to build more affordable housing",
     "(6)" = "Add more properties to existing units",
     "(7)" = "Reduce heritage designation laws",
     "(8)" = "Eliminate density and height restrictions",
     "(9)" = "Increase housing supply",
-    "(10)" = "Government loans for new buyers",
+    "(10)" = "Government loans for new Renters",
     "(11)" = "Eliminate housing transfer taxes",
     "(12)" = "More rent control",
   )
 #output table for model 10
 model_10
 
-on22$Renter
