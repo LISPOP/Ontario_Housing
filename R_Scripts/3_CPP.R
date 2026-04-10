@@ -379,3 +379,47 @@ model_10<-modelsummary(out, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2
 #output table for model 10
 model_10
 
+
+#MODEL 11
+#DV Interest in Politics X Partisanship
+#IVs Gap in Categorical Solutions (3)
+
+mod_supply_25<-lm(supply_gap_market~partisanship*avg_interest, data=on22)
+summary(mod_supply_25)
+mod_supply_26<-lm(supply_gap_govt~partisanship*avg_interest, data=on22)
+summary(mod_supply_26)
+mod_supply_27<-lm(supply_gap_demand~partisanship*avg_interest, data=on22)
+summary(mod_supply_27)
+
+out<-list(mod_supply_25, mod_supply_26, mod_supply_27)
+model_11<-modelsummary(out, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, 
+                       coef_rename = c("partisanshipLiberal" = "LIB", "partisanshipNDP" = "NDP", "partisanshipOther" = "OTH", "partisanshipNon-partisan" = "Non-Partisan", "supply_general" = "Housing Supply", "avg_interest" = "Interest in Politics"))|>
+  gt::cols_label(
+    "(1)" = "Model 1",
+    "(2)" = "Model 2",
+    "(3)" = "Model 3"
+  )
+#output table for model 11
+model_11
+
+#MODEL 12
+#DV Interest in Politics X Renter
+#IVs Gap in Categorical Solutions (3)
+
+mod_supply_28<-lm(supply_gap_market~Renter*avg_interest, data=on22)
+summary(mod_supply_28)
+mod_supply_29<-lm(supply_gap_govt~Renter*avg_interest, data=on22)
+summary(mod_supply_29)
+mod_supply_30<-lm(supply_gap_demand~Renter*avg_interest, data=on22)
+summary(mod_supply_30)
+
+out<-list(mod_supply_28, mod_supply_29, mod_supply_30)
+model_12<-modelsummary(out, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2|RMSE", fmt = 2, 
+                       coef_rename = c("partisanshipLiberal" = "LIB", "partisanshipNDP" = "NDP", "partisanshipOther" = "OTH", "partisanshipNon-partisan" = "Non-Partisan", "supply_general" = "Housing Supply", "avg_interest" = "Interest in Politics"))|>
+  gt::cols_label(
+    "(1)" = "Model 1",
+    "(2)" = "Model 2",
+    "(3)" = "Model 3"
+  )
+#output table for model 12
+model_12
