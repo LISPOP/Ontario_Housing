@@ -758,6 +758,15 @@ partisanshipxinterest_and_solutions
 # Each model tests whether the effect of political interest on support for
 # a given housing policy differs between renters and non-renters
 
+on22 %>% 
+  select(Q33a_1_x:Q33a_6_x,Q80_1_x: Q80_6_x, Renter, avg_interest) %>%
+  #pivot everything *except* independent variables
+  pivot_longer(., cols=c(Q33a_1_x:Q80_6_x)) %>% 
+  #nest on the dependent variable name
+  # to fit one model per question
+  nest(-name) %>% 
+  mutate(model=map(data, ~lm(value~Renter*avg_interest)))
+  
 mod_supply_13 <- lm(Q33a_1_x ~ Renter * avg_interest, data = on22)
 summary(mod_supply_13)
 
