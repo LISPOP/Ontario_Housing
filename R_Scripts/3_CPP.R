@@ -10,26 +10,22 @@ on22 %>%
   select(Q33a_1_x:Q80_6_x) ->cor.out #Store in cor.out
 
 #Make a correlation matrix dropping the general upply varible
-cor(-cor.out$Q80_3_x,cor.out$Q80_3_x,use="complete.obs")->cor.mat
-#convert to data frame
-data.frame(correlation=cor.mat) %>% 
-  #take the rownames and add them to a column
-  rownames_to_column(var="variable") %>% 
-  #left_join to solution_var_labels
-  left_join(solution_var_labels) %>%
-  #Drop a bunch of useless vraibles
-  select(-c("pos", "value_labels", "col_type", "missing", "levels", "label_short"))->supply_correlation_matrix
+cor(cor.out$Q80_3_x, cor.out %>% select(-Q80_3_x), use="complete.obs") -> cor.mat
 
+#convert to data frame
+cor(cor.out$Q80_3_x, cor.out %>% select(-Q80_3_x), use="complete.obs") %>% 
+  as.data.frame() %>% 
+  pivot_longer(everything(), names_to = "variable", values_to = "correlation") %>% 
+  left_join(solution_var_labels, by = "variable") %>%
+  select(-any_of(c("pos", "value_labels", "col_type", "missing", "levels", "label_short"))) -> supply_correlation_matrix
 #Print
 
 supply_correlation_matrix %>% 
-  #Arrange descending correlation
-  arrange(desc(correlation)) %>% 
-  #print the table
-kable(.,format="html", digits=2) %>% 
+  mutate(correlation = as.numeric(correlation)) %>%
+  arrange(desc(correlation)) %>%
+  kable(., format="html", digits=2) %>% 
   save_kable(., file=here("Tables/supply_correlations.html"))
-on22$Q33a_1_x
-on22$Q80_3_x
+
 #Inefficient way, dependent variable by dependent variable
 mod1<-lm(Q33a_1_x~Q80_3_x, data=on22)
 summary(mod1)
@@ -658,7 +654,7 @@ filter(variable!="NA") %>%
 solution_var_labels
 on22$Interest
 #more non-single-family homes
-lookfor(on22, "")
+
 
 # MODEL 9
 # Dependent variables: Individual housing solution items
@@ -714,7 +710,7 @@ partisanshipxinterest_and_solutions <- modelsummary(
   )
 
 # Output the table for Model 9
-partisanshipxinterest_and_solutions
+#partisanshipxinterest_and_solutions
 
 # MODEL 10
 # Dependent variables: Individual housing solution items
@@ -768,4 +764,3 @@ renterxinterest_and_solutions <- modelsummary(
 
 # Output table for Model 10
 renterxinterest_and_solutions
-
