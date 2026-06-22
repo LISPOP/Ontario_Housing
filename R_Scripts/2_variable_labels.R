@@ -130,7 +130,7 @@ var_label(on22$Q33a_2_x)<-c("Support for policy - Taxes for owning multiple hous
 var_label(on22$Q33a_3_x)<-c("Support for policy - Increasing taxes for foreign home-buyers")
 var_label(on22$Q33a_4_x)<-c("Support for policy - More non-single housing properties")
 var_label(on22$Q33a_5_x)<-c("Support for policy - Require developers to build more affordable housing")
-var_label(on22$Q33a_6_x)<-c("Support for policy - Add more properties to existing units")
+var_label(on22$Q33a_6_x)<-c("Support for policy - Add more units to existing properties")
 # 
 var_label(on22$Q33a_1_y)<-c("Support for policy - More affordable public housing")
 var_label(on22$Q33a_2_y)<-c("Support for policy - Taxes for owning multiple houses")

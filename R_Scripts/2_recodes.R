@@ -871,9 +871,10 @@ cause_var_labels
 on22 %>% 
   select(Q33a_1_x:Q80_6_x) %>% 
   look_for()->solution_var_labels
-
+solution_var_labels
 #Inspect
 solution_var_labels$label<-str_remove_all(solution_var_labels$label, "Support for policy - ")
+
 #Provide Shorter version
 solution_var_labels %>% 
   mutate(label_short=case_match(label,
@@ -882,7 +883,7 @@ solution_var_labels %>%
                                 "Increasing taxes for foreign home-buyers"~"increase_taxes_foreign",
                                 "More non-single housing properties"~"more_non_single",
                                 "Require developers to build more affordable housing"~"require_developers",
-                                "Add more properties to existing units"~"add_units_properties",
+                                "Add more units to existing units"~"add_units_properties",
                                 "Reduce heritage designation laws"~"reduce_heritage",
                                 "Eliminate density and height restrictions"~"eliminate_density_height",
                                 "Increase housing supply"~"increase_supply",
@@ -892,7 +893,7 @@ solution_var_labels %>%
   )) ->solution_var_labels
 
 lookfor(on22, "purchase")
-
+solution_var_labels
 
 #Check
 
@@ -990,3 +991,11 @@ on22 %>%
 
 on22 %>%
   mutate(supply_gap_demand = supply_general - supply_demand)  -> on22
+
+on22 %>% 
+  select(c(Q33a_1_x:Q80_6_x)) %>% 
+pivot_longer(., cols=everything()) %>% 
+  group_by(name) %>% 
+  summarize(average=mean(value, na.rm=T)) %>% 
+  ggplot(., aes(y=fct_reorder(name, average), x=average))+geom_point()+xlim(c(0,1))
+solution_var_labels

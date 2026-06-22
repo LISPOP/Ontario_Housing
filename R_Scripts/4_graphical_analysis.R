@@ -1,5 +1,5 @@
-# source("R_Scripts/2_recodes.R")
-source("R_Scripts/3_diagnostics.R")
+source("R_Scripts/2_recodes.R")
+#source("R_Scripts/3_diagnostics.R")
 #source("R_Scripts/1_data_import.R")
 names(on22)
 #Install wlucolrs if necessary
@@ -205,6 +205,7 @@ names(on22)
 #Note that the variable name is stored in variable and the actual label is stored in label
 solution_var_labels
 #Check Raw Means
+solution_var_labels
 
 on22 %>% 
   select(Q33a_1_x:Q80_6_x) %>% 
@@ -220,7 +221,7 @@ on22 %>%
  # scale_y_discrete(labels=function(x) str_wrap(x, 20))+
   geom_vline(xintercept=0.5, linetype=2)
 
-ggsave(filename=here("Plots", "solution_house_price_increase.png"), width=14, height=10)
+ggsave(filename=here("Plots", "solution_house_price_increase.png"), width=14, height=8)
 #Solutions by Community Size
 on22 %>% 
   select(Q33a_1_x:Q80_6_x,Size) %>% 
@@ -689,4 +690,11 @@ on22 %>%
   theme(legend.position="bottom")+
   guides(col=guide_legend(nrow=2, ncol=2))
 ggsave(filename=here("Plots", "solutions_by_MIP3.png"), width=10, height=6)
+solution_var_labels
+on22 %>% 
+  select(all_of(solution_var_labels$variable)) %>% 
+ pivot_longer(., cols=-Q80_3_x) %>%
+  left_join(., solution_var_labels, by=join_by(name==variable)) %>% 
+  ggplot(., aes(x=Q80_3_x, y=value))+geom_point(size=0.2)+
+  geom_smooth(method="lm", se=F)+facet_wrap(~label, nrow=2)
 

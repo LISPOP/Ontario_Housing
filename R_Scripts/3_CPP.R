@@ -4,7 +4,27 @@ library(flextable)
 library(modelsummary)
 library(knitr)
 library(kableExtra)
+#### Figure 1
+#Note that the variable name is stored in variable and the actual label is stored in label
+solution_var_labels
+#Check Raw Means
+solution_var_labels
+theme_set(theme_minimal(base_size=16))
+on22 %>% 
+  select(Q33a_1_x:Q80_6_x) %>% 
+  pivot_longer(cols=everything(),names_to="variable") %>% 
+  left_join(solution_var_labels, by="variable") %>% 
+  group_by(label) %>% 
+  summarize(Average=mean(value, na.rm=T), sd=sd(value, na.rm=T), n=n(),se=sd/sqrt(n)) %>% 
+  ggplot(., aes(x=Average, y=fct_reorder(label, Average)))+
+  geom_pointrange(size=0.2,aes(xmin=Average-(1.96*se), xmax=Average+(1.96*se)))+
+  labs(x="Score (0=Strongly Oppose\n1=Strongly Support)", 
+       title=str_wrap("Solutions To Address Housing Price Increase",30), y="")+
+  xlim(c(0,1))+
+  # scale_y_discrete(labels=function(x) str_wrap(x, 20))+
+  geom_vline(xintercept=0.5, linetype=2)
 
+ggsave(filename=here("Plots", "solution_house_price_increase.png"), width=14, height=8)
 #Select variables for correlation matrix
 on22 %>% 
   select(Q33a_1_x:Q80_6_x) ->cor.out #Store in cor.out
