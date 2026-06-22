@@ -45,12 +45,11 @@ on22 %>%
     Q23 == 1&Q24<3  ~ "Liberal",
     Q23 == 2&Q24<3   ~ "NDP",
     Q23 == 3 &Q24<3 ~ "PC",
-    (Q23==4|Q23==5)&Q24<3 ~ "Other",
-      TRUE ~ "Non-partisan"
+    (Q23==4|Q23==5)&Q24<3 ~ "Other"
   ))->on22
 
 #table(on22$partisanship, on22$Q23)
-on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberal", "Other", "Non-partisan"))
+on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberal", "Other"))
 #on22$partisanship<-factor(on22$partisanship, levels=c("NDP", "Liberal", "Other", "PC"))
 
 #Use mutate and case_when()
