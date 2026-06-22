@@ -5,6 +5,13 @@
 
 source("R_Scripts/0_Functions.R")
 
+#### Pull cities needed 
+
+cities <- on22 %>% 
+  left_join(postal_codes_df, by = c("postal_code" = "Postal_codes"))
+
+table(cities$city)
+
 ### Import building data
 
 buildings <- read_sf("Data/3D Massing (WGS84)/3DMassingShapefile_2023_WGS84.shp")

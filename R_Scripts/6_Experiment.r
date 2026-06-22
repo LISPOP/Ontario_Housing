@@ -1,5 +1,5 @@
-source("R_Scripts/2_recodes.R")
 source("R_Scripts/0_Functions.R")
+source("R_Scripts/2_recodes.R")
 
 #### Experiment
 names(on22)
@@ -326,10 +326,10 @@ on22_stacked <- on22_stacked %>%
 
 
 on22_stacked <- on22_stacked %>% 
-  mutate(pct_towers_intersect1 = apartment_in_building_less_5_pct_da_intersect1 + apartment_in_building_plus_5_pct_da_intersect1,
-         pct_towers_intersect2 = apartment_in_building_less_5_pct_da_intersect2 + apartment_in_building_plus_5_pct_da_intersect2,
-    more_towers_in1 = ifelse(pct_towers_intersect1 > pct_towers, 1, 0),
-    more_towers_in2 = ifelse(pct_towers_intersect2 > pct_towers, 1, 0),
+   mutate(#pct_towers_intersect1 = apartment_in_building_less_5_pct_da_intersect1 + apartment_in_building_plus_5_pct_da_intersect1,
+  #        pct_towers_intersect2 = apartment_in_building_less_5_pct_da_intersect2 + apartment_in_building_plus_5_pct_da_intersect2,
+  #   more_towers_in1 = ifelse(pct_towers_intersect1 > pct_towers, 1, 0),
+  #   more_towers_in2 = ifelse(pct_towers_intersect2 > pct_towers, 1, 0),
     taller_towers_in1 = ifelse(Average_Height_intersect1 > Average_Height, 1, 0),
     taller_towers_in2 = ifelse(Average_Height_intersect2 > Average_Height, 1, 0))
 
@@ -421,6 +421,36 @@ mod_h1e_height1 <- lmer(reformulate(c("Development*taller_towers_in1","Average_H
                         data = on22_stacked
 )
 
+DEVELOPMENT_TYPES <- unique(on22_stacked$Development) %>% 
+  as.character()
+SPATIAL_LAG <- list()
+
+for(i in 1:length(DEVELOPMENT_TYPES)){
+ on22_stacked_st <- on22_stacked %>%
+   st_as_sf() %>% 
+   filter(!st_is_empty(.)) %>% 
+   filter(!is.na(Development_Support)) %>% 
+   filter(Development == DEVELOPMENT_TYPES[i])
+
+
+seab<-poly2nb(on22_stacked_st, queen=T)
+seaw<-nb2listw(seab, style="W", zero.policy = TRUE)
+
+
+fit.lag<-lagsarlm(reformulate(c("Average_Height","Experimental_Group"), 
+                              response = "Development_Support"),  
+                  data = on22_stacked_st, 
+                  zero.policy = TRUE,
+                  listw = seaw) 
+
+SPATIAL_LAG[[DEVELOPMENT_TYPES[i]]]$model <- fit.lag
+
+fit.lag.effects <- impacts(fit.lag, listw = seaw, R = 999)
+fit.lag.effects
+
+SPATIAL_LAG[[DEVELOPMENT_TYPES[i]]]$marginal_effects <- fit.lag.effects
+
+}
 
 mod_h1e_height1_grid <- datagrid(
   model = mod_h1e_height1,

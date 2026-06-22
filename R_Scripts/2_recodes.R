@@ -912,6 +912,10 @@ on22_stacked$Development<-factor(on22_stacked$Development,
                                           ))
 
 
+# on22_stacked <- on22_stacked %>%
+#   st_as_sf()
+
+
 # Checks
 # names(on22)
 # on22$weight

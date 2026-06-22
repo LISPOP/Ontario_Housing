@@ -8,11 +8,19 @@ pacman::p_load(tidyverse,
                haven,
                modelsummary,
                marginaleffects,
+               spatialreg,
                lme4,
                gt,
+               careless,
                webshot2,
                gtsummary,
-               cobalt)
+               janitor,
+               cobalt,
+               tmap,
+               spdep,
+               tigris,
+               rmapshaper,
+               jtools)
 
 
 #### GRAPH REGRESSION MODELS ####
