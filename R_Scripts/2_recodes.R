@@ -543,7 +543,9 @@ on22 %>%
   mutate(Renter=case_when(
     Q27==2~ 'Renter',
     TRUE ~ 'Other',
-  ))->on22
+  ),
+  LandLord = case_when(Q28 == 1 ~ 1,
+                       Q28 == 2 ~ 0))->on22
 #Satisfied_Renter
 on22 %>% 
   mutate(Satisfied_Renter=case_when(

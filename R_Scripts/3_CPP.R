@@ -831,3 +831,290 @@ model_12<-modelsummary(out, output = "gt", stars=T, gof_omit = "AIC|BIC|Log|F|R2
 #output table for model 12
 model_12
 
+
+#### Models for Home Owner Rationality ####
+OUTCOME_VARS <- c(paste0("Q33a_", 1:6, "_x"), paste0("Q80_", 1:6, "_x"))
+CONTROLS <- c("age", "gender", "Degree")
+on22 <- on22 %>% 
+  mutate(Degree = relevel(factor(Degree), ref = "No degree"))
+Rationaly_models <- list()
+
+for(i in 1:length(OUTCOME_VARS)){
+  Rationaly_models[[OUTCOME_VARS[i]]]$Renter <- lm_robust(reformulate(c("Renter", CONTROLS),
+                                                                                 response = OUTCOME_VARS[i]),
+  data = on22)
+  
+  Rationaly_models[[OUTCOME_VARS[i]]]$Landlord <- lm_robust(reformulate(c("LandLord", CONTROLS),
+                                                                                   response = OUTCOME_VARS[i]),
+                                                                       data = on22)
+  
+  Rationaly_models[[OUTCOME_VARS[i]]]$Partisan <- lm_robust(reformulate(c("partisanship", CONTROLS),
+                                                                                 response = OUTCOME_VARS[i]),
+  data = on22)
+  
+  Rationaly_models[[OUTCOME_VARS[i]]]$PartisanxRenter <- lm_robust(reformulate(c("Renter * partisanship", CONTROLS),
+                                                                                   response = OUTCOME_VARS[i]),
+                                                                       data = on22)
+  
+  Rationaly_models[[OUTCOME_VARS[i]]]$PartisanxLandlord <- lm_robust(reformulate(c("LandLord * partisanship", CONTROLS),
+                                                                                   response = OUTCOME_VARS[i]),
+                                                                       data = on22)
+}
+
+Rationality_df <- data.frame()
+for(i in 1:length(OUTCOME_VARS)){
+  
+df_r <- tidy(Rationaly_models[[i]]$Renter) %>% 
+  mutate(Var = "Renter")
+
+df_l <- tidy(Rationaly_models[[i]]$Landlord) %>% 
+  mutate(Var = "Landlord")
+
+df_p <- tidy(Rationaly_models[[i]]$Partisan) %>% 
+  mutate(Var = "Partisan")
+
+Rationality_df <- bind_rows(Rationality_df,
+                            df_r,
+                            df_l,
+                            df_p)
+  
+}
+
+
+Rationality_df <- Rationality_df %>% 
+   filter(term %in% c("RenterRenter", "LandLord", "partisanshipNDP",
+                      "partisanshipLiberal", "partisanshipOther")) 
+  
+Renter_landlord_plot <- Rationality_df %>% 
+  filter(term %in% c("RenterRenter", "LandLord")) %>% 
+  mutate(term = recode_values(term, "RenterRenter" ~ "Renter Status",
+                              "LandLord" ~ "Landlord Status"),
+         outcome = recode_values(outcome, "Q33a_1_x" ~ "Increased public investment in affordable housing (1)",
+                          "Q33a_2_x" ~ "Introduce a tax on vacant and second homes (2)",
+                          "Q33a_3_x" ~ "Increase the non-resident speculation tax on foreign buyers of homes (3)", 
+                          "Q33a_4_x" ~ "Abolish municipal rules that only allow single family homes (4)",
+                          "Q33a_5_x" ~ "Require developers to build 1 affordable home for every 5 new houses or condominium units (5)",
+                          "Q33a_6_x" ~ "Make it easier for individual property owners to add housing units (6)",
+                          "Q80_1_x" ~ "Weaken heritage designation rules in municipalities (7)",
+                          "Q80_2_x" ~ "Eliminate density and height restrictions close to transit stations (8)",
+                          "Q80_3_x" ~ "Increasing the supply of housing by building new homes in the next 10 years (9)",
+                          "Q80_4_x" ~ "Establish government loans to help new buyers afford a down payment (10)",
+                          "Q80_5_x" ~ "Eliminate the land transfer tax on home sales (11)",
+                          "Q80_6_x" ~ "Expand rent control (12)"
+         ),
+         outcome = factor(outcome, levels = rev(c("Increased public investment in affordable housing (1)",
+                                              "Introduce a tax on vacant and second homes (2)",
+                                              "Increase the non-resident speculation tax on foreign buyers of homes (3)", 
+                                              "Abolish municipal rules that only allow single family homes (4)",
+                                              "Require developers to build 1 affordable home for every 5 new houses or condominium units (5)",
+                                              "Make it easier for individual property owners to add housing units (6)",
+                                              "Weaken heritage designation rules in municipalities (7)",
+                                              "Eliminate density and height restrictions close to transit stations (8)",
+                                              "Increasing the supply of housing by building new homes in the next 10 years (9)",
+                                              "Establish government loans to help new buyers afford a down payment (10)",
+                                              "Eliminate the land transfer tax on home sales (11)",
+                                              "Expand rent control (12)")))) %>% 
+  ggplot(aes(x = estimate, xmin = conf.low, xmax = conf.high, y = outcome, col = term)) + 
+  geom_point(position = position_dodge(width = 0.6)) +
+  geom_linerange(position = position_dodge(width = 0.6)) + 
+  geom_vline(xintercept = 0, lty = 4, col = "grey40") + 
+  scale_colour_manual(values = c("darkgreen", "orange2")) + 
+  guides(colour =  guide_legend(reverse = TRUE)) + 
+  theme_bw() + 
+  labs(x = "OLS Estimates and 95% Confidence Intervals", y = "Outcome Variable", col = NULL) + 
+  theme(legend.position = "bottom")
+
+ggsave("plots/Renter_landlord_plot.png", Renter_landlord_plot, width = 10, height = 6)
+
+#### Model Summary Renter Models ####
+
+Renter_models <- list()
+for(i in 1:length(OUTCOME_VARS)){
+  Renter_models[[i]] <- Rationaly_models[[i]]$Renter
+}
+modelsummary(Renter_models, stars = TRUE,
+             coef_map = c("RenterRenter" = "Renter Status",
+                          "age" = "Age",
+                          "gender" = "Man",
+                          "DegreeDegree" = "University Degree"
+                          ))
+
+#### Model Summary Landlord Models ####
+
+landlord_models <- list()
+for(i in 1:length(OUTCOME_VARS)){
+  landlord_models[[i]] <- Rationaly_models[[i]]$Landlord
+}
+modelsummary(landlord_models, stars = TRUE,
+             coef_map = c("LandLord" = "Landlord Status",
+                          "age" = "Age",
+                          "gender" = "Man",
+                          "DegreeDegree" = "University Degree"
+             ))
+
+#### Partisanship ####
+
+Partisanship_plot <- Rationality_df %>% 
+  filter(Var == "Partisan") %>% 
+  mutate(term = recode_values(term, 
+                              "partisanshipNDP" ~ "NDP",
+                              "partisanshipLiberal" ~ "Liberal",
+                              "partisanshipOther" ~ "Other"
+                              ),
+         outcome = recode_values(outcome, "Q33a_1_x" ~ "Increased public investment in affordable housing (1)",
+                                 "Q33a_2_x" ~ "Introduce a tax on vacant and second homes (2)",
+                                 "Q33a_3_x" ~ "Increase the non-resident speculation tax on foreign buyers of homes (3)", 
+                                 "Q33a_4_x" ~ "Abolish municipal rules that only allow single family homes (4)",
+                                 "Q33a_5_x" ~ "Require developers to build 1 affordable home for every 5 new houses or condominium units (5)",
+                                 "Q33a_6_x" ~ "Make it easier for individual property owners to add housing units (6)",
+                                 "Q80_1_x" ~ "Weaken heritage designation rules in municipalities (7)",
+                                 "Q80_2_x" ~ "Eliminate density and height restrictions close to transit stations (8)",
+                                 "Q80_3_x" ~ "Increasing the supply of housing by building new homes in the next 10 years (9)",
+                                 "Q80_4_x" ~ "Establish government loans to help new buyers afford a down payment (10)",
+                                 "Q80_5_x" ~ "Eliminate the land transfer tax on home sales (11)",
+                                 "Q80_6_x" ~ "Expand rent control (12)"
+         ),
+         outcome = factor(outcome, levels = rev(c("Increased public investment in affordable housing (1)",
+                                                  "Introduce a tax on vacant and second homes (2)",
+                                                  "Increase the non-resident speculation tax on foreign buyers of homes (3)", 
+                                                  "Abolish municipal rules that only allow single family homes (4)",
+                                                  "Require developers to build 1 affordable home for every 5 new houses or condominium units (5)",
+                                                  "Make it easier for individual property owners to add housing units (6)",
+                                                  "Weaken heritage designation rules in municipalities (7)",
+                                                  "Eliminate density and height restrictions close to transit stations (8)",
+                                                  "Increasing the supply of housing by building new homes in the next 10 years (9)",
+                                                  "Establish government loans to help new buyers afford a down payment (10)",
+                                                  "Eliminate the land transfer tax on home sales (11)",
+                                                  "Expand rent control (12)"))),
+         term = factor(term, levels = rev(c("Liberal", "NDP", "Other")))
+         ) %>% 
+  ggplot(aes(x = estimate, y = outcome, xmin = conf.low, xmax = conf.high, col = term)) + 
+  geom_point(position = position_dodge(width = 0.8)) + 
+  geom_linerange(position = position_dodge(width = 0.8)) + 
+  geom_vline(xintercept = 0, lty = 4, col = "grey40") + 
+  scale_colour_manual(values = rev(c("darkred", "orange", "green4"))) + 
+  guides(colour =  guide_legend(reverse = TRUE, ncol = 2)) + 
+  theme_bw() + 
+  labs(x = "OLS Estimates and 95% Confidence Intervals", y = "Outcome Variable", col = "Partisanship (Reference Conservative): ") + 
+  theme(legend.position = "bottom")
+
+ggsave("plots/Partisanship_plot.png", Partisanship_plot, width = 10, height = 6)
+
+#### Model Summary for Partisanship Models ####
+
+partisan_models <- list()
+for(i in 1:length(OUTCOME_VARS)){
+  partisan_models[[i]] <- Rationaly_models[[i]]$Partisan
+}
+
+modelsummary(partisan_models, stars = TRUE,
+             coef_map = c("partisanshipLiberal" = "Liberal Partisan (Ref. PC)",
+                          "partisanshipNDP" = "NDP Partisan",
+                          "partisanshipOther" = "Other Partisan",
+                          "age" = "Age",
+                          "gender" = "Man",
+                          "DegreeDegree" = "University Degree"
+             ))
+
+#### Graph Interaction Models ####
+
+Rationality_interaction <- data.frame()
+for(i in 1:length(OUTCOME_VARS)){
+df_r <- avg_slopes(Rationaly_models[[i]]$PartisanxRenter, variables = "Renter", by = "partisanship") %>% 
+    mutate(Var = "Renter",
+           Outcome = OUTCOME_VARS[i])
+  
+df_l <- avg_slopes(Rationaly_models[[i]]$PartisanxLandlord, variables = "LandLord", by = "partisanship") %>% 
+    mutate(Var = "Landlord",
+           Outcome = OUTCOME_VARS[i])
+  
+  
+Rationality_interaction <- bind_rows(Rationality_interaction,
+                              df_r,
+                              df_l)
+}
+
+
+internations_policy_support <- Rationality_interaction %>% 
+  as.data.frame() %>% 
+  mutate(Outcome = recode_values(Outcome, "Q33a_1_x" ~ "Increased public investment in affordable housing (1)",
+                                 "Q33a_2_x" ~ "Introduce a tax on vacant and second homes (2)",
+                                 "Q33a_3_x" ~ "Increase the non-resident speculation tax on foreign buyers of homes (3)", 
+                                 "Q33a_4_x" ~ "Abolish municipal rules that only allow single family homes (4)",
+                                 "Q33a_5_x" ~ "Require developers to build 1 affordable home for every 5 new houses or condominium units (5)",
+                                 "Q33a_6_x" ~ "Make it easier for individual property owners to add housing units (6)",
+                                 "Q80_1_x" ~ "Weaken heritage designation rules in municipalities (7)",
+                                 "Q80_2_x" ~ "Eliminate density and height restrictions close to transit stations (8)",
+                                 "Q80_3_x" ~ "Increasing the supply of housing by building new homes in the next 10 years (9)",
+                                 "Q80_4_x" ~ "Establish government loans to help new buyers afford a down payment (10)",
+                                 "Q80_5_x" ~ "Eliminate the land transfer tax on home sales (11)",
+                                 "Q80_6_x" ~ "Expand rent control (12)"
+  ),
+  Outcome = factor(Outcome, levels = rev(c("Increased public investment in affordable housing (1)",
+                                           "Introduce a tax on vacant and second homes (2)",
+                                           "Increase the non-resident speculation tax on foreign buyers of homes (3)", 
+                                           "Abolish municipal rules that only allow single family homes (4)",
+                                           "Require developers to build 1 affordable home for every 5 new houses or condominium units (5)",
+                                           "Make it easier for individual property owners to add housing units (6)",
+                                           "Weaken heritage designation rules in municipalities (7)",
+                                           "Eliminate density and height restrictions close to transit stations (8)",
+                                           "Increasing the supply of housing by building new homes in the next 10 years (9)",
+                                           "Establish government loans to help new buyers afford a down payment (10)",
+                                           "Eliminate the land transfer tax on home sales (11)",
+                                           "Expand rent control (12)"))),
+  partisanship = factor(partisanship, levels = rev(c("PC", "Liberal", "NDP", "Other")))) %>% 
+  ggplot(aes(x = estimate, y = Outcome, xmin = conf.low, xmax = conf.high, col = partisanship)) + 
+  geom_point(position = position_dodge(width = 0.6)) + 
+  geom_linerange(position = position_dodge(width = 0.6)) + 
+  facet_wrap(~term) + 
+  geom_vline(xintercept = 0, lty = 4, col = "grey40") + 
+  scale_colour_manual(values = rev(c("darkblue", "darkred", "orange", "green4"))) + 
+  guides(colour =  guide_legend(reverse = TRUE, ncol = 2)) + 
+  theme_bw() + 
+  labs(x = "Marginal Effect of being a renter or landlord by partisanship \n and 95% confidence intervals", y = "Outcome Variable", col = NULL) + 
+  theme(legend.position = "bottom")
+  
+
+ggsave("plots/interactions_policy_support.png", internations_policy_support, width = 10, height = 6)
+
+#### Model Summary for Renter x Partisanship ####
+
+
+renter_partisan_models <- list()
+for(i in 1:length(OUTCOME_VARS)){
+  renter_partisan_models[[i]] <- Rationaly_models[[i]]$PartisanxRenter
+}
+
+modelsummary(renter_partisan_models, stars = TRUE,
+             coef_map = c("RenterRenter" = "Renter Status",
+                          "partisanshipLiberal" = "Liberal Partisan (Ref. PC)",
+                          "partisanshipNDP" = "NDP Partisan",
+                          "partisanshipOther" = "Other Partisan",
+                          "RenterRenter:partisanshipLiberal" = "Renter x Liberal",
+                          "RenterRenter:partisanshipNDP" = "Renter x NDP",
+                          "RenterRenter:partisanshipOther" = "Renter x Other Partisan",
+                          "age" = "Age",
+                          "gender" = "Man",
+                          "DegreeDegree" = "University Degree"
+             ))
+
+#### Model Summary for Landlord x Partisanship ####
+
+
+landlord_partisan_models <- list()
+for(i in 1:length(OUTCOME_VARS)){
+  landlord_partisan_models[[i]] <- Rationaly_models[[i]]$PartisanxLandlord
+}
+
+modelsummary(landlord_partisan_models, stars = TRUE,
+             coef_map = c("LandLord" = "Landlord Status",
+                          "partisanshipLiberal" = "Liberal Partisan (Ref. PC)",
+                          "partisanshipNDP" = "NDP Partisan",
+                          "partisanshipOther" = "Other Partisan",
+                          "LandLord:partisanshipLiberal" = "Landlord x Liberal",
+                          "LandLord:partisanshipNDP" = "Landlord x NDP",
+                          "LandLord:partisanshipOther" = "Landlord x Other Partisan",
+                          "age" = "Age",
+                          "gender" = "Man",
+                          "DegreeDegree" = "University Degree"
+             ))
