@@ -11,6 +11,7 @@ toronto_permits <- toronto_permits %>%
 toronto_permits_change <- toronto_permits %>% 
   filter(change == 1)
 
+table(toronto_permits_change$DWELLING_UNITS_CREATED)
 #### Barrie Permit Data as sf
 
 barrie_permits <- read_sf("Data/Building_permit_data/Planning_Applications/Planning_Applications.shp")
