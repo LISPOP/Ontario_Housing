@@ -937,7 +937,8 @@ modelsummary(Renter_models, stars = TRUE,
                           "age" = "Age",
                           "gender" = "Man",
                           "DegreeDegree" = "University Degree"
-                          ))
+                          ),
+             output = "tables/renter_models.html")
 
 #### Model Summary Landlord Models ####
 
@@ -950,7 +951,9 @@ modelsummary(landlord_models, stars = TRUE,
                           "age" = "Age",
                           "gender" = "Man",
                           "DegreeDegree" = "University Degree"
-             ))
+             ),
+             output = "tables/landlord_models.html"
+             )
 
 #### Partisanship ####
 
@@ -1014,7 +1017,8 @@ modelsummary(partisan_models, stars = TRUE,
                           "age" = "Age",
                           "gender" = "Man",
                           "DegreeDegree" = "University Degree"
-             ))
+             ),
+             output = "tables/partisanship_models.html")
 
 #### Graph Interaction Models ####
 
@@ -1096,7 +1100,8 @@ modelsummary(renter_partisan_models, stars = TRUE,
                           "age" = "Age",
                           "gender" = "Man",
                           "DegreeDegree" = "University Degree"
-             ))
+             ),
+             output = "tables/renter_partisanship_models.html")
 
 #### Model Summary for Landlord x Partisanship ####
 
@@ -1117,4 +1122,5 @@ modelsummary(landlord_partisan_models, stars = TRUE,
                           "age" = "Age",
                           "gender" = "Man",
                           "DegreeDegree" = "University Degree"
-             ))
+             ),
+             output = "tables/landlord_partisanship_models.html")
