@@ -1124,3 +1124,12 @@ modelsummary(landlord_partisan_models, stars = TRUE,
                           "DegreeDegree" = "University Degree"
              ),
              output = "tables/landlord_partisanship_models.html")
+
+
+Satisifed_models <- list()
+for(i in 1:length(OUTCOME_VARS)){
+  Satisifed_models[[i]] <-  lm_robust(reformulate(c("Housing_Status", CONTROLS),
+                                                  response = OUTCOME_VARS[i]),
+                                      data = on22)
+}
+

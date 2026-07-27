@@ -92,9 +92,10 @@ on22 %>%
 #   
 #Reordering Housing_Status variable  
 on22$Housing_Status<-factor(on22$Housing_Status, 
-                            levels=c("Homeowner", 
+                            levels=c("Not seeking to purchase",
+                                     "Homeowner", 
                                      "Seeking to purchase", 
-                                     "Not seeking to purchase", 
+                                     
                                      "Other"))
 
  #### Experiment####
