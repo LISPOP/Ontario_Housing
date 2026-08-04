@@ -12,12 +12,13 @@ DEVELOPMENT_LABELS <- c("single_detached" = "Single Detached \n Houses",
                           "condo_15_storey" = "15 Storey Condo \n Buildings",
                           "rental_15_storey" = "15 Storey Apartment \n Buildings (Rental)"
                           )
-on22_stacked$Development
+on22_stacked$Development_Support
 
 #### Mod h1a
 
 REG_VARS <- c("Experimental_Group", "Development")
 CONTROLS <- c("age", "male", "income", "Degree")
+
 
 mod_h1a <- lm_robust(
   reformulate(c(REG_VARS, CONTROLS, "partisanship"), response = "Development_Support"),
