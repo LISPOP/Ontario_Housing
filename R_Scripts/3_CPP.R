@@ -848,24 +848,29 @@ on22 <- on22 %>%
 Rationaly_models <- list()
 
 for(i in 1:length(OUTCOME_VARS)){
-  Rationaly_models[[OUTCOME_VARS[i]]]$Renter <- lm(reformulate(c("Renter", CONTROLS),
+  Rationaly_models[[OUTCOME_VARS[i]]]$Renter <- lm_robust(reformulate(c("Renter", CONTROLS),
                                                                                  response = OUTCOME_VARS[i]),
+                                                          se_type = "HC3",
   data = on22)
   
-  Rationaly_models[[OUTCOME_VARS[i]]]$Landlord <- lm(reformulate(c("LandLord", CONTROLS),
+  Rationaly_models[[OUTCOME_VARS[i]]]$Landlord <- lm_robust(reformulate(c("LandLord", CONTROLS),
                                                                                    response = OUTCOME_VARS[i]),
+                                                            se_type = "HC3",
                                                                        data = on22)
   
-  Rationaly_models[[OUTCOME_VARS[i]]]$Partisan <- lm(reformulate(c("Not_PC", CONTROLS),
+  Rationaly_models[[OUTCOME_VARS[i]]]$Partisan <- lm_robust(reformulate(c("Not_PC", CONTROLS),
                                                                                  response = OUTCOME_VARS[i]),
+                                                            se_type = "HC3",
   data = on22)
   
-  Rationaly_models[[OUTCOME_VARS[i]]]$PartisanxRenter <- lm(reformulate(c("Renter * Not_PC", CONTROLS),
+  Rationaly_models[[OUTCOME_VARS[i]]]$PartisanxRenter <- lm_robust(reformulate(c("Renter * Not_PC", CONTROLS),
                                                                                    response = OUTCOME_VARS[i]),
+                                                                   se_type = "HC3",
                                                                        data = on22)
   
-  Rationaly_models[[OUTCOME_VARS[i]]]$PartisanxLandlord <- lm(reformulate(c("LandLord * Not_PC", CONTROLS),
+  Rationaly_models[[OUTCOME_VARS[i]]]$PartisanxLandlord <- lm_robust(reformulate(c("LandLord * Not_PC", CONTROLS),
                                                                                    response = OUTCOME_VARS[i]),
+                                                                     se_type = "HC3",
                                                                        data = on22)
 }
 
@@ -1250,8 +1255,9 @@ modelsummary(landlord_partisan_models, stars = TRUE,
 
 Satisifed_models <- list()
 for(i in 1:length(OUTCOME_VARS)){
-  Satisifed_models[[i]] <-  lm(reformulate(c("Housing_Status", CONTROLS),
+  Satisifed_models[[i]] <-  lm_robust(reformulate(c("Housing_Status", CONTROLS),
                                                   response = OUTCOME_VARS[i]),
+                                      se_type = "HC3",
                                       data = on22 %>% mutate(Housing_Status = relevel(factor(Housing_Status),
                                                                                       ref = "Not seeking to purchase")))
 }
@@ -1272,3 +1278,6 @@ for(i in 1:length(OUTCOME_VARS)){
   Satisfied_predictions_df <- bind_rows(Satisfied_predictions_df, preds)
   
 }
+
+Satisfied_df Rationality_df,
+CPP_models_df <- 
