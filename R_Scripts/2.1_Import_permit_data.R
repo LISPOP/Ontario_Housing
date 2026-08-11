@@ -1,6 +1,5 @@
 ###### Code to Import Building Permit Data #####
-
-
+count(on22, Comm_Name)
 #### Toronto Permit Data as CSV
 
 toronto_permits <- read.csv("Data/Building_permit_data/Cleared Building Permits since 2017.csv")
@@ -15,6 +14,10 @@ table(toronto_permits_change$DWELLING_UNITS_CREATED)
 #### Barrie Permit Data as sf
 
 barrie_permits <- read_sf("Data/Building_permit_data/Planning_Applications/Planning_Applications.shp")
+
+barrie_permits %>% 
+  ggplot() + 
+  geom_sf(aes(geometry = geometry))
 
 #### Burlington Permit Data as sf
 
