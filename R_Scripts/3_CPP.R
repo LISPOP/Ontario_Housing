@@ -841,6 +841,10 @@ OUTCOME_VARS <- c(paste0("Q33a_", 1:6, "_y_b"), paste0("Q80_", 1:6, "_y_b"))
 CONTROLS <- c("age", "gender", "Degree")
 on22 <- on22 %>% 
   mutate(Degree = relevel(factor(Degree), ref = "No degree"))
+
+on22 <- on22 %>% 
+  mutate(Not_PC = ifelse(partisanship != "PC", 1, 0))
+  
 Rationaly_models <- list()
 
 for(i in 1:length(OUTCOME_VARS)){
@@ -852,15 +856,15 @@ for(i in 1:length(OUTCOME_VARS)){
                                                                                    response = OUTCOME_VARS[i]),
                                                                        data = on22)
   
-  Rationaly_models[[OUTCOME_VARS[i]]]$Partisan <- lm(reformulate(c("partisanship", CONTROLS),
+  Rationaly_models[[OUTCOME_VARS[i]]]$Partisan <- lm(reformulate(c("Not_PC", CONTROLS),
                                                                                  response = OUTCOME_VARS[i]),
   data = on22)
   
-  Rationaly_models[[OUTCOME_VARS[i]]]$PartisanxRenter <- lm(reformulate(c("Renter * partisanship", CONTROLS),
+  Rationaly_models[[OUTCOME_VARS[i]]]$PartisanxRenter <- lm(reformulate(c("Renter * Not_PC", CONTROLS),
                                                                                    response = OUTCOME_VARS[i]),
                                                                        data = on22)
   
-  Rationaly_models[[OUTCOME_VARS[i]]]$PartisanxLandlord <- lm(reformulate(c("LandLord * partisanship", CONTROLS),
+  Rationaly_models[[OUTCOME_VARS[i]]]$PartisanxLandlord <- lm(reformulate(c("LandLord * Not_PC", CONTROLS),
                                                                                    response = OUTCOME_VARS[i]),
                                                                        data = on22)
 }
@@ -901,10 +905,11 @@ for(i in 1:length(OUTCOME_VARS)){
            Outcome = OUTCOME_VARS[i],
            Value = as.character(Value))
   
-  df_p <- avg_predictions(Rationaly_models[[i]]$Partisan, by = "partisanship") %>% 
-    rename(Value = partisanship) %>% 
-    mutate(Var = "Partisan",
-           Outcome = OUTCOME_VARS[i])
+  df_p <- avg_predictions(Rationaly_models[[i]]$Partisan, by = "Not_PC") %>% 
+    rename(Value = Not_PC) %>% 
+    mutate(Var = "Not_PC",
+           Outcome = OUTCOME_VARS[i],
+           Value = as.character(Value))
   
   predictions_df <- bind_rows(predictions_df,
                               df_r,
