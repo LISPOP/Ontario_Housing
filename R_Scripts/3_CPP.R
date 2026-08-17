@@ -923,9 +923,9 @@ for(i in 1:length(OUTCOME_VARS)){
   
 }
 
-Rationality_df <- Rationality_df %>% 
-   filter(term %in% c("RenterRenter", "LandLord", "partisanshipNDP",
-                      "partisanshipLiberal", "partisanshipOther")) 
+# Rationality_df <- Rationality_df %>% 
+#    filter(term %in% c("RenterRenter", "LandLord", "partisanshipNDP",
+#                       "partisanshipLiberal", "partisanshipOther")) 
   
 Renter_landlord_plot <- Rationality_df %>% 
   filter(term %in% c("RenterRenter", "LandLord")) %>% 
@@ -1279,5 +1279,9 @@ for(i in 1:length(OUTCOME_VARS)){
   
 }
 
-Satisfied_df Rationality_df,
-CPP_models_df <- 
+
+CPP_models_df <- bind_rows(Rationality_df %>%  filter(term %in% c("LandLord", "RenterRenter", "Not_PC")),
+                          Satisfied_df %>% filter(term %in% c("Housing_StatusSeeking to purchase")))
+
+
+CPP_models_df$adj.p_value <- p.adjust(CPP_models_df$p.value, method = "BH")
