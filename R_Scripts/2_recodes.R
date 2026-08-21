@@ -48,6 +48,7 @@ on22 %>%
     (Q23==4|Q23==5)&Q24<3 ~ "Other"
   ))->on22
 
+
 #table(on22$partisanship, on22$Q23)
 on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberal", "Other"))
 #on22$partisanship<-factor(on22$partisanship, levels=c("NDP", "Liberal", "Other", "PC"))
@@ -999,4 +1000,4 @@ pivot_longer(., cols=everything()) %>%
   group_by(name) %>% 
   summarize(average=mean(value, na.rm=T)) %>% 
   ggplot(., aes(y=fct_reorder(name, average), x=average))+geom_point()+xlim(c(0,1))
-solution_var_labels
+

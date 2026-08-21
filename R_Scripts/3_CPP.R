@@ -1,9 +1,74 @@
-source("R_Scripts/2_recodes.R")
+#source("R_Scripts/2_recodes.R")
 library(crosstable)
 library(flextable)
 library(modelsummary)
 library(knitr)
 library(kableExtra)
+
+#### Table: Sample Representativeness & Weighting Benchmarks ####
+# A "Table 1"-style methods/appendix table for the paper. It documents:
+#   1) How representative the (unweighted) sample is on core demographics
+#      (sex, age, education) relative to the 2021 Census PUMF population targets.
+#   2) How far the survey's reported 2022 provincial vote is from the actual
+#      Ontario 2022 election result.
+# For each benchmark it reports the unweighted survey %, the final weighted %,
+# the population target %, and the raw (unweighted) gap from target -- so the
+# reader can see both how skewed the raw sample was and how well the raking
+# weights recover the targets.
+#
+# Inputs are all created upstream in R_Scripts/2_weight.R (sourced by the data
+# pipeline in R_Scripts/1_data_import.R) and are expected in the environment:
+#   data.6            respondent-level data carrying SEX, AGE, EDU4, VOTE2022
+#                     and the final raking weight ('weight')
+#   target.sex/age/edu population proportions from the 2021 Census PUMF
+#   target.vote.2022  proportions from the 2022 Ontario election result
+#                     (rescaled to the sample's share of non-voters, incl. "NV")
+
+# Helper: for one grouping variable and its matching target table, return a tidy
+# block with unweighted %, weighted %, target %, and the unweighted gap.
+representativeness_block <- function(data, var, target_df, characteristic) {
+  target_clean <- target_df %>%
+    rename(Category = 1) %>%
+    transmute(Category = as.character(Category), Target = 100 * target)
+
+  data %>%
+    group_by(Category = as.character(.data[[var]])) %>%
+    summarise(n_unwtd = dplyr::n(), n_wtd = sum(weight), .groups = "drop") %>%
+    mutate(Unweighted = 100 * n_unwtd / sum(n_unwtd),
+           Weighted   = 100 * n_wtd   / sum(n_wtd)) %>%
+    left_join(target_clean, by = "Category") %>%
+    transmute(Characteristic = characteristic, Category,
+              Unweighted, Weighted, Target,
+              Gap = Unweighted - Target)
+}
+
+# Stack the demographic benchmarks and the 2022 vote benchmark into one table.
+representativeness_table <- bind_rows(
+  representativeness_block(data.6, "SEX",      target.sex,       "Sex"),
+  representativeness_block(data.6, "AGE",      target.age,       "Age"),
+  representativeness_block(data.6, "EDU4",     target.edu,       "Education"),
+  representativeness_block(data.6, "VOTE2022", target.vote.2022, "2022 Vote")
+)
+representativeness_table
+
+# Format as a grouped gt table and write out to Tables/ (paper output).
+representativeness_gt <- representativeness_table %>%
+  gt::gt(groupname_col = "Characteristic", rowname_col = "Category") %>%
+  gt::fmt_number(columns = c(Unweighted, Weighted, Target, Gap), decimals = 1) %>%
+  gt::cols_label(Unweighted = "Unweighted %",
+                 Weighted   = "Weighted %",
+                 Target     = "Target %",
+                 Gap        = "Gap (Unwtd − Target)") %>%
+  gt::tab_header(
+    title    = "Sample Representativeness and Weighting Benchmarks",
+    subtitle = "Survey distributions vs. 2021 Census PUMF (demographics) and 2022 Ontario election result (vote)"
+  ) %>%
+  gt::tab_source_note(
+    source_note = "Targets: sex, age and education from the 2021 Census PUMF; 2022 vote from Elections Ontario official results, rescaled to the sample's non-voter (NV) share. Gap = unweighted survey % minus target %."
+  )
+representativeness_gt
+gt::gtsave(representativeness_gt, filename = here("Tables/representativeness.html"))
+
 #### Figure 1
 #Note that the variable name is stored in variable and the actual label is stored in label
 solution_var_labels

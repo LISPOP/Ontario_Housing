@@ -168,6 +168,11 @@ val_labels(on22$Q33a_6)
 # table(as_factor(on22$Q33a_1), on22$Q33a_1)
 #Conclusion in the Q33 set, the #1 corresponded to 0 on the screen; 
 # the # 11, corresponded to the 10 on the screen and 12 corresponded to Dont' know
-#
-#nrow(on22)
+lookfor(on22, "name")
+
+#Most common 
+# on22 %>% 
+#   count(CSDNAME2021) %>% 
+#   arrange(desc(n)) %>% view()
+#   write_csv(., file=here("data/most_populous_csds.csv"))
 
