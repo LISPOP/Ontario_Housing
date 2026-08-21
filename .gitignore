@@ -45,6 +45,7 @@ vignettes/*.pdf
 # Large Data files
 
 Data/Ontario_geography/*
+Data/cancensus_cache_statscan_data/*
 
 # R Environment Variables
 .Renviron
