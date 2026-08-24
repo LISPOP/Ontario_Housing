@@ -20,7 +20,8 @@ pacman::p_load(tidyverse,
                spdep,
                tigris,
                rmapshaper,
-               jtools)
+               jtools,
+               opendatatoronto)
 
 
 #### GRAPH REGRESSION MODELS ####

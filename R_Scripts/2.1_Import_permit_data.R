@@ -10,7 +10,24 @@ toronto_permits <- toronto_permits %>%
 toronto_permits_change <- toronto_permits %>% 
   filter(change == 1)
 
-table(toronto_permits_change$DWELLING_UNITS_CREATED)
+toronto_permits <- toronto_permits %>% 
+  mutate(Address = paste(STREET_NUM, STREET_NAME, STREET_TYPE),
+         Address = str_to_title(Address))
+  
+Toronto_address_points <- read_sf("Data/Address Points - 4326.geojson")
+
+Toronto_address_points <- Toronto_address_points %>%
+  distinct(ADDRESS_FULL, .keep_all = TRUE)
+
+toronto_permits <- toronto_permits %>% 
+  left_join(Toronto_address_points %>%  select(ADDRESS_FULL, geometry),
+            by = c("Address" = "ADDRESS_FULL"))
+
+
+toronto_permits %>% 
+  ggplot() +
+  geom_sf(aes(geometry = geometry, colour = as.factor(change))) + 
+  theme_void()
 #### Barrie Permit Data as sf
 
 barrie_permits <- read_sf("Data/Building_permit_data/Planning_Applications/Planning_Applications.shp")
