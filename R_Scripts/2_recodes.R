@@ -894,9 +894,19 @@ solution_var_labels %>%
                                 "Government loans for new buyers"~"government_loans",
                                 "More rent control"~"more_rent_control"
   )) ->solution_var_labels
-
-lookfor(on22, "purchase")
 solution_var_labels
+solution_var_labels$exact_wording<-c("Increased public investment in affordable housing",
+                                     "Introduce a tax on vacant and second homes",
+                                     "Increase the non-resident speculation tax on foreign buyers of homes",
+                                     "Abolish municipal rules that only allow single family homes",
+                                     "Require developers to build 1 affordable home for every 5 new houses or condominium units",
+                                     "Make it easier for individual property owners to add housing units like basement rental suites or laneway houses without permission from their city",
+                                     "Weaken heritage designation rules in municipalities",
+                                     "Eliminate density and height restrictions close to transit stations",
+                                     "Increasing the supply of housing by building 1.5 million new homes in the next 10 years",
+                                     "Establish government loans to help new buyers afford a down payment",
+                                     "Eliminate the land transfer tax on home sales",
+                                     "Expand rent control")
 
 #Check
 

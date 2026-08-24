@@ -1,4 +1,4 @@
-#source("R_Scripts/2_recodes.R")
+source("R_Scripts/2_recodes.R")
 library(crosstable)
 library(flextable)
 library(modelsummary)
@@ -68,6 +68,70 @@ representativeness_gt <- representativeness_table %>%
   )
 representativeness_gt
 gt::gtsave(representativeness_gt, filename = here("Tables/representativeness.html"))
+
+#### Table 2: Weighted support for housing-policy solutions ####
+# Descriptive table for the 12 Q33/Q80 housing-solution items (replaces the old
+# Figure 1). For each item it reports the survey-weighted mean support
+# (0 = strongly oppose, 1 = strongly support), the weighted SD, a design-based
+# 95% CI, and the unweighted N. Items are sorted by mean and split into
+# net-support vs net-opposition around the 0.5 neutral point; items whose 95% CI
+# straddles 0.5 (support not distinguishable from neutral) are flagged.
+library(srvyr)
+
+# Weighted per-item estimates from the survey design. survey_mean(vartype="ci")
+# yields Average / Average_low / Average_upp; survey_sd() the weighted SD;
+# unweighted() the raw N of non-missing responses used in each mean.
+solution_means <- on22 %>%
+  select(Q33a_1_x:Q80_6_x, weight) %>%
+  pivot_longer(cols = Q33a_1_x:Q80_6_x, names_to = "variable") %>%
+  as_survey_design(weights = weight) %>%          # -> a tbl_svy design object
+  group_by(variable) %>%
+  summarize(
+    Average = survey_mean(value, na.rm = TRUE, vartype = "ci"),
+    SD      = survey_sd(value, na.rm = TRUE),
+    N       = unweighted(sum(!is.na(value)))
+  ) %>%
+  left_join(solution_var_labels, by = "variable") %>%
+  # Net support vs opposition at the 0.5 neutral point, plus a flag (dagger) for
+  # items whose 95% CI includes 0.5.
+  mutate(
+    Support    = factor(if_else(Average >= 0.5, "Net support (≥ 0.5)", "Net opposition (< 0.5)"),
+                        levels = c("Net support (≥ 0.5)", "Net opposition (< 0.5)")),
+    borderline = Average_low < 0.5 & Average_upp > 0.5,
+    Item       = if_else(borderline, paste0(exact_wording, " †"), exact_wording)
+  ) %>%
+  arrange(Support, desc(Average))
+
+# Format as a grouped gt table (net-support / net-opposition), CI shown as a
+# single [low, upp] column, and write out to Tables/ (paper output).
+solution_means_gt <- solution_means %>%
+  select(Support, Item, Average, SD, Average_low, Average_upp, N) %>%
+  gt::gt(groupname_col = "Support", rowname_col = "Item") %>%
+  gt::fmt_number(columns = c(Average, SD, Average_low, Average_upp), decimals = 2) %>%
+  gt::fmt_number(columns = N, decimals = 0) %>%
+  gt::cols_merge(columns = c(Average_low, Average_upp), pattern = "[{1}, {2}]") %>%
+  gt::cols_label(
+    Average     = "Weighted mean",
+    SD          = "SD",
+    Average_low = "95% CI",
+    N           = "N"
+  ) %>%
+  gt::cols_align(align = "left", columns = "Item") %>%
+  gt::tab_header(
+    title    = "Support for Housing-Policy Solutions",
+    subtitle = "Survey-weighted means on a 0 (strongly oppose) to 1 (strongly support) scale"
+  ) %>%
+  gt::tab_source_note(
+    source_note = paste0(
+      "Weighted to the 2021 Census PUMF (sex, age, education) and the 2022 Ontario election result. ",
+      "Cells show the survey-weighted mean, weighted SD, and design-based 95% CI; N is the unweighted number of respondents. ",
+      "Items are split at the 0.5 neutral point. † = 95% CI includes 0.5 (support not distinguishable from neutral)."
+    )
+  )
+solution_means_gt
+gt::gtsave(solution_means_gt, filename = here("Tables/solution_support_means.html"))
+  
+
 
 #### Figure 1
 #Note that the variable name is stored in variable and the actual label is stored in label

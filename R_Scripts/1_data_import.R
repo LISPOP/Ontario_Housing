@@ -51,7 +51,7 @@ on22 %>%
   select(-matches("^v[0-9]"))->on22
 names(on22)
 
-
+nrow(on22)
 # in this script, on22 gets turned into data.2
 source("R_Scripts/2_merge_pccf.R")
 # Run the diagnostics script
@@ -60,11 +60,31 @@ source("R_Scripts/2_diagnostics.R")
 #Now Run The Missing Values Script
 source("R_Scripts/2_missing_values.R")
 nrow(data.2)# 1918
-data.2 %>% 
-  filter(duration_z > -2) %>% 
-  filter(missing_z <2) %>% 
-  filter(!is.na(DA2021))->data.2
-nrow(data.2) # 1805
+
+# --- Pre-registered straightlining exclusion (OSF: https://osf.io/2ebzk) ---
+# Commitment: assess straightlining via intra-rater variability (IRV) on two
+# batteries (Q32 and Q35, flagged in 2_diagnostics.R as `straightliner` and
+# `straightliner_experiment`, where 1 = IRV == 0), and exclude straightliners
+# whose completion time is below the median. We use the conservative "both
+# batteries" reading: a respondent is a straightliner only if IRV == 0 on BOTH
+# batteries. The median is taken over all respondents at this pre-exclusion
+# stage. NA flags (respondent missing a battery) are treated as non-straightliner.
+prereg_median_minutes <- median(data.2$duration_minutes, na.rm = TRUE)
+data.2 <- data.2 %>%
+  mutate(prereg_straightliner_excl = tidyr::replace_na(
+    (straightliner == 1 & straightliner_experiment == 1) &
+      (duration_minutes < prereg_median_minutes), FALSE)) %>%
+  filter(!prereg_straightliner_excl)
+nrow(data.2) # after pre-registered straightlining exclusion
+
+# Additional data-quality filter: high item missingness. The extreme-speeder
+# `duration_z > -2` filter has been dropped -- after the pre-registered
+# straightlining exclusion it removed no additional respondents -- and the
+# dissemination-area filter (`!is.na(DA2021)`) is deferred to the geographic
+# analysis so it does not shrink the sample for the non-geographic models.
+data.2 %>%
+  filter(missing_z < 2)->data.2
+nrow(data.2) # final analytic N
 #This script weights the dataset data.2 after diagnostics and 
 # missing values have been excluded
 source("R_Scripts/2_weight.R")
