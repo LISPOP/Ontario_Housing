@@ -63,8 +63,7 @@ on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberal", "O
 # on22$Q27
 # on22$Q30
 # table(as_factor(on22$Q27), as_factor(on22$Q30))
-
-#Landlords who are staying Put
+on22$Q28 #Landlords who are staying Put
 # on22$Q28
 # table(as_factor(on22$Q28))
 # table(as_factor(on22$Q28), as_factor(on22$Q30))
@@ -72,16 +71,22 @@ on22 %>%
   mutate(Housing_Status=case_when(
     #Put all the separate conditions in the same mutate - case_when command, separated by a comma. 
     Q27==1 ~ "Homeowner", #Those that own
-    Q27==2 & Q30==1 ~ "Seeking to purchase", #Those that rent and want to buy 
-    Q27==3 & Q30==1 ~ "Seeking to purchase", #Those who live with fam and want to buy
-    Q27==2 & Q30==2 ~ "Not seeking to purchase", #Those who rent and want to stay
-    Q27==3 & Q30==2 ~ "Not seeking to purchase", #Those who live with fam and want to stay
-    Q27==2 & Q30==3 ~ "Not seeking to purchase", #Those who rent and want to move to another rental
-    Q27==3 & Q30==3 ~ "Not seeking to purchase", #Those who live with fam and want to move to a rental
-    TRUE ~ "Not seeking to purchase"
+    Q28==1 ~ "Landlord",
+    Q27==2 & Q30==1 ~ "Aspiring homeowner", #Those that rent and want to buy 
+    Q27==3 & Q30==1 ~ "Aspiring homeowner", #Those who live with fam and want to buy
+    Q27==2 & Q30==2 ~ "Not aspiring homeowner", #Those who rent and want to stay
+    Q27==3 & Q30==2 ~ NA, #Those who live with fam and want to stay
+    Q27==2 & Q30==3 ~ "Not aspiring homeowner", #Those who rent and want to move to another rental
+    Q27==3 & Q30==3 ~ "Not aspiring homeowner", #Those who live with fam and want to move to a rental
+    TRUE ~ "Not aspiring homeowner"
     #To actually save the results one needs to reassign the results of the foregoing back into on22
   ))->on22
-# table(on22$Housing_Status)
+on22$Q27
+with(on22, table(Q27, Q28))
+with(on22, prop.table(table(as_factor(Q27), as_factor(Q30)),1))
+with(on22, prop.table(table(as_factor(Q27), as_factor(Q28)),1))
+with(on22, table(as_factor(Q27), as_factor(Q28)))
+
 #  val_labels(on22$Q27)
 # table(on22$Housing_Status, as_factor(on22$Q27))
 # names(on22)
@@ -93,12 +98,12 @@ on22 %>%
 #   
 #Reordering Housing_Status variable  
 on22$Housing_Status<-factor(on22$Housing_Status, 
-                            levels=c("Not seeking to purchase",
-                                     "Homeowner", 
-                                     "Seeking to purchase", 
-                                     
-                                     "Other"))
+                            levels=c("Homeowner",
+                                     "Not aspiring homeowner", 
+                                     "Aspiring homeowner", 
+                                     "Landlord"))
 
+with(on22, table(as_factor(Q27), Housing_Status, useNA = "ifany"))
  #### Experiment####
  
  
