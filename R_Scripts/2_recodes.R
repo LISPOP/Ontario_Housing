@@ -70,8 +70,8 @@ on22$Q28 #Landlords who are staying Put
 on22 %>% 
   mutate(Housing_Status=case_when(
     #Put all the separate conditions in the same mutate - case_when command, separated by a comma. 
-    Q27==1 ~ "Homeowner", #Those that own
     Q28==1 ~ "Landlord",
+    Q27==1 ~ "Homeowner", #Those that own
     Q27==2 & Q30==1 ~ "Aspiring homeowner", #Those that rent and want to buy 
     Q27==3 & Q30==1 ~ "Aspiring homeowner", #Those who live with fam and want to buy
     Q27==2 & Q30==2 ~ "Not aspiring homeowner", #Those who rent and want to stay
