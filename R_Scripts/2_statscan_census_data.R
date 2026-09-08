@@ -97,3 +97,14 @@ write_csv(on_statscan_da, file=here("Data/ontario_statscan_data_da.csv"))
 # on_statscan_da<-read.csv(file=here("Data/ontario_statscan_data_da.csv"))
 # on_statscan_csd<-read.csv(file=here("Data/ontario_statscan_data_csd.csv"))
 
+#### Import Postal Code Data ####
+
+postal_codes <- read_json("Data/canadapostalcodeslist.txt",  simplifyVector = TRUE)
+
+postal_codes <- bind_rows(postal_codes, .id="postal_code")
+
+
+postal_codes_df <- data.frame(Postal_codes = names(postal_codes),
+                              city = unlist(postal_codes))
+
+

@@ -4,7 +4,6 @@ source("R_Scripts/1_data_import.R")
 
 library(car)
 nrow(on22)
-names(on22)
 
 #### Insider Outsider Variable
 # Combine those Q27 and Q30 into one variable: 
@@ -42,54 +41,50 @@ names(on22)
 on22$Q23
 on22 %>%
   mutate(partisanship=case_when(
-    Q23 == 1&Q24<3  ~ "Liberal",
-    Q23 == 2&Q24<3   ~ "NDP",
-    Q23 == 3 &Q24<3 ~ "PC",
-    (Q23==4|Q23==5)&Q24<3 ~ "Other"
+    Q23 == 1  ~ "Liberal",
+    Q23 == 2   ~ "NDP",
+    Q23 == 3  ~ "PC",
+    Q23>3|is.na(Q23) ~ "Other",
+#      TRUE ~ "Independent"
   ))->on22
 
 
-#table(on22$partisanship, on22$Q23)
-on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberal", "Other"))
-#on22$partisanship<-factor(on22$partisanship, levels=c("NDP", "Liberal", "Other", "PC"))
+#on22$partisanship<-factor(on22$partisanship, levels=c("PC", "NDP", "Liberal", "Green", "Independent"))
+on22$partisanship<-factor(on22$partisanship, levels=c("NDP", "Liberal", "Other", "PC"))
 
 #Use mutate and case_when()
-#table(on22$Q28)
+table(on22$Q28)
+var_label(on22$Q28)
+var_label(on22$Q30)
 
+lookfor(on22, "rent")
+on22$Q27
+table(as_factor(on22$Q27), as_factor(on22$Q28))
+on22$Q27
+on22$Q30
+table(as_factor(on22$Q27), as_factor(on22$Q30))
 
-# lookfor(on22, "rent")
-# on22$Q27
-# table(as_factor(on22$Q27), as_factor(on22$Q28))
-# on22$Q27
-# on22$Q30
-# table(as_factor(on22$Q27), as_factor(on22$Q30))
-on22$Q28 #Landlords who are staying Put
-# on22$Q28
-# table(as_factor(on22$Q28))
-# table(as_factor(on22$Q28), as_factor(on22$Q30))
+#Landlords who are staying Put
+on22$Q28
+table(as_factor(on22$Q28))
+table(as_factor(on22$Q28), as_factor(on22$Q30))
 on22 %>% 
   mutate(Housing_Status=case_when(
     #Put all the separate conditions in the same mutate - case_when command, separated by a comma. 
-    Q28==1 ~ "Landlord",
     Q27==1 ~ "Homeowner", #Those that own
-    Q27==2 & Q30==1 ~ "Aspiring homeowner", #Those that rent and want to buy 
-    Q27==3 & Q30==1 ~ "Aspiring homeowner", #Those who live with fam and want to buy
-    Q27==2 & Q30==2 ~ "Not aspiring homeowner", #Those who rent and want to stay
-    Q27==3 & Q30==2 ~ NA, #Those who live with fam and want to stay
-    Q27==2 & Q30==3 ~ "Not aspiring homeowner", #Those who rent and want to move to another rental
-    Q27==3 & Q30==3 ~ "Not aspiring homeowner", #Those who live with fam and want to move to a rental
-    TRUE ~ "Not aspiring homeowner"
+    Q27==2 & Q30==1 ~ "Seeking to purchase", #Those that rent and want to buy 
+    Q27==3 & Q30==1 ~ "Seeking to purchase", #Those who live with fam and want to buy
+    Q27==2 & Q30==2 ~ "Not seeking to purchase", #Those who rent and want to stay
+    Q27==3 & Q30==2 ~ "Not seeking to purchase", #Those who live with fam and want to stay
+    Q27==2 & Q30==3 ~ "Not seeking to purchase", #Those who rent and want to move to another rental
+    Q27==3 & Q30==3 ~ "Not seeking to purchase", #Those who live with fam and want to move to a rental
+    TRUE ~ "Other"
     #To actually save the results one needs to reassign the results of the foregoing back into on22
   ))->on22
-on22$Q27
-with(on22, table(Q27, Q28))
-with(on22, prop.table(table(as_factor(Q27), as_factor(Q30)),1))
-with(on22, prop.table(table(as_factor(Q27), as_factor(Q28)),1))
-with(on22, table(as_factor(Q27), as_factor(Q28)))
-
-#  val_labels(on22$Q27)
-# table(on22$Housing_Status, as_factor(on22$Q27))
-# names(on22)
+table(on22$Housing_Status)
+ val_labels(on22$Q27)
+table(on22$Housing_Status, as_factor(on22$Q27))
+names(on22)
 # on22 %>% 
 #   select(Housing_Status, Q27, Q28, Q30) %>% 
 #   as_factor() %>% 
@@ -98,12 +93,11 @@ with(on22, table(as_factor(Q27), as_factor(Q28)))
 #   
 #Reordering Housing_Status variable  
 on22$Housing_Status<-factor(on22$Housing_Status, 
-                            levels=c("Homeowner",
-                                     "Not aspiring homeowner", 
-                                     "Aspiring homeowner", 
-                                     "Landlord"))
+                            levels=c("Homeowner", 
+                                     "Seeking to purchase", 
+                                     "Not seeking to purchase", 
+                                     "Other"))
 
-with(on22, table(as_factor(Q27), Housing_Status, useNA = "ifany"))
  #### Experiment####
  
  
@@ -111,7 +105,7 @@ with(on22, table(as_factor(Q27), Housing_Status, useNA = "ifany"))
 
 
 
-#names(on22)
+names(on22)
 # Currently the value labels for the experimental question run from 1 to 11; 12 is don't know
 # I'm going to set 12 to be in the  middle which is 5
   on22 %>% 
@@ -157,13 +151,13 @@ on22 %>% set_variable_labels(Q35_1_exp="rental_6_storey",
 on22 %>% 
   select(ends_with('_exp')) %>% 
   var_label()->experimental_variable_labels
-# experimental_variable_labels
-# names(on22)
+experimental_variable_labels
+names(on22)
 on22 %>%
   # This renames the names of the Developmental approval ratings
   # With the type of development
   rename_with(~ unlist(experimental_variable_labels), ends_with('_exp'))->on22
-#on22 %>% select(all_of(unlist(experimental_variable_labels)))
+on22 %>% select(all_of(unlist(experimental_variable_labels)))
 
 
 #### Rescale Q31
@@ -238,26 +232,17 @@ on22 %>%
   mutate(
     across(matches("Q32_[0-9]$"), ~scales::rescale(car::Recode(as.numeric(.x), "11=5")), .names="{.col}_x")) ->on22
 on22 %>% 
-  select(matches("Q32_[0-9]$")) %>% 
+  select(ends_with("_x")) %>% 
   var_label()
 
 
-### Reocde Q32 to categorical variable
-
+table(on22$Q32_1, on22$Q32_1_x)
+lookfor(on22, "rent")
+table(on22$Q32_8, on22$Housing_Status)
 on22 %>% 
-  mutate(across(matches("^Q32_[0-9]$"), 
-                .fns=function(x) car::Recode(as.numeric(x), 
-                                             "6:10='Support'; 0:5='Not Support'; 11='Not Support'", 
-                                             levels=c("Not Support", "Support"), as.factor=T), .names="{.col}_y"))->on22
-
-
-
+  group_by(Housing_Status) %>% 
+  summarize(Average=mean(Q32_8_x, na.rm=T))
 #Assign variable labels
-
-# We have to take the variable labels  in the original cause variables and match them to the ones that end in _x
-# 
-#Get variable labels and Store them. 
-
 
 #Check
 on22 %>% 
@@ -291,7 +276,6 @@ on22 %>%
 on22 %>% 
   select(starts_with("Q33a")) %>% 
   summary() 
-
 on22 %>% 
   mutate(
     across(
@@ -300,25 +284,24 @@ on22 %>%
       }, .names="{.col}_x" ))->on22
 
 #### Rescale Q80
-# #Q80
-# on22 %>% 
-#   select(starts_with("Q80")) %>% 
-#   summary()
+#Q80
+on22 %>% 
+  select(starts_with("Q80")) %>% 
+  summary()
 
-# on22 %>% 
-#   mutate(
-#     across(matches("Q80_[0-9]$"), ~
-#              .x-1
-#     )) %>% 
-#   select(starts_with("Q80")) %>% 
-#   summary() 
+on22 %>% 
+  mutate(
+    across(matches("Q80_[0-9]$"), ~
+             .x-1
+    )) %>% 
+  select(starts_with("Q80")) %>% 
+  summary() 
 
 on22 %>% 
   mutate(
     across(matches("Q80_[0-9]$"), ~
              .x-1
     ))->on22
-#names(on22)
 #Rescale Q80
 on22 %>% 
   mutate(
@@ -332,7 +315,7 @@ on22 %>%
 on22 %>% 
   mutate(across(matches("Q33a_[0-9]$|Q80_[0-9]$"), 
                 .fns=function(x) car::Recode(as.numeric(x), 
-"6:10='Support'; 0:5='Not Support'; 11='Not Support'", 
+"5:10='Support'; 0:4='Not Support'; 11='Not Support'", 
 levels=c("Not Support", "Support")), .names="{.col}_y"))->on22
 
 #### Rescale Q34
@@ -362,7 +345,7 @@ val_labels(on22$Q48_x)<-c(`5+`=5)
 # Non-Partisan
 on22$non_partisan<-Recode(on22$Q23, "6=1; else=0")
 val_labels(on22$non_partisan)<-c("Non-Partisan"=1, "Partisan"=0)
-#names(on22)
+names(on22)
 # # Age Calculation
 # on22 %>% 
 #   select(starts_with("DOB")) %>% 
@@ -496,7 +479,7 @@ on22 %>%
     (Q8==4| Q10==4) & Q12_4==4 ~ 1, #GRN
     TRUE ~ 0
    ))->on22
-#names(on22)
+names(on22)
 
 
 on22 %>% 
@@ -508,14 +491,14 @@ on22 %>%
              }  )
   )->on22
 
-#lookfor(on22, "duration")
-#lookfor(on22, "voting_flag")
+lookfor(on22, "duration")
+lookfor(on22, "voting_flag")
 #How many respondents digits
-#lookfor(on22, "incom")
+lookfor(on22, "incom")
 on22 %>% 
   mutate(income_digits=unlist(map(.$Q42, nchar)))->on22
-#on22$income_digits
-#names(on22)
+on22$income_digits
+names(on22)
 
 #Swing Voter Variable
 
@@ -524,9 +507,9 @@ on22 %>%
     (Q6b==1 | Q6b==3 |Q6b==4) & (Q8==2 | Q9==2 | Q10==2 | Q11==2) ~ "Swing Voter",
     TRUE ~ "Other"
   ))->on22
-#table(on22$Swing)
+table(on22$Swing)
 on22$Swing<-factor(on22$Swing, levels=c("Swing Voter", "Other"))
-#on22$Q7
+on22$Q7
 on22 %>% 
   mutate(Abstain=case_when(
     (Q6a==1) & (Q7==3|Q7==4) ~ "Apathetic Voter",
@@ -536,11 +519,11 @@ on22 %>%
 on22$Abstain<-factor(on22$Abstain, levels=c("Apathetic Voter", "Other"))
 
 #Degree
-#lookfor(on22, "degree")
-#on22$Q39
+lookfor(on22, "degree")
+on22$Q39
 on22$Degree<-Recode(as.numeric(on22$Q39), "9:11='Degree'; else='No degree'", 
                     levels=c("No degree", "Degree"))
-#lookfor(on22, "urban")
+lookfor(on22, "urban")
 on22$Density<-as_factor(on22$Q41)
 #levels(on22$Density)<-c("Suburban", "Urban", "Rural")
 #Renter variabvle
@@ -550,9 +533,7 @@ on22 %>%
   mutate(Renter=case_when(
     Q27==2~ 'Renter',
     TRUE ~ 'Other',
-  ),
-  LandLord = case_when(Q28 == 1 ~ 1,
-                       Q28 == 2 ~ 0))->on22
+  ))->on22
 #Satisfied_Renter
 on22 %>% 
   mutate(Satisfied_Renter=case_when(
@@ -566,14 +547,14 @@ on22$`Buyer`<-Recode(on22$Housing_Status, "'Seeking to purchase'='Buyer' ; else=
 #Causes by renter/non-renter dummy variable
 # on22$renter<-ifelse(on22$Q27==2,1,0)
 # val_labels(on22$renter)<-c("Renter"=1, "Non-Renter"=0)
-#nrow(on22)
-#names(on22)
+nrow(on22)
+names(on22)
 
 #### Extract Region from postal code
 
 on22$region<-str_sub(on22$postal_code, end=1L)
-#on22$region
-#table(on22$Density, on22$region)
+on22$region
+table(on22$Density, on22$region)
 on22$region<-Recode(on22$region, "'K'='Eastern Ontario' ;
 'L'='Central Ontario' ; 
        'M'='Metropolitan Toronto'; 'N'='SW Ontario' ; 'P'='Northern Ontario' ; else='Other' ", 
@@ -582,19 +563,19 @@ on22$region<-Recode(on22$region, "'K'='Eastern Ontario' ;
 
 
 #### Cognitive Non-Partisanship
-#lookfor(on22, "interest")
-#lookfor(on22, "provincial")
+lookfor(on22, "interest")
+lookfor(on22, "provincial")
 
 on22 %>% 
   mutate(cognitive_non_partisan=case_when(
     Q4_1 >5 & Q23==6~"Cognitive Non-Partisan",
     TRUE ~ "Other"
   ))->on22
-#table(on22$cognitive_non_partisan)
+table(on22$cognitive_non_partisan)
 
 #### PRovincial partisanship
 # Distribution of partisanship
-#prop.table(table(as_factor(on22$Q23)))
+prop.table(table(as_factor(on22$Q23)))
 
 
 
@@ -605,18 +586,18 @@ on22$Over_55<-Recode(as.numeric(on22$agegrps), "5:6='Over 55' ; 1:4='Under 55'",
 on22$Under_35<-Recode(as.numeric(on22$agegrps), "1:2='Under 35' ; 
                       3:6='Over 36'", 
                       as.factor=T, levels=c("Over 36","Under 35" ))
-#table(on22$Over_55)
+table(on22$Over_55)
 
 #### Gender
-#on22$gender
+on22$gender
 on22$male<-Recode(as.numeric(on22$gender), 
                   "1='Male' ;2:3='Non-Male'", 
                   as.factor=T,
                   levels=c("Non-Male", "Male"))
 #### Combine attitude to affordable housing and homeownership status
 
-#lookfor(on22, "affordable")
-#lookfor(on22, "own")
+lookfor(on22, "affordable")
+lookfor(on22, "own")
 
 on22 %>% 
   mutate(own_affordable=case_when(
@@ -625,14 +606,15 @@ on22 %>%
     Q27>1 & Q21==3 ~ "Pro-Affordable Housing Non-Homeowner",
     Q27>1 & Q21 <3 ~ "Anti-Affordable Housing Non-Homeowner"
   ))->on22
-#table(on22$own_affordable)
-#on22$Q21
+table(on22$own_affordable)
+on22$Q21
 on22$affordable<-Recode(as.numeric(on22$Q21), "1:2='conservative_housing' ; 
                         3='liberal_housing'", 
                         levels=c("liberal_housing", 
                               "conservative_housing"))
 
 
+table(on22$Homeowner, as_factor(on22$Q27))
 
 on22$own_affordable<-factor(on22$own_affordable, levels=c("Pro-Affordable Housing Homeowner", 
        "Anti-Affordable Housing Homeowner",
@@ -640,7 +622,7 @@ on22$own_affordable<-factor(on22$own_affordable, levels=c("Pro-Affordable Housin
        "Anti-Affordable Housing Non-Homeowner"))
 
 
-#names(on22)
+names(on22)
 # qplot(pop_density, geom="histogram", data=on22)
 # qplot(Population, geom="histogram", data=on22)
 # on22 %>% 
@@ -652,8 +634,7 @@ on22$own_affordable<-factor(on22$own_affordable, levels=c("Pro-Affordable Housin
 #   group_by(CSDNAME) %>%
 #   summarize(pop=mean(pop_2021, na.rm=T)) %>%
 #   arrange(desc(pop)) %>% View()
-#names(on22)
-
+names(on22)
 ### This extracts the population from 
 on22$Size<-Recode(on22$Population, "0:25000='Rural';
 25001:99999='Small' ;
@@ -832,43 +813,23 @@ on22$Ideology<-rowMeans(on22[ , c("Q16_x","Q17_x", "Q18_x", "Q19_x", "Q20_x", "Q
 
 #### Political Interest ####
 
-#Rescale to 0-1 and generate new variable _x
-on22 %>% 
-  mutate(
-    across(matches("Q4_1"), ~scales::rescale(as.numeric(.x)), .names="Q4_1_x")
-  )->on22
-
-on22$Q4_1_x
-on22 %>% 
-  mutate(
-    across(matches("Q5_1"), ~scales::rescale(as.numeric(.x)), .names="Q5_1_x")
-  )->on22
-on22$Q5_1_x
-
-on22 %>% 
-  mutate(avg_interest=rowMeans(select(., c(Q5_1_x, Q4_1_x)))) ->on22
-on22$avg_interest
-
 on22$Interest<-cut(on22$Q4_1, breaks=3, labels=c("Low", "Medium", "High"))
-summary(on22$Q4_1)
-summary(on22$Q5_1)
-on22$Q5_1
-
-
 
 #Run a script setting value and variable labels
 source("R_Scripts/2_value_labels.R")
 source("R_Scripts/2_variable_labels.R")
 
+# We have to take the variable labels  in the original cause variables and match them to the ones that end in _x
+# 
+#Get variable labels and Store them. 
 #This is great way to get a batch of variable labels
 on22 %>% 
   #Select what you are looking to work with
+  #In this case it is the batch of rescaled cause variables
+  select(Q32_1_x:Q32_9_x) %>% 
   #Use the command look_for() in the labelled library, must be loaded!
   #Store in something meaningful
-  select(Q32_1:Q32_9) %>% look_for()->cause_var_labels
-
-
-
+  look_for()->cause_var_labels
 #Inspect
 cause_var_labels#Note that the variable name is stored in variable and the actual label is stored in label
 #Here we remove the bit about Causes - from each entry and save it back into the label variable
@@ -876,42 +837,16 @@ cause_var_labels$label<-str_remove_all(cause_var_labels$label, "Causes - ")
 #Check what has happened
 cause_var_labels
 #make solution variable label data frame
+
 on22 %>% 
   select(Q33a_1_x:Q80_6_x) %>% 
   look_for()->solution_var_labels
-solution_var_labels
+
 #Inspect
 solution_var_labels$label<-str_remove_all(solution_var_labels$label, "Support for policy - ")
 
-#Provide Shorter version
-solution_var_labels %>% 
-  mutate(label_short=case_match(label,
-                                "More affordable public housing"~"more_affordable_public",
-                                "Taxes for owning multiple houses"~"tax_multiple_homes",
-                                "Increasing taxes for foreign home-buyers"~"increase_taxes_foreign",
-                                "More non-single housing properties"~"more_non_single",
-                                "Require developers to build more affordable housing"~"require_developers",
-                                "Add more units to existing units"~"add_units_properties",
-                                "Reduce heritage designation laws"~"reduce_heritage",
-                                "Eliminate density and height restrictions"~"eliminate_density_height",
-                                "Increase housing supply"~"increase_supply",
-                                "Eliminate housing transfer taxes"~"eliminate_taxes",
-                                "Government loans for new buyers"~"government_loans",
-                                "More rent control"~"more_rent_control"
-  )) ->solution_var_labels
-solution_var_labels
-solution_var_labels$exact_wording<-c("Increased public investment in affordable housing",
-                                     "Introduce a tax on vacant and second homes",
-                                     "Increase the non-resident speculation tax on foreign buyers of homes",
-                                     "Abolish municipal rules that only allow single family homes",
-                                     "Require developers to build 1 affordable home for every 5 new houses or condominium units",
-                                     "Make it easier for individual property owners to add housing units like basement rental suites or laneway houses without permission from their city",
-                                     "Weaken heritage designation rules in municipalities",
-                                     "Eliminate density and height restrictions close to transit stations",
-                                     "Increasing the supply of housing by building 1.5 million new homes in the next 10 years",
-                                     "Establish government loans to help new buyers afford a down payment",
-                                     "Eliminate the land transfer tax on home sales",
-                                     "Expand rent control")
+lookfor(on22, "purchase")
+
 
 #Check
 
@@ -976,44 +911,19 @@ on22_stacked$Development<-factor(on22_stacked$Development,
                                           "rental_15_storey"
                                           ))
 
-#Generate mean for general supply question
-on22 %>% 
-  mutate(supply_general=Q80_3_x)->on22
-names(on22)
-#Generate mean for supply-market questions
-on22 %>% 
-  mutate(supply_market=rowMeans(select(., c(Q33a_4_x, Q33a_6_x, Q80_1_x, Q80_2_x)))) ->on22
-  #select(c(Q33a_4_x, Q33a_6_x, Q80_1_x, Q80_2_x, supply_market)
 
-#Generate mean for regulation questions
-#on22 %>% 
- # mu0tate(supply_regulation = mean(unlist(across(c(Q33a_2_x, Q33a_3_x, Q33a_5_x, Q80_6_x))), na.rm = TRUE))->on22
-on22 %>% 
-  mutate(supply_regulation=rowMeans(select(., c(Q33a_2_x, Q33a_3_x, Q33a_5_x, Q80_6_x)))) ->on22
-#Generate mean for supply-government
-on22 %>% 
-  mutate(supply_govt=Q33a_1_x)->on22
+# on22_stacked <- on22_stacked %>%
+#   st_as_sf()
 
-#Generate mean for demand questions
-#on22 %>% 
-#  mutate(supply_demand = mean(unlist(across(c(Q80_4, Q80_5_x))), na.rm = TRUE))->on22
-on22 %>% 
-  mutate(supply_demand=rowMeans(select(., c(Q80_4_x, Q80_5_x)))) ->on22
 
-###Supply Gap Variable###
-on22 %>%
-  mutate(supply_gap_market = supply_general - supply_market)  -> on22
-
-on22 %>%
-  mutate(supply_gap_govt = supply_general - supply_govt)  -> on22
-
-on22 %>%
-  mutate(supply_gap_demand = supply_general - supply_demand)  -> on22
-
-on22 %>% 
-  select(c(Q33a_1_x:Q80_6_x)) %>% 
-pivot_longer(., cols=everything()) %>% 
-  group_by(name) %>% 
-  summarize(average=mean(value, na.rm=T)) %>% 
-  ggplot(., aes(y=fct_reorder(name, average), x=average))+geom_point()+xlim(c(0,1))
-
+# Checks
+# names(on22)
+# on22$weight
+# nrow(on22)
+# mean(on22$weight, na.rm=T)
+# summary(on22$weight)
+# mean(on22$weight)
+# mean(on22$income, na.rm=T)
+# table(on22$partisanship)
+# 
+# nrow(on22_stacked)

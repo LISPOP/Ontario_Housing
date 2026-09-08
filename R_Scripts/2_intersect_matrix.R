@@ -7,58 +7,26 @@ library(cancensus)
 #Get the geometry files for dissemination areas for Ontario
 #This usues a function in the cancensus package to directly download the geemotries from 
 # Statistics Canada
-#GET DA BOUNDARIES
-da.2021.0<-get_statcan_geographies(census_year="2021",level="DA", type="digital", cache_path=here("Data/cancensus_cache_statscan_data/"))
-#Get supplementary info
-da.2021.0x<-get_census("CA21", regions=list(PR="35"), level="DA", geo_format=NA)
-da.2021.0 %>% 
-  #filter ontario
-  filter(PRUID=="35")->da.2021.0
-#Now join supplementary information
-da.2021.0 %>% names()
-da.2021.0x %>% names()
+da.2021.0 <- get_statcan_geographies(census_year="2021",level="DA", type="digital", cache_path=here("Data/cancensus_cache_statscan_data/"))
 
-da.2021.0 %>% 
-  left_join(.,da.2021.0x, by=c("DAUID"="GeoUID") )->da.2021.0
+#da_geometry<-get_census("CA21", regions=list(PR="35"), level="DA", geo_format="sf")
 
-da.2021.0 %>% 
-  filter(CSD_UID=="3520005") %>% 
-  mutate(City=case_match(CSD_UID,"3520005"~"Toronto", "3530016"~"Waterloo")) %>% 
-ggplot(.)+geom_sf(fill=NA)+facet_grid(~City)+theme_minimal(base_size=24)+
-  theme(axis.text=element_blank(),
-        panel.grid=element_blank())->toronto_plot
-ggsave(plot=toronto_plot,here("Plots/toronto.png"))
-
-da.2021.0 %>% 
-  filter(CSD_UID=="3530016") %>% 
-  mutate(City=case_match(CSD_UID,"3525005"~"Toronto", "3530016"~"Waterloo")) %>% 
-  ggplot(.)+geom_sf(fill=NA)+facet_grid(~City)+theme_minimal(base_size=24)+
-  theme(axis.text=element_blank(),
-        panel.grid=element_blank())->waterloo_plot
-ggsave(plot=waterloo_plot,here("Plots/waterloo.png"))
-# library(cowplot)
-# plot_grid(toronto_plot, waterloo_plot)
-# save_plot(plot=plot_grid(toronto_plot, waterloo_plot),here("Plots/waterloo_toronto.png"))
 da.2021.0 %>%
   filter(PRUID == "35") %>%
   as_tibble() %>%
   select(LANDAREA) %>%
   summary()
-
-da.2021.1 <- da.2021.0 
-
-da.2021.1<-  da.2021.1 %>% 
+  
+da.2021.1 <- da.2021.0 %>%
+  filter(PRUID == "35") %>%
   mutate(row_id = as.integer(row_number())) %>%
   mutate(DA2021 = as.integer(DAUID)) %>%
   select(row_id, DA2021, geometry)
 
-# da.2021.21 has the Ontario DAs with row numbers.
-
 da.intersect.0 <- da.2021.1 %>%
   st_intersects(., remove_self = TRUE) %>%
   as.data.frame()
-#da.intersect.0 only has the neighbouring dissemination areas
-da.intersect.0
+
 da.intersect.1 <- da.intersect.0 %>%
   left_join(., (da.2021.1 %>% as_tibble() %>% select(row_id, DA2021)), by = c("col.id" = "row_id")) %>%
   mutate(DA2021_intersect = DA2021) %>%
@@ -99,15 +67,15 @@ da.intersect.2 %>%
 # YOU HAVE TO GET THE STATISTICS FOR THE INTERSECTING DAS; NOT THE ORIGINAL DAS
 # YOU HAVE TO DO THE JOIN USING THE VARIABLE DA2021_INTERSECT=DA_2021
 # SO THAT WE GRAB THE STATS FOR THE= THE INTERSECTING DAS 
-
-#What do we have
-da.intersect.0
 on_statscan_da %>% 
-  left_join(., da.intersect.1, by="DA2021")# %>% view()
+  left_join(., da.intersect.1, by="DA2021") # %>% view()
 da.intersect.1 %>% 
   #If you insert a view() after this line, you should see
   # Several rows for each dissemination area; one row for each DA that intersects each DA
   left_join(., on_statscan_da, by=c("DA2021_intersect"="DA2021")) %>%
+  left_join(., as.data.frame(DA_height) %>% 
+              select(Average_Height, DAUID) %>% 
+              mutate(DAUID = as.numeric(DAUID)), by = c("DA2021_intersect" = "DAUID")) %>% 
   #This forms groups of each DA
   group_by(DA2021) %>% 
   #And then calculates the average of the intersecting DAs for each DA; it does it for several variables 
@@ -119,17 +87,19 @@ da.intersect.1 %>%
   # intersect matrix does;We don't want to lose that structured
   # But it should contain multiple rows of the same statistics for each DA, because that is after averaging
   # The values of the intersecting DAs. 
-  mutate(., across(households_more_than_30_da:pop_density_da, ~mean(.,  na.rm=T), .names="{.col}_intersect1")) %>% 
+  mutate(., across(c(households_more_than_30_da:pop_density_da, Average_Height), ~mean(.,  na.rm=T), .names="{.col}_intersect1")) %>% 
   #This drops the columns that contain the individual statistics for the intersecting DAs
   # WE only want the averages which are stored with the suffix _intersect1
-  select(-c(total_occupied_private_dwellings_da:Population)) ->da.intersect.1
+  select(-c(total_occupied_private_dwellings_da:Population, Average_Height)) -> da.intersect.1
 #Repeat with the second-order intersecting DAs
 da.intersect.2 %>% 
   left_join(., on_statscan_da, by=c("DA2021_intersect"="DA2021")) %>% 
+  left_join(., as.data.frame(DA_height) %>% 
+              select(Average_Height, DAUID) %>% 
+              mutate(DAUID = as.numeric(DAUID)), by = c("DA2021_intersect" = "DAUID")) %>% 
   group_by(DA2021) %>% 
-  mutate(., across(households_more_than_30_da:pop_density_da, ~mean(.,  na.rm=T), .names="{.col}_intersect2")) %>% 
-  select(-c(total_occupied_private_dwellings_da:Population)) ->da.intersect.2
-
+  mutate(., across(c(households_more_than_30_da:pop_density_da, Average_Height), ~mean(.,  na.rm=T), .names="{.col}_intersect2")) %>% 
+  select(-c(total_occupied_private_dwellings_da:Population, Average_Height)) -> da.intersect.2
 
 #Get Vectors
 
@@ -207,14 +177,17 @@ intersect_example <- bind_rows(laurier, neigbours, next_neighbors)
 intersect_example <- intersect_example %>% 
   mutate(type = factor(type, levels = c("Wilfrid Laurier University", "Neigbouring DA", "Next Neighbour")))
 waterloo_das <- waterloo_das %>% 
-  filter(!DA2021 %in% c(35300943, 35300747, 35300904, 35301007, 35300832, 35300774, 35300819))
+    filter(!DA2021 %in% c(35300943, 35300747, 35300904, 35301007, 35300832, 35300774, 35300819))
   ggplot() +
-geom_sf(data =  waterloo_das, fill = "grey90", color = "white") +
+geom_sf(data =  waterloo_das, fill = NA, color = "grey") +
   geom_sf(data = intersect_example, aes(fill = type), color = "black", size = 0.4) +
   theme_minimal() +
   labs(title = "Laurier with Neighbors and Next Neighbors", fill = "Dissemination Area") +
-    theme(legend.position = "bottom")
-
+    theme(legend.position = "bottom",
+          axis.text=element_blank(),
+          panel.grid=element_blank()
+          )
+  ggsave(here("Plots/laurier_das.png"))
 
 # Export 
 # write_csv(da.intersect.1, here("data/ON DA intersections.csv"))
