@@ -1,3 +1,7 @@
+# Note run R_Scripts/2_recodes.R
+#source("R_Scripts/2_recodes.R")
+## Load sf library
+library(sf)
 ###### Code to Import Building Permit Data #####
 count(on22, Comm_Name)
 #### Toronto Permit Data as CSV
@@ -51,7 +55,10 @@ Kitchener_permits <- read_sf("Data/Building_permit_data/Building_Permits_7556592
 #### Hamilton Permit Data as sf
 
 Hamilton_permits <- read_sf("Data/Building_permit_data/Building_and_Demolition_Permits_2017_to_Present/Building_and_Demolition_Permits_2017_to_Present.shp")
-
+glimpse(Hamilton_permits)
+Hamilton_permits %>%
+  st_drop_geometry(.) %>%
+  write_csv(., file=here("Data/Building_permit_data/Hamilton/hamilton.csv"))
 #### Ottawa Permits as csv
 
 Ottawa_permits_2020 <- readxl::read_xls("Data/Building_permit_data/permits-2020.xls")
@@ -60,7 +67,9 @@ Ottawa_permits_2021 <- readxl::read_xls("Data/Building_permit_data/permits_2021_
 #### Mississauga Permits as sf
 
 Mississauga_permits <- read_sf("Data/Building_permit_data/Issued_Building_Permits_5749794004220210135/Building_Permits.shp")
-
+#Strip geography 
+st_drop_geometry(Mississauga_permits) %>% 
+  write_csv(., file=here("Data/Building_permit_data/Mississauga/mississauga.csv"))
 #### Niagara Falls Permits as sf 
 
 Niagara_permits <- read_sf("Data/Building_permit_data/Niagara_Falls_Completed_Building_Permits_-2696795109850114882/OD_vw_LM_BuildingPermits_Completed_Public.shp")
