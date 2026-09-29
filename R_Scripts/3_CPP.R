@@ -964,7 +964,7 @@ on22 <- on22 %>%
   mutate(across(all_of(c(paste0("Q33a_", 1:6, "_y"), paste0("Q80_", 1:6, "_y"))), \(x)recode_values(x, "Support" ~ 1,
                                                                                                     "Not Support" ~ 0), .names = "{.col}_b"))
 
-on22$Q80_6_
+
 #### Models for Home Owner Rationality ####
 OUTCOME_VARS <- c(paste0("Q33a_", 1:6, "_y_b"), paste0("Q80_", 1:6, "_y_b"))
 CONTROLS <- c("age", "gender", "Degree")
@@ -980,27 +980,32 @@ for(i in 1:length(OUTCOME_VARS)){
   Rationaly_models[[OUTCOME_VARS[i]]]$Renter <- lm_robust(reformulate(c("Renter", CONTROLS),
                                                                                  response = OUTCOME_VARS[i]),
                                                           se_type = "HC3",
-  data = on22)
+  data = on22,
+  weights = weight)
   
   Rationaly_models[[OUTCOME_VARS[i]]]$Landlord <- lm_robust(reformulate(c("LandLord", CONTROLS),
                                                                                    response = OUTCOME_VARS[i]),
                                                             se_type = "HC3",
-                                                                       data = on22)
+                                                                       data = on22,
+                                                            weights = weight)
   
   Rationaly_models[[OUTCOME_VARS[i]]]$Partisan <- lm_robust(reformulate(c("Not_PC", CONTROLS),
                                                                                  response = OUTCOME_VARS[i]),
                                                             se_type = "HC3",
-  data = on22)
+  data = on22,
+  weights = weight)
   
   Rationaly_models[[OUTCOME_VARS[i]]]$PartisanxRenter <- lm_robust(reformulate(c("Renter * Not_PC", CONTROLS),
                                                                                    response = OUTCOME_VARS[i]),
                                                                    se_type = "HC3",
-                                                                       data = on22)
+                                                                       data = on22,
+                                                                   weights = weight)
   
   Rationaly_models[[OUTCOME_VARS[i]]]$PartisanxLandlord <- lm_robust(reformulate(c("LandLord * Not_PC", CONTROLS),
                                                                                    response = OUTCOME_VARS[i]),
                                                                      se_type = "HC3",
-                                                                       data = on22)
+                                                                       data = on22,
+                                                                     weights = weight)
 }
 
 Rationality_df <- data.frame()
@@ -1387,8 +1392,8 @@ for(i in 1:length(OUTCOME_VARS)){
   Satisifed_models[[i]] <-  lm_robust(reformulate(c("Housing_Status", CONTROLS),
                                                   response = OUTCOME_VARS[i]),
                                       se_type = "HC3",
-                                      data = on22 %>% mutate(Housing_Status = relevel(factor(Housing_Status),
-                                                                                      ref = "Not seeking to purchase")))
+                                      data = on22,
+                                      weights = weight)
 }
 
 Satisfied_df <- data.frame()
@@ -1409,8 +1414,98 @@ for(i in 1:length(OUTCOME_VARS)){
 }
 
 
-CPP_models_df <- bind_rows(Rationality_df %>%  filter(term %in% c("LandLord", "RenterRenter", "Not_PC")),
-                          Satisfied_df %>% filter(term %in% c("Housing_StatusSeeking to purchase")))
+CPP_models_df <- bind_rows(Rationality_df %>%  filter(term %in% c("Not_PC")),
+                          Satisfied_df %>% filter(term %in% c("Housing_StatusNot aspiring homeowner", "Housing_StatusAspiring homeowner", "Housing_StatusLandlord")))
 
 
 CPP_models_df$adj.p_value <- p.adjust(CPP_models_df$p.value, method = "BH")
+
+
+alpha <- 0.05
+k <- nrow(CPP_models_df) ##number of hypotheses
+r <- rank(CPP_models_df$p.value) ##ranks of p-values
+alpha_adj <- (r*alpha)/k ##step-up 'tailored' thresholds
+CPP_models_df$ajusted_Z <- qnorm(1 - (alpha_adj)/2) ##new critical values for CIs (asymptotic)
+
+
+Hypotheses_df <- data.frame(Variable = c(rep("Not_PC", 12),
+                                         rep("Housing_StatusNot aspiring homeowner", 12),
+                                         rep("Housing_StatusAspiring homeowner", 12),
+                                         rep("Housing_StatusLandlord", 12)),
+                            Outcome = c(rep(c("Q33a_1_y_b", "Q33a_2_y_b", "Q33a_3_y_b", 
+                                              "Q33a_4_y_b", "Q33a_5_y_b", "Q33a_6_y_b",
+                                              "Q80_1_y_b", "Q80_2_y_b", "Q80_3_y_b",
+                                              "Q80_4_y_b", "Q80_5_y_b", "Q80_6_y_b"), 4)),
+                            Hypothesis = c(# Not PC
+                                           0, 0, 1, 0, 0,
+                                           0, 1, 1, 1, 1,
+                                           0, 1,
+                                           # Satisfied Renter
+                                           0, 0, 0, 0, 0,
+                                           0, 0, 1, 1, 1,
+                                           0, 1,
+                                           # Aspiring Homeowner 
+                                           0, 0, 0, 0, 0,
+                                           0, 0, 0, 0, 1,
+                                           0, 1,
+                                           # Landlords
+                                           0, 0, 1, 1, 0,
+                                           0, 1, 0, 0, 1,
+                                           1, 0))
+
+CPP_models_df <- CPP_models_df %>% 
+  mutate(Outcome = ifelse(is.na(Outcome), outcome, Outcome))
+
+
+CPP_models_df <- left_join(CPP_models_df, Hypotheses_df, by = c("term" = "Variable", "Outcome"))
+
+CPP_plot <- CPP_models_df %>% 
+  mutate(Outcome = recode_values(Outcome, "Q33a_1_y_b" ~ "Increased public investment in affordable housing (1)",
+                                 "Q33a_2_y_b" ~ "Introduce a tax on vacant and second homes (2)",
+                                 "Q33a_3_y_b" ~ "Increase the non-resident speculation tax on foreign buyers of homes (3)", 
+                                 "Q33a_4_y_b" ~ "Abolish municipal rules that only allow single family homes (4)",
+                                 "Q33a_5_y_b" ~ "Require developers to build 1 affordable home for every 5 new houses or condominium units (5)",
+                                 "Q33a_6_y_b" ~ "Make it easier for individual property owners to add housing units (6)",
+                                 "Q80_1_y_b" ~ "Weaken heritage designation rules in municipalities (7)",
+                                 "Q80_2_y_b" ~ "Eliminate density and height restrictions close to transit stations (8)",
+                                 "Q80_3_y_b" ~ "Increasing the supply of housing by building new homes in the next 10 years (9)",
+                                 "Q80_4_y_b" ~ "Establish government loans to help new buyers afford a down payment (10)",
+                                 "Q80_5_y_b" ~ "Eliminate the land transfer tax on home sales (11)",
+                                 "Q80_6_y_b" ~ "Expand rent control (12)"
+         ),
+         Outcome = factor(Outcome, levels = rev(c("Increased public investment in affordable housing (1)",
+                                                  "Introduce a tax on vacant and second homes (2)",
+                                                  "Increase the non-resident speculation tax on foreign buyers of homes (3)", 
+                                                  "Abolish municipal rules that only allow single family homes (4)",
+                                                  "Require developers to build 1 affordable home for every 5 new houses or condominium units (5)",
+                                                  "Make it easier for individual property owners to add housing units (6)",
+                                                  "Weaken heritage designation rules in municipalities (7)",
+                                                  "Eliminate density and height restrictions close to transit stations (8)",
+                                                  "Increasing the supply of housing by building new homes in the next 10 years (9)",
+                                                  "Establish government loans to help new buyers afford a down payment (10)",
+                                                  "Eliminate the land transfer tax on home sales (11)",
+                                                  "Expand rent control (12)"))),
+         term = case_when(term == "Not_PC" ~ "Not PC - PC",
+                         term == "Housing_StatusNot aspiring homeowner" ~ "Satisfied Renter - Homeowner",
+                         term == "Housing_StatusAspiring homeowner" ~ "Aspiring homeowner - Homeowner",
+                         term == "Housing_StatusLandlord" ~ "Landlord - Homeowner"),
+         Var = factor(term, levels = c("Not PC - PC",
+                                   "Satisfied Renter - Homeowner",
+                                   "Aspiring homeowner - Homeowner",
+                                  "Landlord - Homeowner")),
+         sig = ifelse(adj.p_value < 0.05, "grey70", "black")) %>% 
+  ggplot(aes(x = estimate, y = Outcome, xmin = estimate  - (std.error * ajusted_Z), xmax = estimate + (std.error * ajusted_Z), shape = as.factor(Hypothesis),
+             col = sig)) + 
+  facet_wrap(~Var, nrow = 1) +
+  geom_point(position = position_dodge(width = 0.6), size = 3) + 
+  geom_linerange(position = position_dodge(width = 0.6), linewidth = 1) + 
+  scale_colour_manual(values = c("grey40", "black")) + 
+  guides(#shape = "none",
+         colour = 'none') + 
+  geom_vline(xintercept = 0, col = "grey20", lty = 4) + 
+  theme_bw() + 
+  labs(x = "Difference in Predicted Probability", y = NULL) + 
+  theme(legend.position = "none")
+  
+ggsave("plots/CPP_plot.png", CPP_plot, width = 14, height = 5)
+
