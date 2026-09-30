@@ -1,0 +1,301 @@
+---
+title: "Available Building Permit Data"
+format: html
+editor: visual
+execute: 
+  message: false
+  warning: false
+---
+
+```{r}
+#| label: setup
+library(readxl)
+library(readr)
+library(here)
+library(dplyr)
+library(sf)
+```
+
+## Read In Each File
+
+```{r}
+#| label: import-files
+# Toronto
+toronto <- read.csv("Data/Building_permit_data/Toronto/Cleared Building Permits since 2017.csv")
+# Ottawa
+# ottawa_2020<-read_excel(path=here("Data/Building_permit_data/Ottawa/permits-2020.xls"), sheet=1)
+ottawa_2021<-read_excel(path=here("Data/Building_permit_data/Ottawa/permits_2021_EN.xls"), sheet=1)
+ottawa_2022<-read_excel(path=here("Data/Building_permit_data/Ottawa/Permits2022EN.xls"), sheet=1)
+ottawa_2021 |> 
+  bind_rows(ottawa_2022)->ottawa
+# Mississauga
+mississauga_sf<-read_sf("Data/Building_permit_data/Mississauga/Building_Permits.shp")
+mississauga_sf |> 
+  st_drop_geometry() |> 
+  write_csv(here("Data/Building_permit_data/Mississauga/mississauga.csv"))
+mississauga_sf |> 
+  st_drop_geometry() ->mississauga
+
+# Hamilton
+hamilton_sf<-read_sf("Data/Building_permit_data/Hamilton/Building_and_Demolition_Permits_2017_to_Present.shp")
+hamilton_sf |> 
+  st_drop_geometry() |>
+  write_csv(here("Data/Building_permit_data/Hamilton/hamilton.csv"))
+hamilton_sf |> 
+  st_drop_geometry() ->hamilton
+# Kitchener
+
+kitchener_sf<-read_sf(here("Data/Building_permit_data/Kitchener/Building_Permit.shp"))
+kitchener_sf |> 
+  st_drop_geometry() |> 
+  write_csv(here("Data/Building_permit_data/Kitchener/kitchener.csv"))
+kitchener_sf |> 
+  st_drop_geometry() ->kitchener
+
+#Burlington
+burlington_sf<-read_sf(here("Data/Building_permit_data/Burlington/Building_Permits.shp"))
+burlington_sf |> 
+  st_drop_geometry() |> 
+  write_csv(here("Data/Building_permit_data/Burlington/burlington.csv"))
+burlington_sf |> 
+  st_drop_geometry()->burlington
+  
+```
+
+# Harmonization of names
+
+The files have multiple names. This section harmonizes names for variables which are effectively the same. The first to be standardized are the dates. 
+
+```{r}
+#| label: rename-variables
+library(janitor)
+library(purrr)
+city.list<-
+  list("Toronto"=toronto, "Mississauga"=mississauga, "Burlington"=burlington, "Kitchener"=kitchener, "Hamilton"=hamilton, "Ottawa"=ottawa)
+city.list |> map(clean_names)->city.list
+city.list[["Mississauga"]] |> rename(completed_date=complete_d)->city.list[["Mississauga"]]
+city.list[["Hamilton"]] |> rename(completed_date=completedd)->city.list[["Hamilton"]]
+city.list[["Kitchener"]] |> rename(completed_date=13)->city.list[["Kitchener"]]
+```
+
+```{r}
+#| label: rename-issued-date
+city.list[["Mississauga"]] |> rename(issued_date=issue_date)->city.list[["Mississauga"]]
+city.list[["Hamilton"]] |> rename(issued_date=issueddate)->city.list[["Hamilton"]]
+city.list[["Kitchener"]] |> rename(issued_date=issue_date)->city.list[["Kitchener"]]
+city.list[["Burlington"]] |> rename(issued_date=issuedate)->city.list[["Burlington"]]
+```
+
+```{r}
+#| label: rename-dwelling-units-created
+city.list[["Ottawa"]] |> rename(dwelling_units_created=d_u)->city.list[["Ottawa"]]
+city.list[["Mississauga"]] |> rename(dwelling_units_created=res_units)->city.list[["Mississauga"]]
+city.list[["Kitchener"]] |> rename(dwelling_units_created=units_crea)->city.list[["Kitchener"]]
+city.list[["Burlington"]] |> rename(dwelling_units_created=resunits)->city.list[["Burlington"]]
+```
+
+```{r}
+#| label: rename-permit-structure-type
+city.list[["Ottawa"]] |> rename(permit_type=appl_type, structure_type=blg_type)->city.list[["Ottawa"]]
+city.list[["Mississauga"]] |> rename(permit_type=scope, structure_type=bldg_type)->city.list[["Mississauga"]]
+city.list[["Hamilton"]] |> rename(permit_type=workclass, structure_type=permitclas)->city.list[["Hamilton"]]
+city.list[["Kitchener"]] |> rename(permit_type=permit_typ, structure_type=sub_work_t)->city.list[["Kitchener"]]
+city.list[["Burlington"]] |> rename(permit_type=foldertype, structure_type=subdesc)->city.list[["Burlington"]]
+```
+
+```{r}
+#| label: rename-street-address
+library(stringr)
+city.list[["Toronto"]] |> mutate(street_address=str_squish(paste(street_num, street_name, street_type, street_direction)))->city.list[["Toronto"]]
+city.list[["Ottawa"]] |> mutate(street_address=str_squish(paste(st_number, road)))->city.list[["Ottawa"]]
+city.list[["Mississauga"]] |> rename(street_address=address)->city.list[["Mississauga"]]
+city.list[["Hamilton"]] |> rename(street_address=originalad)->city.list[["Hamilton"]]
+city.list[["Kitchener"]] |> rename(street_address=foldername)->city.list[["Kitchener"]]
+city.list[["Burlington"]] |> rename(street_address=address)->city.list[["Burlington"]]
+```
+# Date Filter
+
+The first decision is the data filter. Toronto, Mississauga, Kitchener and Hamilton all of information on Completed Date.
+
+## Residential Units Created
+
+
+```{r}
+#| label: units-created-histogram
+#| eval: true
+#| include: false
+
+
+library(ggplot2)
+city.list[c("Toronto", "Mississauga", "Kitchener")] |>
+  map(\(x) x |>
+        mutate(completed_date=as.Date(completed_date),
+               dwelling_units_created=as.numeric(dwelling_units_created)) |>
+        select(completed_date, dwelling_units_created, street_address, permit_type, structure_type)) |>
+  bind_rows(.id="municipality") |>
+  filter(completed_date>=as.Date("2021-01-01") & completed_date<as.Date("2022-05-01"))->completed
+
+completed |>
+  ggplot(aes(x=dwelling_units_created))+
+  geom_histogram()+
+  facet_wrap(~municipality)
+```
+
+These building permits cover almost exclusively small-scale projects that add 1 unit to properties, but there are a few tower projects in here.
+
+I'd like to know why building permits are not issued for tower projects in general. 
+
+```{r}
+#| label: units-created-summary
+completed |>
+  group_by(municipality) |>
+  summarize(n=n(),
+            missing=sum(is.na(dwelling_units_created)),
+            min=min(dwelling_units_created, na.rm=TRUE),
+            q1=quantile(dwelling_units_created, 0.25, na.rm=TRUE),
+            median=median(dwelling_units_created, na.rm=TRUE),
+            mean=mean(dwelling_units_created, na.rm=TRUE),
+            q3=quantile(dwelling_units_created, 0.75, na.rm=TRUE),
+            max=max(dwelling_units_created, na.rm=TRUE),
+            sd=sd(dwelling_units_created, na.rm=TRUE))
+```
+
+How many cases do we have of completed densification projects in each municipality.
+
+```{r}
+#| label: densification-count
+
+completed |> 
+  group_by(municipality) |> 
+  filter(dwelling_units_created<5 |dwelling_units_created>0) |> 
+
+  count(municipality)
+
+```
+
+```{r}
+#| label: count-0-to-4-units
+completed |>
+  filter(between(dwelling_units_created, 0, 4)) |>
+  group_by(municipality, street_address) |>
+  summarize(permits=n(), dwelling_units_created=sum(dwelling_units_created), .groups="drop") |>
+  count(municipality)
+```
+
+```{r}
+#| label: units-by-address
+completed |>
+  group_by(municipality, street_address) |>
+  summarize(permits=n(), dwelling_units_created=sum(dwelling_units_created, na.rm=TRUE), .groups="drop")->units_by_address
+```
+
+```{r}
+#| label: units-per-address-variable
+completed |>
+  group_by(municipality, street_address) |>
+  mutate(units_created_at_address=sum(dwelling_units_created, na.rm=TRUE)) |>
+  ungroup()->completed
+```
+
+```{r}
+#| label: inspect-addresses
+set.seed(1)
+units_by_address |>
+  filter(permits>1 & dwelling_units_created>0) |>
+  group_by(municipality) |>
+  slice_sample(n=3) |>
+  ungroup()->inspect_addresses
+inspect_addresses |>
+  knitr::kable()
+completed |>
+  semi_join(inspect_addresses, by=c("municipality", "street_address")) |>
+  arrange(municipality, street_address, completed_date) |>
+  select(municipality, street_address, completed_date, permit_type, structure_type, dwelling_units_created) |>
+  knitr::kable()
+```
+```{r}
+#| label: inspect-1-to-4-units
+set.seed(1)
+completed |>
+  filter(units_created_at_address %in% 1:4) |>
+  distinct(municipality, street_address, units_created_at_address) |>
+  group_by(municipality, units_created_at_address) |>
+  slice_sample(n=1) |>
+  ungroup()->example_addresses
+completed |>
+  semi_join(example_addresses, by=c("municipality", "street_address")) |>
+  arrange(municipality, units_created_at_address, street_address, completed_date) |>
+  select(municipality, units_created_at_address, street_address, permit_type, structure_type, completed_date, dwelling_units_created) |>
+  knitr::kable()
+```
+
+
+I do not think that we can *just* use the units created variable. It seems like developments that create 1 new unit include new single-familiy homes *and* additions like a new townhouse. The former is not densification, but the latter is. 
+
+We have to poke at the variables that describe the type of development. 
+
+
+```{r}
+#| label: units-by-address-permit-type
+completed |>
+  group_by(municipality, street_address, permit_type) |>
+  summarize(dwelling_units_created=sum(dwelling_units_created, na.rm=TRUE), .groups="drop")->units_by_address_permit_type
+units_by_address_permit_type |> 
+  filter(dwelling_units_created>0&dwelling_units_created<6) |> 
+  slice_sample(n=100) |> knitr::kable()
+```
+
+```{r}
+#| label: types-at-1-to-6-unit-addresses
+completed |>
+  filter(between(units_created_at_address, 1, 6))->mild_densification
+mild_densification |>
+  count(municipality, permit_type) |>
+  arrange(municipality, desc(n)) |>
+  knitr::kable()
+mild_densification |>
+  count(municipality, structure_type) |>
+  arrange(municipality, desc(n)) |>
+  knitr::kable()
+```
+
+```{r}
+#| label: types-at-1-to-6-unit-addresses-new-units
+mild_densification |>
+  filter(dwelling_units_created>0)->mild_densification_new_units
+mild_densification_new_units |>
+  count(municipality, permit_type) |>
+  arrange(municipality, desc(n)) |>
+  knitr::kable()
+mild_densification_new_units |>
+  count(municipality, structure_type) |>
+  arrange(municipality, desc(n)) |>
+  knitr::kable()
+```
+
+## Densification flow chart
+
+```{mermaid}
+flowchart TD
+  A["Completed permit<br/>Jan 2021 to Apr 2022"] --> B{"Units created at the address<br/>(units_created_at_address)"}
+  B -- "0" --> X1["No new units:<br/>not densification"]
+  B -- "more than 6" --> X2["Larger project:<br/>outside mild densification"]
+  B -- "1 to 6" --> C{"Does this permit create units?<br/>(dwelling_units_created > 0,<br/>demolition permits excluded)"}
+  C -- "No" --> X3["Supporting permit<br/>(plumbing, mechanical, drains, decks):<br/>describes the project, not counted"]
+  C -- "Yes" --> D{"structure_type is a<br/>multi-unit or added-suite form?"}
+  D -- "Yes" --> Y1["DENSIFICATION<br/>secondary suite, conversion,<br/>laneway or garden suite, multiplex"]
+  D -- "No" --> E{"permit_type alters or adds to<br/>an existing building?"}
+  E -- "Yes" --> Y2["DENSIFICATION<br/>unit added to an existing dwelling"]
+  E -- "No: new construction" --> F{"Demolition permit<br/>at the same address?"}
+  F -- "Yes" --> G{"New building has more units<br/>than one detached house?"}
+  G -- "Yes" --> Y3["DENSIFICATION<br/>teardown replaced by more units"]
+  G -- "No" --> X4["Replacement:<br/>one house for one house"]
+  F -- "No" --> H["UNCLEAR<br/>new subdivision or infill?<br/>needs a location check"]
+```
+
+| Decision | Toronto | Mississauga | Kitchener |
+|---|---|---|---|
+| Multi-unit or added-suite `structure_type` | 2 Unit - Detached / Semi-detached / Townhouse; 3+ Unit - Detached / Semi-detached / Townhouse; Laneway / Rear Yard Suite; Converted House; Duplex; Triplex/Semi-Detached; Multiple Unit Building; Apartment Building | DUPLEX, 3, 4, 5 0R 6PLEX; APARTMENT (> 6 UNITS) | Duplex Dwelling (2 dwelling units); Duplex Dwelling - Condo; Semi-Duplex Dwelling; Rowhouse Duplex; Garden Suite; Apartment |
+| `permit_type` alters or adds to an existing building | Small Residential Projects; Building Additions/Alterations | ALTERATION TO EXISTING BLDG; ADDITION AND ALTERATION; ADDITION TO EXISTING BLDG | none (every unit-creating permit is Residential Building (House) or (Multi)) |
+| New construction `permit_type` | New Houses; New Building; Residential Building Permit | NEW BUILDING | Residential Building (House); Residential Building (Multi) |
+| Demolition `permit_type` | Demolition Folder (DM) | DEMOLITION | Residential Demolition |

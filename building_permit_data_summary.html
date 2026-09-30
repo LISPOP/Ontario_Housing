@@ -1,0 +1,2867 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Available Building Permit Data</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="building_permit_data_summary_files/libs/clipboard/clipboard.min.js"></script>
+<script src="building_permit_data_summary_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="building_permit_data_summary_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="building_permit_data_summary_files/libs/quarto-html/popper.min.js"></script>
+<script src="building_permit_data_summary_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="building_permit_data_summary_files/libs/quarto-html/anchor.min.js"></script>
+<link href="building_permit_data_summary_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="building_permit_data_summary_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="building_permit_data_summary_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="building_permit_data_summary_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="building_permit_data_summary_files/libs/bootstrap/bootstrap-138a6193a3bd40baf1e627da441a4734.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="building_permit_data_summary_files/libs/quarto-diagram/mermaid.min.js"></script>
+<script src="building_permit_data_summary_files/libs/quarto-diagram/mermaid-init.js"></script>
+<link href="building_permit_data_summary_files/libs/quarto-diagram/mermaid.css" rel="stylesheet">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Available Building Permit Data</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="read-in-each-file" class="level2">
+<h2 class="anchored" data-anchor-id="read-in-each-file">Read In Each File</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Toronto</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>toronto <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"Data/Building_permit_data/Toronto/Cleared Building Permits since 2017.csv"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Ottawa</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ottawa_2020&lt;-read_excel(path=here("Data/Building_permit_data/Ottawa/permits-2020.xls"), sheet=1)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>ottawa_2021<span class="ot">&lt;-</span><span class="fu">read_excel</span>(<span class="at">path=</span><span class="fu">here</span>(<span class="st">"Data/Building_permit_data/Ottawa/permits_2021_EN.xls"</span>), <span class="at">sheet=</span><span class="dv">1</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>ottawa_2022<span class="ot">&lt;-</span><span class="fu">read_excel</span>(<span class="at">path=</span><span class="fu">here</span>(<span class="st">"Data/Building_permit_data/Ottawa/Permits2022EN.xls"</span>), <span class="at">sheet=</span><span class="dv">1</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>ottawa_2021 <span class="sc">|&gt;</span> </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(ottawa_2022)<span class="ot">-&gt;</span>ottawa</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Mississauga</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>mississauga_sf<span class="ot">&lt;-</span><span class="fu">read_sf</span>(<span class="st">"Data/Building_permit_data/Mississauga/Building_Permits.shp"</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>mississauga_sf <span class="sc">|&gt;</span> </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_csv</span>(<span class="fu">here</span>(<span class="st">"Data/Building_permit_data/Mississauga/mississauga.csv"</span>))</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>mississauga_sf <span class="sc">|&gt;</span> </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="ot">-&gt;</span>mississauga</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Hamilton</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>hamilton_sf<span class="ot">&lt;-</span><span class="fu">read_sf</span>(<span class="st">"Data/Building_permit_data/Hamilton/Building_and_Demolition_Permits_2017_to_Present.shp"</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>hamilton_sf <span class="sc">|&gt;</span> </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_csv</span>(<span class="fu">here</span>(<span class="st">"Data/Building_permit_data/Hamilton/hamilton.csv"</span>))</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>hamilton_sf <span class="sc">|&gt;</span> </span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="ot">-&gt;</span>hamilton</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Kitchener</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>kitchener_sf<span class="ot">&lt;-</span><span class="fu">read_sf</span>(<span class="fu">here</span>(<span class="st">"Data/Building_permit_data/Kitchener/Building_Permit.shp"</span>))</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>kitchener_sf <span class="sc">|&gt;</span> </span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_csv</span>(<span class="fu">here</span>(<span class="st">"Data/Building_permit_data/Kitchener/kitchener.csv"</span>))</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>kitchener_sf <span class="sc">|&gt;</span> </span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="ot">-&gt;</span>kitchener</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="co">#Burlington</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>burlington_sf<span class="ot">&lt;-</span><span class="fu">read_sf</span>(<span class="fu">here</span>(<span class="st">"Data/Building_permit_data/Burlington/Building_Permits.shp"</span>))</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>burlington_sf <span class="sc">|&gt;</span> </span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write_csv</span>(<span class="fu">here</span>(<span class="st">"Data/Building_permit_data/Burlington/burlington.csv"</span>))</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>burlington_sf <span class="sc">|&gt;</span> </span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>()<span class="ot">-&gt;</span>burlington</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="harmonization-of-names" class="level1">
+<h1>Harmonization of names</h1>
+<p>The files have multiple names. This section harmonizes names for variables which are effectively the same. The first to be standardized are the dates.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>city.list<span class="ot">&lt;-</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="st">"Toronto"</span><span class="ot">=</span>toronto, <span class="st">"Mississauga"</span><span class="ot">=</span>mississauga, <span class="st">"Burlington"</span><span class="ot">=</span>burlington, <span class="st">"Kitchener"</span><span class="ot">=</span>kitchener, <span class="st">"Hamilton"</span><span class="ot">=</span>hamilton, <span class="st">"Ottawa"</span><span class="ot">=</span>ottawa)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>city.list <span class="sc">|&gt;</span> <span class="fu">map</span>(clean_names)<span class="ot">-&gt;</span>city.list</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Mississauga"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">completed_date=</span>complete_d)<span class="ot">-&gt;</span>city.list[[<span class="st">"Mississauga"</span>]]</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Hamilton"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">completed_date=</span>completedd)<span class="ot">-&gt;</span>city.list[[<span class="st">"Hamilton"</span>]]</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Kitchener"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">completed_date=</span><span class="dv">13</span>)<span class="ot">-&gt;</span>city.list[[<span class="st">"Kitchener"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Mississauga"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">issued_date=</span>issue_date)<span class="ot">-&gt;</span>city.list[[<span class="st">"Mississauga"</span>]]</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Hamilton"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">issued_date=</span>issueddate)<span class="ot">-&gt;</span>city.list[[<span class="st">"Hamilton"</span>]]</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Kitchener"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">issued_date=</span>issue_date)<span class="ot">-&gt;</span>city.list[[<span class="st">"Kitchener"</span>]]</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Burlington"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">issued_date=</span>issuedate)<span class="ot">-&gt;</span>city.list[[<span class="st">"Burlington"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Ottawa"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">dwelling_units_created=</span>d_u)<span class="ot">-&gt;</span>city.list[[<span class="st">"Ottawa"</span>]]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Mississauga"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">dwelling_units_created=</span>res_units)<span class="ot">-&gt;</span>city.list[[<span class="st">"Mississauga"</span>]]</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Kitchener"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">dwelling_units_created=</span>units_crea)<span class="ot">-&gt;</span>city.list[[<span class="st">"Kitchener"</span>]]</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Burlington"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">dwelling_units_created=</span>resunits)<span class="ot">-&gt;</span>city.list[[<span class="st">"Burlington"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Ottawa"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">permit_type=</span>appl_type, <span class="at">structure_type=</span>blg_type)<span class="ot">-&gt;</span>city.list[[<span class="st">"Ottawa"</span>]]</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Mississauga"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">permit_type=</span>scope, <span class="at">structure_type=</span>bldg_type)<span class="ot">-&gt;</span>city.list[[<span class="st">"Mississauga"</span>]]</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Hamilton"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">permit_type=</span>workclass, <span class="at">structure_type=</span>permitclas)<span class="ot">-&gt;</span>city.list[[<span class="st">"Hamilton"</span>]]</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Kitchener"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">permit_type=</span>permit_typ, <span class="at">structure_type=</span>sub_work_t)<span class="ot">-&gt;</span>city.list[[<span class="st">"Kitchener"</span>]]</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Burlington"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">permit_type=</span>foldertype, <span class="at">structure_type=</span>subdesc)<span class="ot">-&gt;</span>city.list[[<span class="st">"Burlington"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Toronto"</span>]] <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">street_address=</span><span class="fu">str_squish</span>(<span class="fu">paste</span>(street_num, street_name, street_type, street_direction)))<span class="ot">-&gt;</span>city.list[[<span class="st">"Toronto"</span>]]</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Ottawa"</span>]] <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">street_address=</span><span class="fu">str_squish</span>(<span class="fu">paste</span>(st_number, road)))<span class="ot">-&gt;</span>city.list[[<span class="st">"Ottawa"</span>]]</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Mississauga"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">street_address=</span>address)<span class="ot">-&gt;</span>city.list[[<span class="st">"Mississauga"</span>]]</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Hamilton"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">street_address=</span>originalad)<span class="ot">-&gt;</span>city.list[[<span class="st">"Hamilton"</span>]]</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Kitchener"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">street_address=</span>foldername)<span class="ot">-&gt;</span>city.list[[<span class="st">"Kitchener"</span>]]</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>city.list[[<span class="st">"Burlington"</span>]] <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">street_address=</span>address)<span class="ot">-&gt;</span>city.list[[<span class="st">"Burlington"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="date-filter" class="level1">
+<h1>Date Filter</h1>
+<p>The first decision is the data filter. Toronto, Mississauga, Kitchener and Hamilton all of information on Completed Date.</p>
+<section id="residential-units-created" class="level2">
+<h2 class="anchored" data-anchor-id="residential-units-created">Residential Units Created</h2>
+<p>These building permits cover almost exclusively small-scale projects that add 1 unit to properties, but there are a few tower projects in here.</p>
+<p>I’d like to know why building permits are not issued for tower projects in general.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>completed <span class="sc">|&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(municipality) <span class="sc">|&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">n=</span><span class="fu">n</span>(),</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">missing=</span><span class="fu">sum</span>(<span class="fu">is.na</span>(dwelling_units_created)),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">min=</span><span class="fu">min</span>(dwelling_units_created, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">q1=</span><span class="fu">quantile</span>(dwelling_units_created, <span class="fl">0.25</span>, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">median=</span><span class="fu">median</span>(dwelling_units_created, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean=</span><span class="fu">mean</span>(dwelling_units_created, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">q3=</span><span class="fu">quantile</span>(dwelling_units_created, <span class="fl">0.75</span>, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">max=</span><span class="fu">max</span>(dwelling_units_created, <span class="at">na.rm=</span><span class="cn">TRUE</span>),</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">sd=</span><span class="fu">sd</span>(dwelling_units_created, <span class="at">na.rm=</span><span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 10
+  municipality     n missing   min    q1 median  mean    q3   max    sd
+  &lt;chr&gt;        &lt;int&gt;   &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 Kitchener     3438       0     0     0      0 0.868     1   344  8.63
+2 Mississauga   4271       0     0     0      0 0.736     0   603 14.3 
+3 Toronto      47847   30737     0     0      0 0.979     0   913 17.9 </code></pre>
+</div>
+</div>
+<p>How many cases do we have of completed densification projects in each municipality.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>completed <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(municipality) <span class="sc">|&gt;</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(dwelling_units_created<span class="sc">&lt;</span><span class="dv">5</span> <span class="sc">|</span>dwelling_units_created<span class="sc">&gt;</span><span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(municipality)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+# Groups:   municipality [3]
+  municipality     n
+  &lt;chr&gt;        &lt;int&gt;
+1 Kitchener     3438
+2 Mississauga   4271
+3 Toronto      17110</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>completed <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">between</span>(dwelling_units_created, <span class="dv">0</span>, <span class="dv">4</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(municipality, street_address) <span class="sc">|&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">permits=</span><span class="fu">n</span>(), <span class="at">dwelling_units_created=</span><span class="fu">sum</span>(dwelling_units_created), <span class="at">.groups=</span><span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(municipality)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+  municipality     n
+  &lt;chr&gt;        &lt;int&gt;
+1 Kitchener     2998
+2 Mississauga   2990
+3 Toronto      10688</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>completed <span class="sc">|&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(municipality, street_address) <span class="sc">|&gt;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">permits=</span><span class="fu">n</span>(), <span class="at">dwelling_units_created=</span><span class="fu">sum</span>(dwelling_units_created, <span class="at">na.rm=</span><span class="cn">TRUE</span>), <span class="at">.groups=</span><span class="st">"drop"</span>)<span class="ot">-&gt;</span>units_by_address</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>completed <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(municipality, street_address) <span class="sc">|&gt;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">units_created_at_address=</span><span class="fu">sum</span>(dwelling_units_created, <span class="at">na.rm=</span><span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()<span class="ot">-&gt;</span>completed</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>units_by_address <span class="sc">|&gt;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(permits<span class="sc">&gt;</span><span class="dv">1</span> <span class="sc">&amp;</span> dwelling_units_created<span class="sc">&gt;</span><span class="dv">0</span>) <span class="sc">|&gt;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(municipality) <span class="sc">|&gt;</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">3</span>) <span class="sc">|&gt;</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()<span class="ot">-&gt;</span>inspect_addresses</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>inspect_addresses <span class="sc">|&gt;</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">municipality</th>
+<th style="text-align: left;">street_address</th>
+<th style="text-align: right;">permits</th>
+<th style="text-align: right;">dwelling_units_created</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">262 CLAREMONT AVE</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">74 PADDOCK CRT</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">200 HOLLYBROOK TRAIL</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">2046 ANNAPOLIS AVE</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">6995 CHIGWEL CRT</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">5921 MERSEY ST</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">2 WROXETER AVE</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">456 DANFORTH AVE</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">97 SHROPSHIRE DR</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>completed <span class="sc">|&gt;</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">semi_join</span>(inspect_addresses, <span class="at">by=</span><span class="fu">c</span>(<span class="st">"municipality"</span>, <span class="st">"street_address"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(municipality, street_address, completed_date) <span class="sc">|&gt;</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(municipality, street_address, completed_date, permit_type, structure_type, dwelling_units_created) <span class="sc">|&gt;</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 15%">
+<col style="width: 10%">
+<col style="width: 30%">
+<col style="width: 18%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">municipality</th>
+<th style="text-align: left;">street_address</th>
+<th style="text-align: left;">completed_date</th>
+<th style="text-align: left;">permit_type</th>
+<th style="text-align: left;">structure_type</th>
+<th style="text-align: right;">dwelling_units_created</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">200 HOLLYBROOK TRAIL</td>
+<td style="text-align: left;">2021-09-04</td>
+<td style="text-align: left;">Residential Alteration</td>
+<td style="text-align: left;">Single Detached Dwelling</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">200 HOLLYBROOK TRAIL</td>
+<td style="text-align: left;">2021-09-27</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: left;">Single Detached Dwelling</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">262 CLAREMONT AVE</td>
+<td style="text-align: left;">2021-10-14</td>
+<td style="text-align: left;">Residential Accessory (1 or 2 units)</td>
+<td style="text-align: left;">Swimming Pool</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">262 CLAREMONT AVE</td>
+<td style="text-align: left;">2021-12-23</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: left;">Single Detached Dwelling</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">74 PADDOCK CRT</td>
+<td style="text-align: left;">2021-04-28</td>
+<td style="text-align: left;">Septic System</td>
+<td style="text-align: left;">Residential Septic System</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">74 PADDOCK CRT</td>
+<td style="text-align: left;">2021-07-23</td>
+<td style="text-align: left;">Residential Garage/Carport (1 or 2 units)</td>
+<td style="text-align: left;">Detached Garage/Carport</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">74 PADDOCK CRT</td>
+<td style="text-align: left;">2021-08-14</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: left;">Single Detached Dwelling</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">2046 ANNAPOLIS AVE</td>
+<td style="text-align: left;">2021-08-09</td>
+<td style="text-align: left;">DEMOLITION</td>
+<td style="text-align: left;">DETACHED DWELLING</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">2046 ANNAPOLIS AVE</td>
+<td style="text-align: left;">2022-04-26</td>
+<td style="text-align: left;">NEW BUILDING</td>
+<td style="text-align: left;">DETACHED DWELLING</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">5921 MERSEY ST</td>
+<td style="text-align: left;">2021-05-26</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: left;">DETACHED DWELLING</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">5921 MERSEY ST</td>
+<td style="text-align: left;">2021-11-08</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: left;">DETACHED DWELLING</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">6995 CHIGWEL CRT</td>
+<td style="text-align: left;">2021-08-11</td>
+<td style="text-align: left;">REVISIONS</td>
+<td style="text-align: left;">SEMI-DETACHED DWELLING</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">6995 CHIGWEL CRT</td>
+<td style="text-align: left;">2021-08-13</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: left;">SEMI-DETACHED DWELLING</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">6995 CHIGWEL CRT</td>
+<td style="text-align: left;">2021-08-13</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: left;">SEMI-DETACHED DWELLING</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">2 WROXETER AVE</td>
+<td style="text-align: left;">2021-08-18</td>
+<td style="text-align: left;">Mechanical(MS)</td>
+<td style="text-align: left;">2 Unit - Semi-detached</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">2 WROXETER AVE</td>
+<td style="text-align: left;">2021-08-20</td>
+<td style="text-align: left;">Drain and Site Service</td>
+<td style="text-align: left;">2 Unit - Semi-detached</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">2 WROXETER AVE</td>
+<td style="text-align: left;">2021-10-13</td>
+<td style="text-align: left;">Plumbing(PS)</td>
+<td style="text-align: left;">2 Unit - Semi-detached</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">2 WROXETER AVE</td>
+<td style="text-align: left;">2021-10-27</td>
+<td style="text-align: left;">Drain and Site Service</td>
+<td style="text-align: left;">2 Unit - Semi-detached</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">2 WROXETER AVE</td>
+<td style="text-align: left;">2021-11-22</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: left;">2 Unit - Semi-detached</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">2 WROXETER AVE</td>
+<td style="text-align: left;">2021-11-22</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: left;">2 Unit - Semi-detached</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">2 WROXETER AVE</td>
+<td style="text-align: left;">2021-11-25</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: left;">2 Unit - Semi-detached</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">2 WROXETER AVE</td>
+<td style="text-align: left;">2021-11-25</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: left;">2 Unit - Semi-detached</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">456 DANFORTH AVE</td>
+<td style="text-align: left;">2021-11-26</td>
+<td style="text-align: left;">Building Additions/Alterations</td>
+<td style="text-align: left;">Multiple Unit Building</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">456 DANFORTH AVE</td>
+<td style="text-align: left;">2021-11-26</td>
+<td style="text-align: left;">Building Additions/Alterations</td>
+<td style="text-align: left;">Multiple Unit Building</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">456 DANFORTH AVE</td>
+<td style="text-align: left;">2021-11-26</td>
+<td style="text-align: left;">Mechanical(MS)</td>
+<td style="text-align: left;">Multiple Unit Building</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">456 DANFORTH AVE</td>
+<td style="text-align: left;">2021-11-26</td>
+<td style="text-align: left;">Mechanical(MS)</td>
+<td style="text-align: left;">Multiple Unit Building</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">456 DANFORTH AVE</td>
+<td style="text-align: left;">2021-11-26</td>
+<td style="text-align: left;">Plumbing(PS)</td>
+<td style="text-align: left;">Multiple Unit Building</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">456 DANFORTH AVE</td>
+<td style="text-align: left;">2021-11-26</td>
+<td style="text-align: left;">Plumbing(PS)</td>
+<td style="text-align: left;">Multiple Unit Building</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">97 SHROPSHIRE DR</td>
+<td style="text-align: left;">2021-04-30</td>
+<td style="text-align: left;">Plumbing(PS)</td>
+<td style="text-align: left;">2 Unit - Detached</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">97 SHROPSHIRE DR</td>
+<td style="text-align: left;">2021-05-25</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: left;">2 Unit - Detached</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>completed <span class="sc">|&gt;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(units_created_at_address <span class="sc">%in%</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>) <span class="sc">|&gt;</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(municipality, street_address, units_created_at_address) <span class="sc">|&gt;</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(municipality, units_created_at_address) <span class="sc">|&gt;</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()<span class="ot">-&gt;</span>example_addresses</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>completed <span class="sc">|&gt;</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">semi_join</span>(example_addresses, <span class="at">by=</span><span class="fu">c</span>(<span class="st">"municipality"</span>, <span class="st">"street_address"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(municipality, units_created_at_address, street_address, completed_date) <span class="sc">|&gt;</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(municipality, units_created_at_address, street_address, permit_type, structure_type, completed_date, dwelling_units_created) <span class="sc">|&gt;</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 13%">
+<col style="width: 31%">
+<col style="width: 15%">
+<col style="width: 13%">
+<col style="width: 7%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">municipality</th>
+<th style="text-align: right;">units_created_at_address</th>
+<th style="text-align: left;">street_address</th>
+<th style="text-align: left;">permit_type</th>
+<th style="text-align: left;">structure_type</th>
+<th style="text-align: left;">completed_date</th>
+<th style="text-align: right;">dwelling_units_created</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">50 IAN ORMSTON DR</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: left;">Single Detached Dwelling</td>
+<td style="text-align: left;">2022-04-16</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">52 RENFREW ST</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: left;">Rowhouse Duplex</td>
+<td style="text-align: left;">2021-12-17</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">155 THOMAS SLEE DR, interior in Building 2 (Units J, K, L)</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: left;">Rowhouse (3 or More)</td>
+<td style="text-align: left;">2021-05-22</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">1989 OTTAWA ST S Bldg 25</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: left;">Rowhouse (3 or More)</td>
+<td style="text-align: left;">2021-01-14</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">6167 MILLER’S GROV</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: left;">DETACHED DWELLING</td>
+<td style="text-align: left;">2022-03-04</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">1247 NORTH SERVICE RD</td>
+<td style="text-align: left;">NEW BUILDING</td>
+<td style="text-align: left;">DETACHED DWELLING</td>
+<td style="text-align: left;">2022-01-11</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">3073 MERRITT AVE</td>
+<td style="text-align: left;">NEW BUILDING</td>
+<td style="text-align: left;">SEMI-DETACHED DWELLING</td>
+<td style="text-align: left;">2021-07-14</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">3073 MERRITT AVE</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: left;">SEMI-DETACHED DWELLING</td>
+<td style="text-align: left;">2021-07-14</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">1625 BLANEFIELD RD</td>
+<td style="text-align: left;">NEW BUILDING</td>
+<td style="text-align: left;">STREET ROW DWELLING</td>
+<td style="text-align: left;">2021-05-31</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">11 YOUNGMILL DR</td>
+<td style="text-align: left;">Plumbing(PS)</td>
+<td style="text-align: left;">2 Unit - Detached</td>
+<td style="text-align: left;">2021-08-30</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">11 YOUNGMILL DR</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: left;">2 Unit - Detached</td>
+<td style="text-align: left;">2021-09-10</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">179 F CALEDONIA RD</td>
+<td style="text-align: left;">Mechanical(MS)</td>
+<td style="text-align: left;">SFD - Semi-Detached</td>
+<td style="text-align: left;">2021-02-10</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">179 F CALEDONIA RD</td>
+<td style="text-align: left;">Plumbing(PS)</td>
+<td style="text-align: left;">SFD - Semi-Detached</td>
+<td style="text-align: left;">2021-02-10</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">179 F CALEDONIA RD</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: left;">SFD - Semi-Detached</td>
+<td style="text-align: left;">2021-02-10</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">179 F CALEDONIA RD</td>
+<td style="text-align: left;">Drain and Site Service</td>
+<td style="text-align: left;">SFD - Semi-Detached</td>
+<td style="text-align: left;">2021-02-10</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">24 THIRTY THIRD ST</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: left;">SFD - Semi-Detached</td>
+<td style="text-align: left;">2021-01-05</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">24 THIRTY THIRD ST</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: left;">SFD - Semi-Detached</td>
+<td style="text-align: left;">2021-01-05</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">53 REGENT ST</td>
+<td style="text-align: left;">Mechanical(MS)</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: left;">2022-02-28</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">53 REGENT ST</td>
+<td style="text-align: left;">Mechanical(MS)</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: left;">2022-02-28</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">53 REGENT ST</td>
+<td style="text-align: left;">Mechanical(MS)</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: left;">2022-02-28</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">53 REGENT ST</td>
+<td style="text-align: left;">Plumbing(PS)</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: left;">2022-02-28</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">53 REGENT ST</td>
+<td style="text-align: left;">Plumbing(PS)</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: left;">2022-02-28</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">53 REGENT ST</td>
+<td style="text-align: left;">Plumbing(PS)</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: left;">2022-02-28</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">53 REGENT ST</td>
+<td style="text-align: left;">Plumbing(PS)</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: left;">2022-02-28</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">53 REGENT ST</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: left;">2022-02-28</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">53 REGENT ST</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: left;">2022-02-28</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">53 REGENT ST</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: left;">2022-02-28</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">53 REGENT ST</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: left;">2022-02-28</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">53 REGENT ST</td>
+<td style="text-align: left;">Drain and Site Service</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: left;">2022-02-28</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">53 REGENT ST</td>
+<td style="text-align: left;">Drain and Site Service</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: left;">2022-02-28</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">53 REGENT ST</td>
+<td style="text-align: left;">Drain and Site Service</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: left;">2022-02-28</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">53 REGENT ST</td>
+<td style="text-align: left;">Drain and Site Service</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: left;">2022-02-28</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">53 REGENT ST</td>
+<td style="text-align: left;">Mechanical(MS)</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: left;">2022-03-01</td>
+<td style="text-align: right;">NA</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>I do not think that we can <em>just</em> use the units created variable. It seems like developments that create 1 new unit include new single-familiy homes <em>and</em> additions like a new townhouse. The former is not densification, but the latter is.</p>
+<p>We have to poke at the variables that describe the type of development.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>completed <span class="sc">|&gt;</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(municipality, street_address, permit_type) <span class="sc">|&gt;</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">dwelling_units_created=</span><span class="fu">sum</span>(dwelling_units_created, <span class="at">na.rm=</span><span class="cn">TRUE</span>), <span class="at">.groups=</span><span class="st">"drop"</span>)<span class="ot">-&gt;</span>units_by_address_permit_type</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>units_by_address_permit_type <span class="sc">|&gt;</span> </span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(dwelling_units_created<span class="sc">&gt;</span><span class="dv">0</span><span class="sc">&amp;</span>dwelling_units_created<span class="sc">&lt;</span><span class="dv">6</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">100</span>) <span class="sc">|&gt;</span> knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 27%">
+<col style="width: 32%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">municipality</th>
+<th style="text-align: left;">street_address</th>
+<th style="text-align: left;">permit_type</th>
+<th style="text-align: right;">dwelling_units_created</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">18 BROADMOOR AVE</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">3847 MORNING STAR DR</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">656 OLD WESTON RD</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">3402 JOAN DR</td>
+<td style="text-align: left;">DEMOLITION</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">107 AUTUMN RIDGE TRAIL</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">695 THOMAS SLEE DR</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">349 SEDGEWOOD ST</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">48 HARBER AVE</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">238 GREENWATER PL</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">72 DEWLANE DR</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">201 GLEDHILL AVE</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">211 GLENAYR RD</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">12 GLEN STEWART AVE</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">1181 NORTHMOUNT AVE</td>
+<td style="text-align: left;">NEW BUILDING</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">922 SILVERTHORN MILL AVE</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">41 FREDERICK TISDALE DR</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">554 CHANTENAY DR</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">157 REDGRAVE DR</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">1610 KENMUIR AVE</td>
+<td style="text-align: left;">DEMOLITION</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">83 EDENBRIDGE DR</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">846 ROBERT FERRIE DR</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">129 VALECREST DR</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">7228 MILANO CRT</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">14 FORTY FIRST ST</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">204 MCROBERTS AVE</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">3144 WHEATSTONE AVE</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">26 STONEHILL AVE</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">605 YORK ST</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">102 RIDGEMOUNT ST</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">691 THOMAS SLEE DR</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">54 REISTWOOD DR</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">3781 SWIFTDALE DR</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">65 SIXTEENTH ST</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">265 LOUIS DR</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">225 SUNNY MEADOW CRT</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">80 LAKESIDE DR</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">62 ST DAVID ST</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">7 PONDCLIFFE DR</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">110 FERGUS AVE Unit 38</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">5243 MISTY PINE CRES</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">272 ST CLARENS AVE</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">11 FERNALROY BLVD</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">70 WALMSLEY BLVD</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">971 WARDEN AVE</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">92 HOLLYBROOK TRAIL</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">274 GREY FOX DR</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">161 WINDALE CRES</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">317 INDIAN RD</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">526 CLINTON ST</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">1529 DRYMEN CRES</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">46 CLUTHE CRES</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">544 DOONWOODS CRES</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">30 WARDELL ST</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">175 ISLINGTON AVE</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">35 PONDCLIFFE DR</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">112 RYKERT CRES</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">75 HOLLYBROOK TRAIL</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">43 ALAMOSA DR</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">71 A KIPPENDAVIE AVE</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">3207 COUNTESS CRES</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">246 MOORLANDS CRES</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">59 WIMPOLE DR</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">268 FOREST CREEK DR</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">34 NYMARK AVE</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">566 ARLINGTON AVE</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">104 HOLLYBROOK TRAIL</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">50 MCCOWAN RD</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">5500 ETHAN DR</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">40 INGLEWOOD DR</td>
+<td style="text-align: left;">NEW BUILDING</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">108 KINGSWAY CRES</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">916 MAGDALENA CRT</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">57 JOYMAR DR</td>
+<td style="text-align: left;">NEW BUILDING</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">195 FOREST CREEK DR</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">142 GRADWELL DR</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">88 ROWNTREE MILL RD</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">187 BROKEN OAK CRES</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">61 SECOND AVE</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">19 BANK SWALLOW CRES</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">922 ROBERT FERRIE DR</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">898 ROBERT FERRIE DR</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">4264 WILCOX RD</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">207 PERTH AVE</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">37 CLUTHE CRES</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">148 ROCKCLIFFE DR</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">124 RIDGEMOUNT ST</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">262 SEDGEWOOD ST</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">29 HADRIAN DR</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">50 SPORTSMAN HILL ST</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">392 DOUGLAS AVE</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">1 C ADAIR RD</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">9 MAPLE AVE N</td>
+<td style="text-align: left;">NEW BUILDING</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">719 THOMAS SLEE DR</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">64 REISTWOOD DR</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">87 HOLLYBROOK TRAIL</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">51 ROE AVE</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">84 GRAND FLATS TRAIL</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">81 EMPRESS AVE</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">157 ROCHEFORT ST</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">209 HEIMAN ST</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">47 BANK SWALLOW CRES</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>completed <span class="sc">|&gt;</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">between</span>(units_created_at_address, <span class="dv">1</span>, <span class="dv">6</span>))<span class="ot">-&gt;</span>mild_densification</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>mild_densification <span class="sc">|&gt;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(municipality, permit_type) <span class="sc">|&gt;</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(municipality, <span class="fu">desc</span>(n)) <span class="sc">|&gt;</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">municipality</th>
+<th style="text-align: left;">permit_type</th>
+<th style="text-align: right;">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1032</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: right;">423</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Residential Accessory (1 or 2 units)</td>
+<td style="text-align: right;">81</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Residential Alteration</td>
+<td style="text-align: right;">31</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Plumbing</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Residential Garage/Carport (1 or 2 units)</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Septic System</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Residential Demolition</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: right;">564</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">NEW BUILDING</td>
+<td style="text-align: right;">153</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">DEMOLITION</td>
+<td style="text-align: right;">70</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">REVISIONS</td>
+<td style="text-align: right;">28</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">ADDITION AND ALTERATION</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">ADDITION TO EXISTING BLDG</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">OTHER</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">FIRE DAMAGE REPAIR</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">TRANSFER</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1932</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Plumbing(PS)</td>
+<td style="text-align: right;">1876</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Mechanical(MS)</td>
+<td style="text-align: right;">1645</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: right;">1267</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Drain and Site Service</td>
+<td style="text-align: right;">1220</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Demolition Folder (DM)</td>
+<td style="text-align: right;">435</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Building Additions/Alterations</td>
+<td style="text-align: right;">104</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Residential Building Permit</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">New Building</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">AS Alternative Solution</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Temporary Structures</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Designated Structures</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Fire/Security Upgrade</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Multiple Use Permit</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>mild_densification <span class="sc">|&gt;</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(municipality, structure_type) <span class="sc">|&gt;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(municipality, <span class="fu">desc</span>(n)) <span class="sc">|&gt;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">municipality</th>
+<th style="text-align: left;">structure_type</th>
+<th style="text-align: right;">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Single Detached Dwelling</td>
+<td style="text-align: right;">594</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Duplex Dwelling (2 dwelling units)</td>
+<td style="text-align: right;">360</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Rowhouse</td>
+<td style="text-align: right;">329</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Semi-Detached Dwelling</td>
+<td style="text-align: right;">93</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Deck</td>
+<td style="text-align: right;">64</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Rowhouse - Condo</td>
+<td style="text-align: right;">48</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Rowhouse (3 or More)</td>
+<td style="text-align: right;">26</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Rowhouse Duplex</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Apartment</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Swimming Pool</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Residential Plumbing</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Semi-Duplex Dwelling</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Shed</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Detached Garage/Carport</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Residential Septic System</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Duplex Dwelling - Condo</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Fireplace/Woodstove</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Garden Suite</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Semi-Detached Dwelling - Condo</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">DETACHED DWELLING</td>
+<td style="text-align: right;">675</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">SEMI-DETACHED DWELLING</td>
+<td style="text-align: right;">138</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">APARTMENT (&gt; 6 UNITS)</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">ROW DWELLING</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">STREET ROW DWELLING</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">DUPLEX, 3, 4, 5 0R 6PLEX</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">SFD - Detached</td>
+<td style="text-align: right;">5100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">2 Unit - Detached</td>
+<td style="text-align: right;">1040</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">2 Unit - Semi-detached</td>
+<td style="text-align: right;">547</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">SFD - Semi-Detached</td>
+<td style="text-align: right;">470</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: right;">460</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Laneway / Rear Yard Suite</td>
+<td style="text-align: right;">182</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Multiple Unit Building</td>
+<td style="text-align: right;">134</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">3+ Unit - Detached</td>
+<td style="text-align: right;">126</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Stacked Townhouses</td>
+<td style="text-align: right;">82</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">2 Unit - Townhouse</td>
+<td style="text-align: right;">77</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">3+ Unit - Semi-detached</td>
+<td style="text-align: right;">74</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Apartment Building</td>
+<td style="text-align: right;">61</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Converted House</td>
+<td style="text-align: right;">33</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Other</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">3+ Unit - Townhouse</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: right;">13</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Long Term Care Facility</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Office</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Multiple Use/Non Residential</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Duplex</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Mixed Use/Res w Non Res</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;"></td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Boarding/Lodging House</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">First Party</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Retail Store</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Vacant Land</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Mixed Comm/Res</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Club</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Industrial</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Parking Garage</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">SFD/TH HVAC</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">SFD: P/D/F/E/R Drains</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Triplex/Semi-Detached</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>mild_densification <span class="sc">|&gt;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(dwelling_units_created<span class="sc">&gt;</span><span class="dv">0</span>)<span class="ot">-&gt;</span>mild_densification_new_units</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>mild_densification_new_units <span class="sc">|&gt;</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(municipality, permit_type) <span class="sc">|&gt;</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(municipality, <span class="fu">desc</span>(n)) <span class="sc">|&gt;</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">municipality</th>
+<th style="text-align: left;">permit_type</th>
+<th style="text-align: right;">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Residential Building (House)</td>
+<td style="text-align: right;">1030</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Residential Building (Multi)</td>
+<td style="text-align: right;">423</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
+<td style="text-align: right;">532</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">NEW BUILDING</td>
+<td style="text-align: right;">153</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">DEMOLITION</td>
+<td style="text-align: right;">70</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">ADDITION AND ALTERATION</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">ADDITION TO EXISTING BLDG</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">FIRE DAMAGE REPAIR</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">New Houses</td>
+<td style="text-align: right;">1387</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Small Residential Projects</td>
+<td style="text-align: right;">836</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Building Additions/Alterations</td>
+<td style="text-align: right;">69</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Residential Building Permit</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">New Building</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Multiple Use Permit</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>mild_densification_new_units <span class="sc">|&gt;</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(municipality, structure_type) <span class="sc">|&gt;</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(municipality, <span class="fu">desc</span>(n)) <span class="sc">|&gt;</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">municipality</th>
+<th style="text-align: left;">structure_type</th>
+<th style="text-align: right;">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Single Detached Dwelling</td>
+<td style="text-align: right;">569</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Duplex Dwelling (2 dwelling units)</td>
+<td style="text-align: right;">358</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Rowhouse</td>
+<td style="text-align: right;">324</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Semi-Detached Dwelling</td>
+<td style="text-align: right;">92</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Rowhouse - Condo</td>
+<td style="text-align: right;">48</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Rowhouse (3 or More)</td>
+<td style="text-align: right;">26</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Rowhouse Duplex</td>
+<td style="text-align: right;">14</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Apartment</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Semi-Duplex Dwelling</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Duplex Dwelling - Condo</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Garden Suite</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kitchener</td>
+<td style="text-align: left;">Semi-Detached Dwelling - Condo</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">DETACHED DWELLING</td>
+<td style="text-align: right;">622</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">SEMI-DETACHED DWELLING</td>
+<td style="text-align: right;">126</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">ROW DWELLING</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">APARTMENT (&gt; 6 UNITS)</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">STREET ROW DWELLING</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mississauga</td>
+<td style="text-align: left;">DUPLEX, 3, 4, 5 0R 6PLEX</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">SFD - Detached</td>
+<td style="text-align: right;">1213</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">2 Unit - Detached</td>
+<td style="text-align: right;">428</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">2 Unit - Semi-detached</td>
+<td style="text-align: right;">170</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">SFD - Townhouse</td>
+<td style="text-align: right;">112</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">SFD - Semi-Detached</td>
+<td style="text-align: right;">107</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Laneway / Rear Yard Suite</td>
+<td style="text-align: right;">65</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">3+ Unit - Detached</td>
+<td style="text-align: right;">43</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Multiple Unit Building</td>
+<td style="text-align: right;">43</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">2 Unit - Townhouse</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">3+ Unit - Semi-detached</td>
+<td style="text-align: right;">28</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Apartment Building</td>
+<td style="text-align: right;">24</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Converted House</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Unknown</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">3+ Unit - Townhouse</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Other</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Stacked Townhouses</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Duplex</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Mixed Use/Res w Non Res</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Multiple Use/Non Residential</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Mixed Comm/Res</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Boarding/Lodging House</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Long Term Care Facility</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Retail Store</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Toronto</td>
+<td style="text-align: left;">Triplex/Semi-Detached</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="densification-flow-chart" class="level2">
+<h2 class="anchored" data-anchor-id="densification-flow-chart">Densification flow chart</h2>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+  A["Completed permit&lt;br/&gt;Jan 2021 to Apr 2022"] --&gt; B{"Units created at the address&lt;br/&gt;(units_created_at_address)"}
+  B -- "0" --&gt; X1["No new units:&lt;br/&gt;not densification"]
+  B -- "more than 6" --&gt; X2["Larger project:&lt;br/&gt;outside mild densification"]
+  B -- "1 to 6" --&gt; C{"Does this permit create units?&lt;br/&gt;(dwelling_units_created &gt; 0,&lt;br/&gt;demolition permits excluded)"}
+  C -- "No" --&gt; X3["Supporting permit&lt;br/&gt;(plumbing, mechanical, drains, decks):&lt;br/&gt;describes the project, not counted"]
+  C -- "Yes" --&gt; D{"structure_type is a&lt;br/&gt;multi-unit or added-suite form?"}
+  D -- "Yes" --&gt; Y1["DENSIFICATION&lt;br/&gt;secondary suite, conversion,&lt;br/&gt;laneway or garden suite, multiplex"]
+  D -- "No" --&gt; E{"permit_type alters or adds to&lt;br/&gt;an existing building?"}
+  E -- "Yes" --&gt; Y2["DENSIFICATION&lt;br/&gt;unit added to an existing dwelling"]
+  E -- "No: new construction" --&gt; F{"Demolition permit&lt;br/&gt;at the same address?"}
+  F -- "Yes" --&gt; G{"New building has more units&lt;br/&gt;than one detached house?"}
+  G -- "Yes" --&gt; Y3["DENSIFICATION&lt;br/&gt;teardown replaced by more units"]
+  G -- "No" --&gt; X4["Replacement:&lt;br/&gt;one house for one house"]
+  F -- "No" --&gt; H["UNCLEAR&lt;br/&gt;new subdivision or infill?&lt;br/&gt;needs a location check"]
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Decision</th>
+<th>Toronto</th>
+<th>Mississauga</th>
+<th>Kitchener</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Multi-unit or added-suite <code>structure_type</code></td>
+<td>2 Unit - Detached / Semi-detached / Townhouse; 3+ Unit - Detached / Semi-detached / Townhouse; Laneway / Rear Yard Suite; Converted House; Duplex; Triplex/Semi-Detached; Multiple Unit Building; Apartment Building</td>
+<td>DUPLEX, 3, 4, 5 0R 6PLEX; APARTMENT (&gt; 6 UNITS)</td>
+<td>Duplex Dwelling (2 dwelling units); Duplex Dwelling - Condo; Semi-Duplex Dwelling; Rowhouse Duplex; Garden Suite; Apartment</td>
+</tr>
+<tr class="even">
+<td><code>permit_type</code> alters or adds to an existing building</td>
+<td>Small Residential Projects; Building Additions/Alterations</td>
+<td>ALTERATION TO EXISTING BLDG; ADDITION AND ALTERATION; ADDITION TO EXISTING BLDG</td>
+<td>none (every unit-creating permit is Residential Building (House) or (Multi))</td>
+</tr>
+<tr class="odd">
+<td>New construction <code>permit_type</code></td>
+<td>New Houses; New Building; Residential Building Permit</td>
+<td>NEW BUILDING</td>
+<td>Residential Building (House); Residential Building (Multi)</td>
+</tr>
+<tr class="even">
+<td>Demolition <code>permit_type</code></td>
+<td>Demolition Folder (DM)</td>
+<td>DEMOLITION</td>
+<td>Residential Demolition</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
