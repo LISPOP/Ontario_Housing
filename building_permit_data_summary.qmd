@@ -16,6 +16,23 @@ library(dplyr)
 library(sf)
 ```
 
+## Introduction
+
+The general idea was to see if we can use published building permits to identify local projects of densification to see if respondents in our Ontario 2022 survey who have experienced densification in their neighbourhood differ in their attitudes to housing policy than those who have not. 
+
+## Backgrounds
+
+Rafael found several municipalities that publishe different types of building permits. The thing is, we need to link the building permits to residents in our survey, so it only makes sense to find building permits for municipalities that are represented in our survey. Here are the most 
+
+```{r}
+#| label: respondent-counts-by-municipality
+#| cache: true
+source(here("R_Scripts/1_data_import.R"))
+
+```
+
+Matt and Rafael and I have found several 
+
 ## Read In Each File
 
 ```{r}

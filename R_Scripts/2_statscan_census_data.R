@@ -1,4 +1,5 @@
 library(tidyverse)
+library(jsonlite)
 #install.packages("cancensus")
 library(cancensus)
 library(here)
