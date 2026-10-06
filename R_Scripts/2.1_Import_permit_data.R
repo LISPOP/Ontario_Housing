@@ -18,7 +18,15 @@ toronto_permits <- toronto_permits %>%
   mutate(Address = paste(STREET_NUM, STREET_NAME, STREET_TYPE),
          Address = str_to_title(Address))
   
-Toronto_address_points <- read_sf("Data/Address Points - 4326.geojson")
+# Toronto address points, downloaded from Toronto Open Data (full address + point only)
+# https://open.toronto.ca/dataset/address-points-municipal-toronto-one-address-repository/
+toronto_address_url <- "https://ckan0.cf.opendata.inter.prod-toronto.ca/datastore/dump/0b3756af-9caf-4f0f-ac28-9c6617adede4?fields=ADDRESS_FULL,geometry&format=csv"
+Toronto_address_points <- read_csv(toronto_address_url, col_types = "cc") %>%
+  mutate(lon = as.numeric(str_extract(geometry, "(?<=\\[)-?[0-9.]+")),
+         lat = as.numeric(str_extract(geometry, "-?[0-9.]+(?=\\])"))) %>%
+  filter(!is.na(lon), !is.na(lat)) %>%
+  select(-geometry) %>%
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
 
 Toronto_address_points <- Toronto_address_points %>%
   distinct(ADDRESS_FULL, .keep_all = TRUE)

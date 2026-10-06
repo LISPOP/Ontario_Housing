@@ -49,3 +49,9 @@ Data/cancensus_cache_statscan_data/*
 
 # R Environment Variables
 .Renviron
+
+# Toronto address points: downloaded at render time from Toronto Open Data (too large for GitHub)
+Data/Building_permit_data/Toronto/Address Points - 4326.geojson
+
+# macOS
+.DS_Store

@@ -73,9 +73,16 @@ da.intersect.1 %>%
   #If you insert a view() after this line, you should see
   # Several rows for each dissemination area; one row for each DA that intersects each DA
   left_join(., on_statscan_da, by=c("DA2021_intersect"="DA2021")) %>%
-  left_join(., as.data.frame(DA_height) %>% 
-              select(Average_Height, DAUID) %>% 
-              mutate(DAUID = as.numeric(DAUID)), by = c("DA2021_intersect" = "DAUID")) %>% 
+  # DISABLED 2026-10-01: Building height (DA_height) join commented out.
+  # DA_height is only created in R_Scripts/2.1_import_building_data.R, which is
+  # not sourced anywhere in the 1_data_import.R chain, so this join failed with
+  # "object 'DA_height' not found". That script also needs da.2021.0 (created
+  # above in this script), postal_codes_df (now commented out in
+  # 2_statscan_census_data.R) and the deleted Data/3D Massing (WGS84) shapefile.
+  # Restore this join once DA_height is built before this point.
+  # left_join(., as.data.frame(DA_height) %>%
+  #             select(Average_Height, DAUID) %>%
+  #             mutate(DAUID = as.numeric(DAUID)), by = c("DA2021_intersect" = "DAUID")) %>%
   #This forms groups of each DA
   group_by(DA2021) %>% 
   #And then calculates the average of the intersecting DAs for each DA; it does it for several variables 
@@ -87,19 +94,42 @@ da.intersect.1 %>%
   # intersect matrix does;We don't want to lose that structured
   # But it should contain multiple rows of the same statistics for each DA, because that is after averaging
   # The values of the intersecting DAs. 
-  mutate(., across(c(households_more_than_30_da:pop_density_da, Average_Height), ~mean(.,  na.rm=T), .names="{.col}_intersect1")) %>% 
+  # DISABLED 2026-10-01: Original line averaged Average_Height as well; it is
+  # commented out because the DA_height join above is disabled.
+  # mutate(., across(c(households_more_than_30_da:pop_density_da, Average_Height), ~mean(.,  na.rm=T), .names="{.col}_intersect1")) %>%
+  # TEMPORARY COPY 2026-10-01: Same as the line above but without Average_Height.
+  # Swap back to the original when the DA_height join is restored.
+  mutate(., across(c(households_more_than_30_da:pop_density_da), ~mean(.,  na.rm=T), .names="{.col}_intersect1")) %>%
   #This drops the columns that contain the individual statistics for the intersecting DAs
   # WE only want the averages which are stored with the suffix _intersect1
-  select(-c(total_occupied_private_dwellings_da:Population, Average_Height)) -> da.intersect.1
+  # DISABLED 2026-10-01: Original line also dropped Average_Height; it is
+  # commented out because the DA_height join above is disabled.
+  # select(-c(total_occupied_private_dwellings_da:Population, Average_Height)) -> da.intersect.1
+  # TEMPORARY COPY 2026-10-01: Same as the line above but without Average_Height.
+  # Swap back to the original when the DA_height join is restored.
+  select(-c(total_occupied_private_dwellings_da:Population)) -> da.intersect.1
 #Repeat with the second-order intersecting DAs
 da.intersect.2 %>% 
-  left_join(., on_statscan_da, by=c("DA2021_intersect"="DA2021")) %>% 
-  left_join(., as.data.frame(DA_height) %>% 
-              select(Average_Height, DAUID) %>% 
-              mutate(DAUID = as.numeric(DAUID)), by = c("DA2021_intersect" = "DAUID")) %>% 
-  group_by(DA2021) %>% 
-  mutate(., across(c(households_more_than_30_da:pop_density_da, Average_Height), ~mean(.,  na.rm=T), .names="{.col}_intersect2")) %>% 
-  select(-c(total_occupied_private_dwellings_da:Population, Average_Height)) -> da.intersect.2
+  left_join(., on_statscan_da, by=c("DA2021_intersect"="DA2021")) %>%
+  # DISABLED 2026-10-01: Building height (DA_height) join commented out for the
+  # same reasons as in the first-order block above (DA_height is never created
+  # in the 1_data_import.R chain). Restore once DA_height is built before this point.
+  # left_join(., as.data.frame(DA_height) %>%
+  #             select(Average_Height, DAUID) %>%
+  #             mutate(DAUID = as.numeric(DAUID)), by = c("DA2021_intersect" = "DAUID")) %>%
+  group_by(DA2021) %>%
+  # DISABLED 2026-10-01: Original line averaged Average_Height as well; it is
+  # commented out because the DA_height join above is disabled.
+  # mutate(., across(c(households_more_than_30_da:pop_density_da, Average_Height), ~mean(.,  na.rm=T), .names="{.col}_intersect2")) %>%
+  # TEMPORARY COPY 2026-10-01: Same as the line above but without Average_Height.
+  # Swap back to the original when the DA_height join is restored.
+  mutate(., across(c(households_more_than_30_da:pop_density_da), ~mean(.,  na.rm=T), .names="{.col}_intersect2")) %>%
+  # DISABLED 2026-10-01: Original line also dropped Average_Height; it is
+  # commented out because the DA_height join above is disabled.
+  # select(-c(total_occupied_private_dwellings_da:Population, Average_Height)) -> da.intersect.2
+  # TEMPORARY COPY 2026-10-01: Same as the line above but without Average_Height.
+  # Swap back to the original when the DA_height join is restored.
+  select(-c(total_occupied_private_dwellings_da:Population)) -> da.intersect.2
 
 #Get Vectors
 
