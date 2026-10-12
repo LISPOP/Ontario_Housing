@@ -161,7 +161,7 @@ TRUE ~ NA))->on22
 
 #Look for variables
 library(labelled)
-# names(on22)
+names(on22)
 
 
 # Spit out Most IMportant problem and hjousing
@@ -195,4 +195,30 @@ lookfor(on22, "name")
 #   count(CSDNAME2021) %>% 
 #   arrange(desc(n)) %>% view()
 #   write_csv(., file=here("data/most_populous_csds.csv"))
+
+#Create a variable for tower_in_proximity; this is a dummy variable that is 1 if the respondent lives near a 5 story building, 0 if they do not.
+on22 <- on22 %>%
+  mutate(
+    tower_in_proximity = if_else(
+      apartment_in_building_plus_5_da == 0,
+      1, 0
+    )
+  )
+
+on22 %>%
+  filter(
+    Comm_Name %in% c("TORONTO", "OTTAWA", "MISSISSAUGA", "KITCHENER",
+                     "ST CATHARINES", "HAMILTON", "BURLINGTON")
+  ) %>%
+  count(tower_in_proximity)
+
+
+on22 %>%
+  filter(
+    Comm_Name %in% c("TORONTO", "OTTAWA", "MISSISSAUGA", "KITCHENER",
+                     "ST CATHARINES", "HAMILTON", "BURLINGTON")
+  ) %>%
+  count(Comm_Name, tower_in_proximity)
+
+
 
