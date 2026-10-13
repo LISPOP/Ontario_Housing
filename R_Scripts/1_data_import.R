@@ -207,18 +207,19 @@ on22 <- on22 %>%
 
 on22 %>%
   filter(
-    Comm_Name %in% c("TORONTO", "OTTAWA", "MISSISSAUGA", "KITCHENER",
-                     "ST CATHARINES", "HAMILTON", "BURLINGTON")
+   CSDNAME2021 %in% c("Toronto", "Ottawa", "Mississauga", "Kitchener",
+                      "St Catharines", "Hamilton", "Burlington")
   ) %>%
   count(tower_in_proximity)
 
 
 on22 %>%
   filter(
-    Comm_Name %in% c("TORONTO", "OTTAWA", "MISSISSAUGA", "KITCHENER",
-                     "ST CATHARINES", "HAMILTON", "BURLINGTON")
+    CSDNAME2021 %in% c("Toronto", "Ottawa", "Mississauga", "Kitchener",
+                       "St Catharines", "Hamilton", "Burlington")
   ) %>%
-  count(Comm_Name, tower_in_proximity)
+  count(CSDNAME2021, tower_in_proximity) |> 
+  filter(tower_in_proximity==0)
 
 
 
