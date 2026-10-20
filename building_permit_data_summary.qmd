@@ -23,8 +23,7 @@ The general idea was to see if we can use published building permits to identify
 
 ## Backgrounds
 
-Rafael found several municipalities that publishe different types of building permits. The thing is, we need to link the building permits to residents in our survey, so it only makes sense to find building permits for municipalities that are represented in our survey. Here are the most represented municipalities in our data. 
-
+Rafael found several municipalities that publishe different types of building permits. The thing is, we need to link the building permits to residents in our survey, so it only makes sense to find building permits for municipalities that are represented in our survey. Here are the most represented municipalities in our data.
 
 ```{r}
 #| label: respondent-counts-by-municipality
@@ -34,6 +33,7 @@ Rafael found several municipalities that publishe different types of building pe
 source(here("R_Scripts/1_data_import.R"))
 
 ```
+
 ```{r}
 #| label: print-municipalities
 #| 
@@ -43,6 +43,7 @@ on22 |>
   print(n=20)
 
 ```
+
 ```{r}
 #| label: count-respondents
 #| echo: false
@@ -50,7 +51,8 @@ on22 |>
   filter(CSDNAME2021 %in% c("Toronto", "Ottawa", "Mississauga", "Hamilton", "Burlington", "St. Catharines", "Kitchener")) ->on22_building_permit_subset
 nrow(on22_building_permit_subset)
 ```
-Of these municipalities, we found good building permit data for Toronto, Ottawa, Mississauga, Hamilton, Burlington, St. Catharine's and Kitchener. If we took those municipalities, we would have `r nrow(on22_building_permit_subset)` cases, essentially stretching across the GTHA plus Kitchener. 
+
+Of these municipalities, we found good building permit data for Toronto, Ottawa, Mississauga, Hamilton, Burlington, St. Catharine's and Kitchener. If we took those municipalities, we would have `r nrow(on22_building_permit_subset)` cases, essentially stretching across the GTHA plus Kitchener.
 
 ```{r}
 #| label: import-files
@@ -103,7 +105,7 @@ One of the problems is that each file collects somewhat different information an
 
 ::: {.column-page style="font-size: 75%;"}
 | Variable | Plain-language summary | Toronto | Ottawa | Mississauga | Hamilton | Kitchener | St. Catharines | Burlington |
-|---|---|---|---|---|---|---|---|---|
+|--------|--------|--------|--------|--------|--------|--------|--------|--------|
 | Permit Type | The kind of permit or application (e.g., building, demolition, plumbing). | `PERMIT_TYPE` | `APPL. TYPE` | `SCOPE` | `WORKCLASS` | `Permit Type` | `FOLDERDESC` | `FOLDERTYPE` |
 | Structure Type | The kind of building the permit covers (e.g., single detached house, townhouse, apartment, commercial). | `STRUCTURE_TYPE` | `BLG TYPE` | `BLDG_TYPE` | `PERMITCLAS` | `Sub Work Type` | — | `SUBDESC` |
 | Work | A description of the work being done (e.g., new building, addition, interior alteration). | `WORK` | `DESCRIPTION` | `DESCRIPTIO` | `DESCRIPTIO` | `Work Type` | `FOLDERDE_1` | `WORKDESC` |
@@ -117,9 +119,7 @@ One of the problems is that each file collects somewhat different information an
 | Status | Where the permit stands (e.g., issued, under inspection, closed, cancelled). | `STATUS` | — | `STATUS` | `STATUSCURR` | `Permit Status` | `STATUSDESC` | `FOLDERSTAT` |
 
 : Map of variables {#tbl-variable-map}
-
 :::
-
 
 ```{r}
 #| label: rename-variables
@@ -176,21 +176,20 @@ city.list[["Kitchener"]] |> rename(street_address=foldername)->city.list[["Kitch
 city.list[["Burlington"]] |> rename(street_address=address)->city.list[["Burlington"]]
 ```
 
-
 ## Dates
 
-All municipalities include an "issued date" variable, but only four municipalities (Toronto, Mississauga, Hamilton and Kitchener) have a "completed date". There are advantages and disadvantages to using both. 
+All municipalities include an "issued date" variable, but only four municipalities (Toronto, Mississauga, Hamilton and Kitchener) have a "completed date". There are advantages and disadvantages to using both.
 
-on the one hand, going with the "issue date" variable will give us a larger sample size. Plus, having building permits issued might actually spur some NIMBY opposition. I feel like it's not unfrequent for neighbours to keep an eye on what is happening. But, building permits being issued might not actually mean that the project was actually completed. My own view is that we should start with the completed date variable and see how well we do. That would give us Toronto, Mississauga, Hamilton and Kitchener. There are `r on22 |> filter(CSDNAME2021 %in% c("Toronto", "Mississauga", "Hamilton", "Kitchener")) |> nrow() ` respondents in those cities.
+on the one hand, going with the "issue date" variable will give us a larger sample size. Plus, having building permits issued might actually spur some NIMBY opposition. I feel like it's not unfrequent for neighbours to keep an eye on what is happening. But, building permits being issued might not actually mean that the project was actually completed. My own view is that we should start with the completed date variable and see how well we do. That would give us Toronto, Mississauga, Hamilton and Kitchener. There are `r on22 |> filter(CSDNAME2021 %in% c("Toronto", "Mississauga", "Hamilton", "Kitchener")) |> nrow()` respondents in those cities.
 
-We may end up throwing some of those away as I think it's going to make the most sense to restrict the analysis to respondents who are only in low-density neighbourhoods. We don't really care what tower-dwellers think of densification. The problem revolves around how to get people in low-density neighbourhoods to accept densification. 
+We may end up throwing some of those away as I think it's going to make the most sense to restrict the analysis to respondents who are only in low-density neighbourhoods. We don't really care what tower-dwellers think of densification. The problem revolves around how to get people in low-density neighbourhoods to accept densification.
 
-Some municipalities have building permits that go back to 2017, I don't think we want to include those. The logic would be that utlimately people would become acclimatized to densification, or more respondents than not will have chosen to move into that neighbourhood.  I suggest restricting projects to those that were completed in 2021 or 2022, prior to the campaign. 
-
+Some municipalities have building permits that go back to 2017, I don't think we want to include those. The logic would be that utlimately people would become acclimatized to densification, or more respondents than not will have chosen to move into that neighbourhood. I suggest restricting projects to those that were completed in 2021 or 2022, prior to the campaign.
 
 ## Residential Units Created
 
-Three of the four cities here (Hamilton excepted) have a variable that encapsulates the number of dwelling units created. 
+Three of the four cities here (Hamilton excepted) have a variable that encapsulates the number of dwelling units created.
+
 ```{r}
 #| label: make-completed-dataset
 #| eval: true
@@ -230,9 +229,9 @@ city.list[c("Toronto", "Mississauga", "Kitchener", "Hamilton")] |>
 
 ```
 
-Many of these building permits are in fact permits alterations to structures (think a deck or an interior renovation), but we can't just throw these away as there are variables in these data sets that describe demolitions as well. And we need to make use of that to find densification projects because, a single family dwelling that is torn down and has a building permit to build a new SFD is *not* densification. But an existing SFD that is renovated to add a unit *is* densification. However, just to get a sense of these data, I am going to temporarily exclude any building permits that do not create any units and show some basic summary statistics of what is left. 
+Many of these building permits are in fact permits alterations to structures (think a deck or an interior renovation), but we can't just throw these away as there are variables in these data sets that describe demolitions as well. And we need to make use of that to find densification projects because, a single family dwelling that is torn down and has a building permit to build a new SFD is *not* densification. But an existing SFD that is renovated to add a unit *is* densification. However, just to get a sense of these data, I am going to temporarily exclude any building permits that do not create any units and show some basic summary statistics of what is left.
 
-The scales are really wonky in the distribution because the vast majority of these building permits are for 1 unit, but they do also include permits for a few towers. 
+The scales are really wonky in the distribution because the vast majority of these building permits are for 1 unit, but they do also include permits for a few towers.
 
 ```{r}
 #| label: units-created-summary
@@ -253,7 +252,8 @@ completed |>
 
 ```
 
-This is a visualization. 
+This is a visualization.
+
 ```{r}
 #| label: units-created-binned-bars
 #| echo: false
@@ -288,10 +288,7 @@ completed |>
 ggsave(here("Plots/units_created_distribution.png"), width=9, height=4)
 ```
 
-
-
-
-One problem in the data-set is that there are sometimes more than one building permit issued for for developments that include multiple dwellings at the same address; think a new duplex on a block. So, we need to calculate how many new units are created at unique addresses. 
+One problem in the data-set is that there are sometimes more than one building permit issued for for developments that include multiple dwellings at the same address; think a new duplex on a block. So, we need to calculate how many new units are created at unique addresses.
 
 ```{r}
 #| label: units-per-address-variable
@@ -307,8 +304,7 @@ completed |>
   mutate(units_created_at_address=if_else(municipality=="Hamilton", NA_real_, units_created_at_address))->completed
 ```
 
-
-Then we can filter out building permits that are for larger towers and that actually don't create any new dwellings at an address. I'm going to define mild densification as building permits that add between 1 and 6 units at the same address. 
+Then we can filter out building permits that are for larger towers and that actually don't create any new dwellings at an address. I'm going to define mild densification as building permits that add between 1 and 6 units at the same address.
 
 These are 100 random samples in the Toronto, Mississauga and Kitchener datasets showing these projects.
 
@@ -324,36 +320,60 @@ units_by_address_permit_type |>
 ```
 
 <!-- ```{r} -->
+
 <!-- #| label: types-at-1-to-6-unit-addresses -->
+
 <!-- completed |> -->
+
 <!--   filter(between(units_created_at_address, 1, 6))->mild_densification -->
+
 <!-- mild_densification |> -->
+
 <!--   count(municipality, permit_type) |> -->
+
 <!--   arrange(municipality, desc(n)) |> -->
+
 <!--   knitr::kable() -->
+
 <!-- mild_densification |> -->
+
 <!--   count(municipality, structure_type) |> -->
+
 <!--   arrange(municipality, desc(n)) |> -->
+
 <!--   knitr::kable() -->
+
 <!-- ``` -->
 
 <!-- ```{r} -->
+
 <!-- #| label: types-at-1-to-6-unit-addresses-new-units -->
+
 <!-- mild_densification |> -->
+
 <!--   filter(dwelling_units_created>0)->mild_densification_new_units -->
+
 <!-- mild_densification_new_units |> -->
+
 <!--   count(municipality, permit_type) |> -->
+
 <!--   arrange(municipality, desc(n)) |> -->
+
 <!--   knitr::kable() -->
+
 <!-- mild_densification_new_units |> -->
+
 <!--   count(municipality, structure_type) |> -->
+
 <!--   arrange(municipality, desc(n)) |> -->
+
 <!--   knitr::kable() -->
+
 <!-- ``` -->
 
-So you can see that in these cities, there are some building permits for new houses; we're going to have to be more particular about identifying densification. 
+So you can see that in these cities, there are some building permits for new houses; we're going to have to be more particular about identifying densification.
 
-Plus, we have this problem that Hamilton does not actually have these dwelling units created, so we need to rely on qualitative descriptions of projects in the permit type and structure type variables. 
+Plus, we have this problem that Hamilton does not actually have these dwelling units created, so we need to rely on qualitative descriptions of projects in the permit type and structure type variables.
 
 ## Densification flow chart
 
@@ -388,11 +408,11 @@ The table below goes through the flow chart decision by decision and shows which
 
 ::: {style="font-size: 85%;"}
 | Decision | Question | Variable(s) used | What it decides |
-|---|---|---|---|
+|------------------|------------------|------------------|------------------|
 | Q1 | Does the city record dwelling units created? | `municipality` | Toronto, Mississauga and Kitchener go to Q2; Hamilton goes to Q8. |
 | Q2 | Units created at the address | `units_created_at_address` (sum of `dwelling_units_created` over all non-demolition permits at the same `street_address`) | 0: no new units. More than 6: larger project. 1 to 6: go to Q3. |
 | Q3 | Does this permit create units? | `dwelling_units_created`, `permit_type` | Permits that create no units, and demolition permits, are supporting permits and not counted. Permits creating at least one unit go to Q4. |
-| Q4 | Is it a multi-unit or added-suite structure? Note: I checked and Toronto, Kitchener and Hamilton uses this variable to record what a building will become after the project. Mississauga secondary suites are caught in the next question using `permit_type`| `structure_type` | Yes: densification (secondary suite, conversion, laneway or garden suite, multiplex). No: go to Q5. |
+| Q4 | Is it a multi-unit or added-suite structure? Note: I checked and Toronto, Kitchener and Hamilton uses this variable to record what a building will become after the project. Mississauga secondary suites are caught in the next question using `permit_type` | `structure_type` | Yes: densification (secondary suite, conversion, laneway or garden suite, multiplex). No: go to Q5. |
 | Q5 | Does the permit alter or add to an existing building? | `permit_type` | Yes: densification (unit added to an existing dwelling). No (new construction): go to Q6. |
 | Q6 | Is there a demolition permit at the same address? | `permit_type`, `street_address` (searched across the full municipal file, any date) | Yes: go to Q7. No: unclear, needs a location check. |
 | Q7 | Does the address gain more units than the demolition removed? This is an address-level test of the net change in units: `units_created_at_address` minus the units lost on the demolition permit. It is done at the address rather than the permit because a city may split one project across several permits (e.g., a new house plus a separate laneway-suite permit, or a semi pair on two permits). Toronto (`DWELLING_UNITS_LOST`) and Kitchener (`Units Lost`) record units lost on demolition permits; Mississauga does not, so we assume one unit was lost. We also assume at least one unit was lost everywhere, and take the largest value at the address so that revisions of the same demolition are not double counted. | `units_created_at_address`, `units_lost_at_address` (from the demolition permits at the same `street_address`) | Net gain above 0: densification (teardown replaced by more units). Net gain of 0 or less: replacement with no net gain in units. |
@@ -613,6 +633,39 @@ wrap_plots(map(map_cities, \(city) map_city(city, show_legend=city=="Toronto")),
   theme(legend.position="bottom")
 ```
 
+## Filtering Respondents
+
+We restrict the analysis to respondents living in dissemination areas (DAs) with no dwellings in apartment buildings of five or more storeys, using 2021 Census DA data. Our interest is in how residents of low-density neighbourhoods respond to densification, since they are the main source of local opposition to new housing supply. Residents of areas that already contain mid- and high-rise buildings live with a fundamentally different baseline: a small infill project or a proposed mid-rise building is a marginal change to their surroundings, not a change in neighbourhood character. These residents are also likely to differ systematically from low-density residents in tenure, age and housing preferences, partly because they chose to live in denser areas. Restricting the sample to low-density DAs keeps both our measure of exposure to nearby densification and our experimental treatments meaningful for the respondents analyzed, at some cost to generalizability.
+
+```{r}
+cities <- c("Toronto", "Ottawa", "Mississauga", "Kitchener",
+            "St. Catharines", "Hamilton", "Burlington")
+on22 %>%
+  filter(CSDNAME2021 %in% cities) %>%
+  ggplot(aes(x = apartment_in_building_plus_5_pct_da)) +
+  geom_histogram(bins = 30) +
+  scale_x_continuous(labels = scales::percent) +
+  facet_wrap(~ CSDNAME2021, scales = "free_y", axes = "all_x") +
+  labs(x = "Percentage of 5+ storey buildings in DA",
+       y = "Respondents")
+```
+
+## Structure Type Explained
+
+The BLG TYPE variable in the City of Ottawa’s building permit data identifies the type of structure each permit applies to. It covers residential buildings (single-detached houses, semi-detached houses, duplexes, coach houses, rowhouses, stacked rowhouses and apartment buildings), non-residential buildings (retail, office, commercial, industrial, institutional, mixed-use and farm buildings) and a few other categories, including accessory structures such as detached garages and sheds, and demolitions.
+
+The STRUCTURE_TYPE variable in the City of Toronto’s cleared building permit data identifies the type of building a permit applies to. Toronto’s variable is highly detailed, with 187 distinct categories. They range from residential forms (single-family dwellings that are detached, semi-detached or townhouses; two-unit and three-plus-unit houses; laneway and rear-yard suites; stacked townhouses; multiple-unit buildings; and apartment buildings) to a long list of specific non-residential uses such as offices, retail stores, restaurants, schools, hospitals, warehouses and transit stations.
+
+The BLDG_TYPE variable in the City of Mississauga’s building permit data identifies the type of building each permit applies to. It uses a short, standardized list of 27 categories, covering residential buildings (detached and semi-detached dwellings, row dwellings, condominium and street townhouses, duplexes through sixplexes, and apartment buildings of more than six units), commercial and industrial buildings (split into single-user and multi-user retail, office and industrial buildings), and public and institutional buildings such as schools, churches and government facilities.
+
+The PERMITCLAS (permit class) variable in the City of Hamilton’s building and demolition permit data identifies the type of building or structure each permit applies to. It is a detailed classification with 139 categories. Residential types are defined mostly by the number of households (single-family, two-family and three-family dwellings, semi-detached dwellings, townhouses, multiple dwellings and apartments), alongside a long list of specific non-residential uses such as stores, offices, restaurants, warehouses, schools and hospitals.
+
+The Sub Work Type variable in the City of Kitchener’s building permit data describes the specific type of building or structure each permit covers. It has 154 categories. Unlike a pure building-type field, it mixes types of dwelling (single detached, semi-detached, duplex, rowhouse and apartment, often split into condo and non-condo versions) with the specific item being built or installed, such as decks, swimming pools, sheds, garages, signs and plumbing systems.
+
+The City of St. Catharines’ building permit data do not include a variable that identifies the type of building. The closest equivalent is FOLDERDESC, which records the broad category of each permit. Its 14 categories largely follow the Ontario Building Code’s major occupancy groups (residential, assembly, mercantile, business and personal services, industrial and institutional), plus permit types such as plumbing, signs, secondary buildings and temporary structures.
+
+The SUBDESC variable in the City of Burlington’s building permit data identifies the type of building or structure each permit applies to. It has 64 categories, covering residential forms (single detached and semi-detached dwellings, row and stacked townhouses, fourplexes, apartments and accessory dwelling units), commercial, industrial and institutional buildings, and accessory structures such as decks, garages and tents.
+
 ## Conclusion and concerns
 
-Mostly this works quite well. However, the Hamilton data might be concerning because it does not actually count the number of units created. The category of `Convert multiple to multiple` might actually include large-scale projects. 
+Mostly this works quite well. However, the Hamilton data might be concerning because it does not actually count the number of units created. The category of `Convert multiple to multiple` might actually include large-scale projects.
