@@ -375,6 +375,75 @@ So you can see that in these cities, there are some building permits for new hou
 
 Plus, we have this problem that Hamilton does not actually have these dwelling units created, so we need to rely on qualitative descriptions of projects in the permit type and structure type variables.
 
+## Building Permits Issued
+
+The analysis so far uses the date a permit was completed, which limits us to the four cities that record one. All seven cities record the date a permit was issued, so @tbl-permits-issued counts the permits each city issued over the same window (January 2021 to April 2022), alongside the permits completed in that window where a completed date exists.
+
+```{r}
+#| label: make-issued-dataset
+#| echo: false
+# St. Catharines is not in city.list, so load it here. It has no unit counts.
+st_catharines<-read_sf(here("Data/Building_permit_data/St. Cats/Building_Permits_(2010-Present).shp")) |>
+  st_drop_geometry() |>
+  clean_names() |>
+  mutate(permit_id=paste(folderyear, foldersequ), dwelling_units_created=NA_real_) |>
+  rename(issued_date=issuedate, permit_type=folderdesc)
+# The field that identifies a permit in each city. Ottawa has one row per
+# building, so a permit for a block of townhouses appears several times.
+permit_id_variable<-c("Toronto"="permit_num", "Ottawa"="permit_number", "Mississauga"="bp_no",
+                      "Hamilton"="permitnumb", "Kitchener"="permitno", "Burlington"="fileno")
+city.list |>
+  imap(\(x, city) mutate(x, permit_id=as.character(.data[[permit_id_variable[[city]]]]))) |>
+  c(list("St. Catharines"=st_catharines)) |>
+  map(\(x) x |>
+        mutate(issued_date=as.Date(issued_date),
+               dwelling_units_created=as.numeric(dwelling_units_created)) |>
+        select(permit_id, issued_date, dwelling_units_created, permit_type)) |>
+  bind_rows(.id="municipality") |>
+  filter(issued_date>=as.Date("2021-01-01") & issued_date<as.Date("2022-05-01"))->issued
+```
+
+```{r}
+#| label: tbl-permits-issued
+#| tbl-cap: "Building permits issued and completed, January 2021 to April 2022"
+#| echo: false
+# Units on demolition permits are left out, as in the units-per-address
+# variable (Ottawa's demolition permits are labelled "Demolition").
+# Ottawa repeats a permit's total units on every address row of the permit,
+# so take the largest value per permit rather than the sum.
+issued |>
+  mutate(dwelling_units_created=if_else(permit_type %in% c(demolition_permits, "Demolition"), 0, dwelling_units_created)) |>
+  group_by(municipality, permit_id) |>
+  summarize(units=if (all(is.na(dwelling_units_created))) NA_real_ else max(dwelling_units_created, na.rm=TRUE),
+            .groups="drop") |>
+  group_by(municipality) |>
+  summarize(issued=n(),
+            issued_with_units=sum(units>0, na.rm=TRUE),
+            units_created=sum(units, na.rm=TRUE),
+            records_units=any(!is.na(units))) |>
+  # Cities without unit counts show a dash rather than 0
+  mutate(across(c(issued_with_units, units_created), \(x) if_else(records_units, scales::comma(x), "—"))) |>
+  select(-records_units) |>
+  full_join(count(completed, municipality, name="completed"), by="municipality") |>
+  # Burlington's file starts in June 2022, so it has no permits in the window
+  (\(x) left_join(tibble(municipality=c("Toronto", "Ottawa", "Mississauga", "Hamilton", "Kitchener", "St. Catharines", "Burlington")),
+                  x, by="municipality"))() |>
+  mutate(issued=scales::comma(coalesce(issued, 0L)),
+         across(c(issued_with_units, units_created), \(x) coalesce(x, "—")),
+         completed=if_else(is.na(completed), "—", scales::comma(completed))) |>
+  knitr::kable(col.names=c("Municipality", "Permits issued", "Issued permits creating at least one unit",
+                           "Units created on issued permits", "Permits completed"),
+               align="lrrrr")
+```
+
+There are several caveats to counting permits by issue date:
+
+- **Burlington:** the file only begins in June 2022, so it contributes no permits issued in this window.
+- **St. Catharines and Hamilton:** neither records the number of dwelling units created, so their issued permits can only be classified using the permit category and the free-text work description.
+- **Toronto:** the file contains *cleared* permits, meaning permits that have since been closed. Permits issued in this window that are still open, or were never finished, are missing, so Toronto's issued count is an undercount.
+- **Ottawa:** a permit covering several addresses (e.g., a block of townhouses) appears once per address, with the permit's total units repeated on each row, so the table counts each permit and its units once. Large Ottawa apartment projects are also often split into a foundation-only permit and a later permit for the rest of the building, so some units may be counted on more than one permit.
+- **Issued is not built:** some issued permits are later cancelled or never completed, so counts based on issue date overstate the work that actually happened on the ground.
+
 ## Densification flow chart
 
 ```{mermaid}
@@ -558,6 +627,7 @@ toronto_addresses<-read_csv(toronto_address_url, col_types="cc") |>
 
 ```{r}
 #| label: map-densification
+#| eval: !expr nzchar(Sys.getenv("CM_API_KEY"))
 #| fig-width: 11
 #| fig-height: 5
 library(patchwork)
@@ -649,6 +719,28 @@ on22 %>%
   labs(x = "Percentage of 5+ storey buildings in DA",
        y = "Respondents")
 ```
+
+```{r}
+#| label: tower-share-binned
+#| fig-width: 10
+#| fig-height: 7
+# Same data grouped into 10-point bins: [0%, 10%), [10%, 20%), ..., [90%, 100%]
+on22 %>%
+  filter(CSDNAME2021 %in% cities, !is.na(apartment_in_building_plus_5_pct_da)) %>%
+  mutate(tower_share_bin = cut(apartment_in_building_plus_5_pct_da,
+                               breaks = seq(0, 1, by = 0.1),
+                               labels = paste0(seq(0, 90, by = 10), "-", seq(10, 100, by = 10), "%"),
+                               right = FALSE, include.lowest = TRUE)) %>%
+  ggplot(aes(x = tower_share_bin)) +
+  geom_bar() +
+  scale_x_discrete(drop = FALSE) +
+  facet_wrap(~ CSDNAME2021, scales = "free_y", axes = "all_x") +
+  labs(x = "Percentage of dwellings in 5+ storey buildings in DA",
+       y = "Respondents") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Grouping the same measure into ten-point bins shows that respondents' neighbourhoods are sharply divided rather than spread evenly across the range. Of the 820 respondents in the seven cities with census data for their DA, 54% live in a DA where less than 10% of dwellings are in buildings of five or more storeys, and most of these (420 respondents, or 51% of the total) live in a DA with no such dwellings at all. At the other end, 19% live in a DA where 90% or more of dwellings are in 5+ storey buildings, which typically means the DA consists largely of one or more apartment towers. Relatively few respondents fall in between. Toronto is the clear exception to the low-density pattern: only 39% of Toronto respondents live in a DA with no 5+ storey dwellings, and 29% live in a DA that is at least 90% towers. In the other six cities, between 60% (Hamilton) and 89% (Burlington) of respondents live in DAs with no 5+ storey dwellings. Because the filter keeps only respondents in DAs with no 5+ storey dwellings, it removes a much larger share of the Toronto sample than of the other cities. A further 51 respondents in these cities could not be placed in a bin because their DA has no tower-share value.
 
 ## Structure Type Explained
 
