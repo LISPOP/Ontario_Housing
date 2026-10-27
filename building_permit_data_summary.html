@@ -37,9 +37,6 @@ ul.task-list li input[type="checkbox"] {
 <script src="building_permit_data_summary_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="building_permit_data_summary_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="building_permit_data_summary_files/libs/bootstrap/bootstrap-138a6193a3bd40baf1e627da441a4734.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<script src="building_permit_data_summary_files/libs/quarto-diagram/mermaid.min.js"></script>
-<script src="building_permit_data_summary_files/libs/quarto-diagram/mermaid-init.js"></script>
-<link href="building_permit_data_summary_files/libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 </head>
@@ -72,10 +69,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>The general idea was to see if we can use published building permits to identify local projects of densification to see if respondents in our Ontario 2022 survey who have experienced densification in their neighbourhood differ in their attitudes to housing policy than those who have not.</p>
-</section>
-<section id="backgrounds" class="level2 page-columns page-full">
-<h2 class="anchored" data-anchor-id="backgrounds">Backgrounds</h2>
-<p>Rafael found several municipalities that publishe different types of building permits. The thing is, we need to link the building permits to residents in our survey, so it only makes sense to find building permits for municipalities that are represented in our survey. Here are the most represented municipalities in our data.</p>
+<p>The starting point is our own survey, which has respondents across certain municipalities in Ontario. This is the count of respondents that we have by municipality.</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 197 × 2
@@ -104,12 +98,12 @@ ul.task-list li input[type="checkbox"] {
 # ℹ 177 more rows</code></pre>
 </div>
 </div>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 871</code></pre>
-</div>
-</div>
-<p>Of these municipalities, we found good building permit data for Toronto, Ottawa, Mississauga, Hamilton, Burlington, St.&nbsp;Catharine’s and Kitchener. If we took those municipalities, we would have 871 cases, essentially stretching across the GTHA plus Kitchener.</p>
+<p>We looked for building permit data down to St.&nbsp;Catharine’s and found good data for Toronto, Ottawa, Mississauga, Hamilton, Burlington, St.&nbsp;Catharine’s and Kitchener. If we took those municipalities, we would have 871 cases, essentially stretching across the GTHA plus Kitchener. We found good building permit data for Toronto, Ottawa, Mississauga, Hamilton, Burlington, St.&nbsp;Catharine’s and Kitchener. If we took those municipalities, we would have 871 cases, essentially stretching across the GTHA plus Kitchener.</p>
+<p>However, it’s more complicated. There are four major decisions to make. Lurking behind all of these are sample size questions, because we only have so many building permits from so many municipalities and we only have so many respondents and they have to match up.</p>
+</section>
+<section id="which-municipalities-to-we-use" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="which-municipalities-to-we-use">Which municipalities to we use?</h2>
+<p>The municipalities do not always collect the same data. For example, some municipalities track the number of units a development adds, others do not. We have to map similar variables to similar variables. This is not a super challenge, the questions below are more pressing and complicated.</p>
 <section id="variables-available-by-municipality" class="level3 page-columns page-full">
 <h3 class="anchored" data-anchor-id="variables-available-by-municipality">Variables Available by Municipality</h3>
 <p>One of the problems is that each file collects somewhat different information and stores them with differet variable names. <a href="#tbl-variable-map" class="quarto-xref">Table&nbsp;1</a> summarizes the variables that are available in these building-permit data.</p>
@@ -275,700 +269,312 @@ Table&nbsp;1: Map of variables
 </div>
 </section>
 </section>
-<section id="dates" class="level2">
-<h2 class="anchored" data-anchor-id="dates">Dates</h2>
-<p>All municipalities include an “issued date” variable, but only four municipalities (Toronto, Mississauga, Hamilton and Kitchener) have a “completed date”. There are advantages and disadvantages to using both.</p>
-<p>on the one hand, going with the “issue date” variable will give us a larger sample size. Plus, having building permits issued might actually spur some NIMBY opposition. I feel like it’s not unfrequent for neighbours to keep an eye on what is happening. But, building permits being issued might not actually mean that the project was actually completed. My own view is that we should start with the completed date variable and see how well we do. That would give us Toronto, Mississauga, Hamilton and Kitchener. There are 684 respondents in those cities.</p>
-<p>We may end up throwing some of those away as I think it’s going to make the most sense to restrict the analysis to respondents who are only in low-density neighbourhoods. We don’t really care what tower-dwellers think of densification. The problem revolves around how to get people in low-density neighbourhoods to accept densification.</p>
-<p>Some municipalities have building permits that go back to 2017, I don’t think we want to include those. The logic would be that utlimately people would become acclimatized to densification, or more respondents than not will have chosen to move into that neighbourhood. I suggest restricting projects to those that were completed in 2021 or 2022, prior to the campaign.</p>
+<section id="decision-1.-do-we-use-building-permit-issue-date-or-building-permit-data" class="level2">
+<h2 class="anchored" data-anchor-id="decision-1.-do-we-use-building-permit-issue-date-or-building-permit-data">Decision 1. Do we use building permit issue date or building permit data?</h2>
+<p>Some municipalities track the former, fewer track both. Advantages of using building issue date are that we have more municipalities and it might meaningfully spur NIMBY-ism. Disadvantages include that not all building permits are ever completed, and they may not be noticed in the neighbourhood and thus may not spur any kind of attitude change.</p>
 </section>
-<section id="residential-units-created" class="level2">
-<h2 class="anchored" data-anchor-id="residential-units-created">Residential Units Created</h2>
-<p>Three of the four cities here (Hamilton excepted) have a variable that encapsulates the number of dwelling units created.</p>
-<p>Many of these building permits are in fact permits alterations to structures (think a deck or an interior renovation), but we can’t just throw these away as there are variables in these data sets that describe demolitions as well. And we need to make use of that to find densification projects because, a single family dwelling that is torn down and has a building permit to build a new SFD is <em>not</em> densification. But an existing SFD that is renovated to add a unit <em>is</em> densification. However, just to get a sense of these data, I am going to temporarily exclude any building permits that do not create any units and show some basic summary statistics of what is left.</p>
-<p>The scales are really wonky in the distribution because the vast majority of these building permits are for 1 unit, but they do also include permits for a few towers.</p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 × 10
-  municipality     n missing   min    q1 median  mean    q3   max    sd
-  &lt;chr&gt;        &lt;int&gt;   &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-1 Kitchener     1527       0     1     1      1  1.95     1   344  12.9
-2 Mississauga    772       0     1     1      1  4.07     1   603  33.5
-3 Toronto       2567       0     1     1      1  5.72     1   913  43.8</code></pre>
-</div>
-</div>
-<p>This is a visualization.</p>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="building_permit_data_summary_files/figure-html/units-created-binned-bars-1.png" class="img-fluid figure-img" width="864"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>One problem in the data-set is that there are sometimes more than one building permit issued for for developments that include multiple dwellings at the same address; think a new duplex on a block. So, we need to calculate how many new units are created at unique addresses.</p>
-<p>Then we can filter out building permits that are for larger towers and that actually don’t create any new dwellings at an address. I’m going to define mild densification as building permits that add between 1 and 6 units at the same address.</p>
-<p>These are 100 random samples in the Toronto, Mississauga and Kitchener datasets showing these projects.</p>
-<div class="cell">
-<div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small">
+<section id="decision-2.-how-do-we-measure-densification" class="level2">
+<h2 class="anchored" data-anchor-id="decision-2.-how-do-we-measure-densification">Decision 2. How do we measure densification?</h2>
+<p>Some city variables have a variable that measures units created, but not all (e.g.&nbsp;Hamilton does not). PLus, municipalities have other variables that differently capture what the building permit is meant to do. How do we combine these to come up with some kind of measure of projects that can be called densification.</p>
+</section>
+<section id="decision-3-do-we-define-densification-in-a-relative-way-relative-to-the-repsondents-dissemination-area" class="level2">
+<h2 class="anchored" data-anchor-id="decision-3-do-we-define-densification-in-a-relative-way-relative-to-the-repsondents-dissemination-area">Decision 3 Do we define densification in a relative way, relative to the repsondent’s dissemination area?</h2>
+<p>Related to questio two, we have at our hand the density of each respondent’s built environment (e.g.&nbsp;percent of the respondent’s dissemination area that is buildings larger than five stories). So, some of our respondents live in single-family home DAs, some live in areas that are almost all towers. Do we care about public opinion about a tower dweller living in a neighbourhood when another tower goes up? Do we care about a person living in a moderately dense neighbourhood feels about densification when a tower goes up? My thought was that it might make sense to take the clean case of a respondent who lives in a zero-tower neighbourhood and then has a moderate densification project (1 to 6 units). Then, by definition, you have respondents who are facing more densification than previously. Plus, this is clearly a public policy concern as that is where densification has to happen the most and where it meets the most objections. It basically sets the tower question aside, but this does come at the cost of sample size.</p>
+<p>The building permit data includes information on everything from decks, to small conversions adding suites to large towers.</p>
+</section>
+<section id="decision-4-which-time-frame-do-we-use" class="level2">
+<h2 class="anchored" data-anchor-id="decision-4-which-time-frame-do-we-use">Decision 4 Which time frame do we use?</h2>
+<p>If we are interested in the causal effect of some kind of densification project in a respondent’s neighbourhood, how closely does the project have to be prior to the survey to have some kind of effect? Six months? 1 year? The longer the time frame, the more building permits we will have, but might the causal effect of a building permit be lost, the longer we extend the time frame?</p>
+</section>
+<section id="summary-of-trade-offs" class="level2">
+<h2 class="anchored" data-anchor-id="summary-of-trade-offs">Summary of trade-offs</h2>
+<p>This section summarizes what the data say about each of the four questions. The numbers come from the analysis in the sections below. They are typed in rather than calculated here, so they need updating if the data or the flow chart change. Unless stated otherwise, permits are those issued or completed between January 2021 and April 2022, and the survey was in the field from May 18 to 27, 2022. A “zero-tower” respondent lives in a DA where no dwellings are in buildings of five or more storeys.</p>
+<div id="tbl-tradeoff-overview" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-tradeoff-overview-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Respondents and building permit data by city
+</figcaption>
+<div aria-describedby="tbl-tradeoff-overview-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
 <colgroup>
-<col style="width: 10%">
-<col style="width: 47%">
-<col style="width: 23%">
-<col style="width: 18%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: left;">municipality</th>
-<th style="text-align: left;">street_address</th>
-<th style="text-align: left;">permit_type</th>
-<th style="text-align: right;">dwelling_units_created</th>
+<th>City</th>
+<th style="text-align: right;">Respondents</th>
+<th style="text-align: right;">Zero-tower respondents</th>
+<th style="text-align: center;">Completed date</th>
+<th style="text-align: center;">Units created</th>
+<th style="text-align: right;">Permits issued</th>
+<th style="text-align: right;">Permits completed</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">1945 BARBERTOWN RD</td>
-<td style="text-align: left;">NEW BUILDING</td>
-<td style="text-align: right;">1</td>
+<td>Toronto</td>
+<td style="text-align: right;">481</td>
+<td style="text-align: right;">172</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: right;">35,647</td>
+<td style="text-align: right;">42,168</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">62 EDENVALE CRES</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
+<td>Ottawa</td>
+<td style="text-align: right;">133</td>
+<td style="text-align: right;">84</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: right;">13,552</td>
+<td style="text-align: right;">—</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">100 GLENGOWAN RD</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">2</td>
+<td>Mississauga</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">61</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: right;">5,321</td>
+<td style="text-align: right;">4,271</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">729 GARDNER AVE</td>
-<td style="text-align: left;">NEW BUILDING</td>
-<td style="text-align: right;">1</td>
+<td>Hamilton</td>
+<td style="text-align: right;">69</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: right;">10,062</td>
+<td style="text-align: right;">7,851</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">150 DUNCAIRN RD</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
+<td>Kitchener</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: right;">4,400</td>
+<td style="text-align: right;">3,438</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">154 HAMILTON ST</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
+<td>Burlington</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">—</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">39 TREMONT CRES</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
+<td>St.&nbsp;Catharines</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: right;">1,672</td>
+<td style="text-align: right;">—</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">82 HILLHURST BLVD</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">6 BAYTREE CRES</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">200 MCROBERTS AVE</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">2</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">226 ASHWORTH AVE</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">1060 KIPLING AVE</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">2</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">87 BRANDON AVE</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">6 STONEHILL AVE</td>
-<td style="text-align: left;">Residential Building (Multi)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">82 SHIPPIGAN CRES</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">46 LINDNER ST</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">2</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">84 HOLMES AVE</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">418 RIMILTON AVE</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">180 MATEO PL</td>
-<td style="text-align: left;">NEW BUILDING</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">35 GLENBOROUGH PARK CRES</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">55 NETHERWOOD RD</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">106 HOLLYBROOK TRAIL</td>
-<td style="text-align: left;">Residential Building (Multi)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">110 FERGUS AVE Unit 27</td>
-<td style="text-align: left;">Residential Building (Multi)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">585 ST CLEMENTS AVE</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">84 ULSTER ST</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">62 DUNCAIRN AVE</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">127 BANNOCKBURN AVE</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">2 NEW HAVEN DR</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">262 RONCESVALLES AVE</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">2</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">144 ROBINA AVE</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">40 BRUNSWICK AVE</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">22 HILLHURST BLVD</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">183 RIVERTRAIL AVE</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">24 EXBURY RD</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">5494 HADDON HALL RD</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">5166 BOARDWALK DR</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">373 RIVERTRAIL AVE</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">258 EDGEWATER CRES Unit 10</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">15 DRUMMOND DR</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">18 ADELPHA DR</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">81 WESTGATE BLVD</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">35 FALAISE RD</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">16 WEBB AVE</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">2029 COURTLAND CRES</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">5852 DELLE DONNE DR</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">916 THOMAS PEDDER CRT</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">7240 MILANO CRT</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">84 ROYWOOD DR</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">340 BROADWAY AVE</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">147 ROCKCLIFFE DR</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">2</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">908 BRIDGEMILL CRT</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">20 OAKINGTON PL</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">556 WESTMOUNT AVE</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">2</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">369 RIVERTRAIL AVE</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">3 CALUMET CRES</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">577 BRIDGEMILL CRES</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">233 KINGSTON RD</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">18 PONDCLIFFE DR</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">253 WITHROW AVE</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">174 GRACE ST</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">6343 TENTH LINE WEST</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">125 HOLLYBROOK TRAIL</td>
-<td style="text-align: left;">Residential Building (Multi)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">41 BELMONT AVE W</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">917 ROBERT FERRIE DR</td>
-<td style="text-align: left;">Residential Building (Multi)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">886 ATWATER AVE</td>
-<td style="text-align: left;">NEW BUILDING</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">233 DAWLISH AVE</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">3213 TURNSTONE CRES</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">27 SANDRINGHAM DR</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">5080 NINTH LINE</td>
-<td style="text-align: left;">DEMOLITION</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">248 WOODBINE AVE</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">290 ELLIS AVE</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">51 PONDCLIFFE DR</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">20 SULLIVAN ST</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">4763 APPLE BLOSSOM CIR</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">109 ROBINSON AVE</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">2</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">318 BOON AVE</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">29 HADRIAN DR</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">90 REISTWOOD DR</td>
-<td style="text-align: left;">Residential Building (Multi)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">217 CLARK AVE</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">59 CHELSEA RD</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">110 FERGUS AVE Unit 1</td>
-<td style="text-align: left;">Residential Building (Multi)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">230 LONSMOUNT DR</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">28 RAVENSCREST DR</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">34 LOMBARDY CRT</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">26 FENSIDE ST</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">19 BOWSPRIT AVE</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">154 GLEN CEDAR RD</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">3081 MERRITT AVE</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">159 FOREST CREEK DR</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">2</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">210 BERRY RD</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">155 THOMAS SLEE DR, interior in Building 2 (Units M, N, O)</td>
-<td style="text-align: left;">Residential Building (Multi)</td>
-<td style="text-align: right;">3</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">165 ROCHEFORT ST</td>
-<td style="text-align: left;">Residential Building (Multi)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">581 FLORENCEDALE CRES</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">377 DUMFRIES AVE</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">136 RIVER RD E</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">213 JARVIS ST</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">5</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">219 GLENDONWYNNE RD</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">27 REISTWOOD DR</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">94 ELINOR AVE</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">6995 CHIGWEL CRT</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: right;">1</td>
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>871</strong></td>
+<td style="text-align: right;"><strong>420</strong></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
 </tr>
 </tbody>
 </table>
 </div>
+</figure>
 </div>
+<section id="issue-date-or-completed-date" class="level3">
+<h3 class="anchored" data-anchor-id="issue-date-or-completed-date">1. Issue date or completed date</h3>
+<ul>
+<li><strong>Completed date:</strong> four cities (Toronto, Mississauga, Hamilton and Kitchener), with 684 respondents, 293 of them zero-tower.</li>
+<li><strong>Issue date:</strong> six cities have permits issued in the window, with 844 respondents, 397 of them zero-tower. Nearly all of the gain is Ottawa (133 respondents, 84 zero-tower). St.&nbsp;Catharines adds 27 (20 zero-tower), but it records neither units created nor structure type. Burlington adds nothing either way, because its file starts in June 2022, after the survey.</li>
+<li><strong>Not every issued permit is finished.</strong> Of the permits issued in the window, 91% in Mississauga and 82% in Kitchener had been completed by the time the files were downloaded. In Hamilton, whose completion dates only run to January 2024, the figure is 66%. Toronto’s rate is unknown because its file only includes permits that have been closed.</li>
+<li><strong>“Completed” does not always mean built.</strong> In Toronto, the completed date is the date the permit was closed, and that includes cancelled permits. Of the 2,567 Toronto permits creating at least one unit that closed in the window, 407 (16%) were cancelled. The flow chart does not currently drop them.</li>
+<li><strong>The two dates pick up different stages of a project.</strong> For permits adding 1 to 6 units that were completed in the window, the median time from issue to completion was about 8 months in Mississauga (254 days), 21 months in Toronto (635 days, closed permits only) and 23 months in Kitchener (693 days). Most were issued before 2021: 1,694 of 2,108 in Toronto, 443 of 761 in Mississauga and 1,317 of 1,517 in Kitchener. So a project completed shortly before the survey has usually been under construction, and visible to neighbours, for a year or more. A project issued shortly before the survey was mostly still under construction, or not yet started, when respondents took the survey.</li>
+</ul>
+<p><strong>The trade-off:</strong> the issue date adds Ottawa, about 160 respondents in total, and captures the moment neighbours may first react. The completed date marks a project that has actually changed the neighbourhood, but in Toronto it needs cancelled permits removed, and it limits us to four cities.</p>
+</section>
+<section id="measuring-densification" class="level3">
+<h3 class="anchored" data-anchor-id="measuring-densification">2. Measuring densification</h3>
+<ul>
+<li><strong>Units created are recorded</strong> in Toronto, Ottawa, Mississauga and Kitchener (and Burlington, which has no permits in the window). Hamilton and St.&nbsp;Catharines do not record them, so their projects can only be classified from the permit category and the work description.</li>
+<li><strong>Densification projects found by the flow chart</strong> (addresses, completed in the window): Toronto 933, Mississauga 545, Kitchener 387 and Hamilton 250.</li>
+<li><strong>Each city reaches “densification” through a different variable.</strong> In Mississauga, 532 of the 545 projects come from the permit type (a unit added to an existing building). In Toronto and Kitchener, most come from the structure type (a multi-unit or added-suite building). Hamilton’s projects are almost all conversions (236 of 250), and because Hamilton has no unit counts, the 1-to-6-unit limit cannot be applied there. “Convert Multiple to Multiple” may include large projects.</li>
+<li><strong>Many projects are unclassified.</strong> New construction with no demolition at the same address is marked “Unclear”. These may be new subdivisions on vacant land rather than infill: Kitchener has 1,033 such addresses (more than its 387 densification projects), Hamilton 756, Toronto 261 and Mississauga 124. How they are treated changes the Kitchener and Hamilton counts a lot.</li>
+<li><strong>Projects with more than 6 units are rare:</strong> 69 in Toronto, 28 in Kitchener and 11 in Mississauga.</li>
+<li>The flow chart has only been applied to completed permits. Using the issue date would mean extending it to Ottawa (which has unit counts) and St.&nbsp;Catharines (which would rely on its permit categories).</li>
+</ul>
+<p><strong>The trade-off:</strong> a rule based on units created is consistent and easy to defend, but it drops Hamilton and St.&nbsp;Catharines. A rule based on permit and structure categories covers every city, but each city needs its own mapping, so the measure means something slightly different from city to city.</p>
+</section>
+<section id="densification-and-neighbourhood-density" class="level3">
+<h3 class="anchored" data-anchor-id="densification-and-neighbourhood-density">3. Densification and neighbourhood density</h3>
+<ul>
+<li><strong>Restricting to zero-tower respondents keeps 420 of 871 (48%)</strong> in the seven cities, and 293 of 684 (43%) in the four completed-date cities. Another 51 respondents have no tower-share value for their DA.</li>
+<li><strong>The restriction falls hardest on Toronto:</strong> 172 of 481 Toronto respondents (36%) are zero-tower, compared with 60% to 89% in the other cities. After the restriction, Toronto drops from 55% of the sample to 41%, even though most densification projects are in Toronto.</li>
+<li><strong>The exact cut-off barely matters.</strong> Relaxing “zero” to “less than 10%” adds only 24 respondents (444 instead of 420), because respondents mostly live either in DAs with no towers or in DAs that are mostly towers.</li>
+<li><strong>Still unknown:</strong> how many zero-tower respondents have a 1-to-6-unit project in their neighbourhood. That depends on linking permit locations to respondents’ DAs, which has not been done yet. It is the number that sets the size of the “treated” group. Hamilton’s permit file has no locations, and Toronto permits have to be matched to address points.</li>
+</ul>
+<p><strong>The trade-off:</strong> the zero-tower restriction gives a clean case (every nearby project is new density for these respondents) that matches where densification meets the most opposition. It costs about half the sample and most of Toronto, and it means we can say nothing about how residents of denser neighbourhoods react to new projects.</p>
+</section>
+<section id="time-frame" class="level3">
+<h3 class="anchored" data-anchor-id="time-frame">4. Time frame</h3>
+<p>Densification projects (addresses) by how long before the survey their last permit was completed:</p>
+<div id="tbl-tradeoff-window" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-tradeoff-window-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Densification projects by time before the survey
+</figcaption>
+<div aria-describedby="tbl-tradeoff-window-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>City</th>
+<th style="text-align: right;">6 months (Nov 2021 to Apr 2022)</th>
+<th style="text-align: right;">12 months (May 2021 to Apr 2022)</th>
+<th style="text-align: right;">16 months (Jan 2021 to Apr 2022)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Toronto</td>
+<td style="text-align: right;">344</td>
+<td style="text-align: right;">701</td>
+<td style="text-align: right;">933</td>
+</tr>
+<tr class="even">
+<td>Mississauga</td>
+<td style="text-align: right;">204</td>
+<td style="text-align: right;">408</td>
+<td style="text-align: right;">545</td>
+</tr>
+<tr class="odd">
+<td>Kitchener</td>
+<td style="text-align: right;">160</td>
+<td style="text-align: right;">304</td>
+<td style="text-align: right;">387</td>
+</tr>
+<tr class="even">
+<td>Hamilton</td>
+<td style="text-align: right;">92</td>
+<td style="text-align: right;">190</td>
+<td style="text-align: right;">250</td>
+</tr>
+<tr class="odd">
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>800</strong></td>
+<td style="text-align: right;"><strong>1,603</strong></td>
+<td style="text-align: right;"><strong>2,115</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<ul>
+<li><strong>The count grows roughly in proportion to the window:</strong> six months gives half as many projects as twelve.</li>
+<li><strong>The window interacts with the choice of date.</strong> Because a typical project takes 8 to 23 months from issue to completion, a “6 months before the survey, completed date” project was usually under construction for a year or more before that. A short completion window does not mean a short exposure.</li>
+<li><strong>Sixteen months is the longest window the current code loads.</strong> The Toronto and Hamilton files go back to 2017, so longer windows are possible for the completed-date cities. Only Ottawa’s 2021 and 2022 files are loaded (the 2020 file is commented out), so a longer issue-date window would need that file.</li>
+</ul>
+<p><strong>The trade-off:</strong> a longer window gives more projects and so more treated respondents. But it also includes projects whose effect may have faded, and respondents who moved in after a project was built and so never experienced it as a change.</p>
+<!-- ## Dates -->
+<!-- All municipalities include an "issued date" variable, but only four municipalities (Toronto, Mississauga, Hamilton and Kitchener) have a "completed date". There are advantages and disadvantages to using both. -->
+<!-- on the one hand, going with the "issue date" variable will give us a larger sample size. Plus, having building permits issued might actually spur some NIMBY opposition. I feel like it's not unfrequent for neighbours to keep an eye on what is happening. But, building permits being issued might not actually mean that the project was actually completed. My own view is that we should start with the completed date variable and see how well we do. That would give us Toronto, Mississauga, Hamilton and Kitchener. There are 684 respondents in those cities. -->
+<!-- ## Residential Units Created -->
+<!-- Three of the four cities here (Hamilton excepted) have a variable that encapsulates the number of dwelling units created. -->
+<!-- Many of these building permits are in fact permits alterations to structures (think a deck or an interior renovation), but we can't just throw these away as there are variables in these data sets that describe demolitions as well. And we need to make use of that to find densification projects because, a single family dwelling that is torn down and has a building permit to build a new SFD is *not* densification. But an existing SFD that is renovated to add a unit *is* densification. However, just to get a sense of these data, I am going to temporarily exclude any building permits that do not create any units and show some basic summary statistics of what is left. -->
+<!-- The scales are really wonky in the distribution because the vast majority of these building permits are for 1 unit, but they do also include permits for a few towers. -->
 <!-- ```{r} -->
-<!-- #| label: types-at-1-to-6-unit-addresses -->
+<!-- #| label: units-created-summary -->
+<!-- #| echo: false -->
 <!-- completed |> -->
-<!--   filter(between(units_created_at_address, 1, 6))->mild_densification -->
-<!-- mild_densification |> -->
-<!--   count(municipality, permit_type) |> -->
-<!--   arrange(municipality, desc(n)) |> -->
-<!--   knitr::kable() -->
-<!-- mild_densification |> -->
-<!--   count(municipality, structure_type) |> -->
-<!--   arrange(municipality, desc(n)) |> -->
-<!--   knitr::kable() -->
+<!--   group_by(municipality) |> -->
+<!--   filter(dwelling_units_created>0) |>  -->
+<!--   summarize(n=n(), -->
+<!--             missing=sum(is.na(dwelling_units_created)), -->
+<!--             min=min(dwelling_units_created, na.rm=TRUE), -->
+<!--             q1=quantile(dwelling_units_created, 0.25, na.rm=TRUE), -->
+<!--             median=median(dwelling_units_created, na.rm=TRUE), -->
+<!--             mean=mean(dwelling_units_created, na.rm=TRUE), -->
+<!--             q3=quantile(dwelling_units_created, 0.75, na.rm=TRUE), -->
+<!--             max=max(dwelling_units_created, na.rm=TRUE), -->
+<!--             sd=sd(dwelling_units_created, na.rm=TRUE)) -->
 <!-- ``` -->
+<!-- This is a visualization. -->
 <!-- ```{r} -->
-<!-- #| label: types-at-1-to-6-unit-addresses-new-units -->
-<!-- mild_densification |> -->
-<!--   filter(dwelling_units_created>0)->mild_densification_new_units -->
-<!-- mild_densification_new_units |> -->
-<!--   count(municipality, permit_type) |> -->
-<!--   arrange(municipality, desc(n)) |> -->
-<!--   knitr::kable() -->
-<!-- mild_densification_new_units |> -->
-<!--   count(municipality, structure_type) |> -->
-<!--   arrange(municipality, desc(n)) |> -->
-<!--   knitr::kable() -->
+<!-- #| label: units-created-binned-bars -->
+<!-- #| echo: false -->
+<!-- #| fig-width: 9 -->
+<!-- #| fig-height: 4 -->
+<!-- library(tidyr) -->
+<!-- unit_bins<-c("1", "2", "3–6", "7–10", "11–50", "51–100", "Over 100") -->
+<!-- completed |> -->
+<!--   filter(dwelling_units_created>0) |> -->
+<!--   mutate(units_bin=cut(dwelling_units_created, -->
+<!--                        breaks=c(0, 1, 2, 6, 10, 50, 100, Inf), -->
+<!--                        labels=unit_bins)) |> -->
+<!--   count(municipality, units_bin) |> -->
+<!--   # Keep empty bins so every panel shows the same categories -->
+<!--   complete(municipality, units_bin, fill=list(n=0)) |> -->
+<!--   ggplot(aes(x=units_bin, y=n))+ -->
+<!--   geom_col(width=0.7, fill="#2a78d6")+ -->
+<!--   geom_text(aes(label=scales::comma(n)), vjust=-0.4, size=3, colour="#52514e")+ -->
+<!--   facet_wrap(~municipality)+ -->
+<!--   # Pseudo-log scale so the 1-unit bar does not flatten every other bar; a -->
+<!--   # count of 0 sits on the baseline -->
+<!--   scale_y_continuous(trans=scales::pseudo_log_trans(base=10), -->
+<!--                      breaks=c(1, 10, 100, 1000), -->
+<!--                      labels=scales::comma, -->
+<!--                      expand=expansion(mult=c(0, 0.12)))+ -->
+<!--   labs(x="Dwelling units created by the permit", y="Number of permits (log scale)", -->
+<!--        caption="Permits completed Jan 2021 to Apr 2022 that create at least one unit.")+ -->
+<!--   theme_minimal()+ -->
+<!--   theme(panel.grid.major.x=element_blank(), -->
+<!--         panel.grid.minor=element_blank(), -->
+<!--         axis.text.x=element_text(angle=45, hjust=1)) -->
+<!-- ggsave(here("Plots/units_created_distribution.png"), width=9, height=4) -->
 <!-- ``` -->
-<p>So you can see that in these cities, there are some building permits for new houses; we’re going to have to be more particular about identifying densification.</p>
-<p>Plus, we have this problem that Hamilton does not actually have these dwelling units created, so we need to rely on qualitative descriptions of projects in the permit type and structure type variables.</p>
+<!-- One problem in the data-set is that there are sometimes more than one building permit issued for for developments that include multiple dwellings at the same address; think a new duplex on a block. So, we need to calculate how many new units are created at unique addresses. -->
+<!-- Then we can filter out building permits that are for larger towers and that actually don't create any new dwellings at an address. I'm going to define mild densification as building permits that add between 1 and 6 units at the same address. -->
+<!-- These are 100 random samples in the Toronto, Mississauga and Kitchener datasets showing these projects. -->
+<!-- ```{r} -->
+<!-- #| label: units-by-address-permit-type -->
+<!-- #| echo: false -->
+<!-- completed |> -->
+<!--   group_by(municipality, street_address, permit_type) |> -->
+<!--   summarize(dwelling_units_created=sum(dwelling_units_created, na.rm=TRUE), .groups="drop")->units_by_address_permit_type -->
+<!-- units_by_address_permit_type |>  -->
+<!--   filter(dwelling_units_created>0&dwelling_units_created<6) |>  -->
+<!--   slice_sample(n=100) |> knitr::kable() -->
+<!-- ``` -->
+<!-- So you can see that in these cities, there are some building permits for new houses; we're going to have to be more particular about identifying densification. -->
+<!-- Plus, we have this problem that Hamilton does not actually have these dwelling units created, so we need to rely on qualitative descriptions of projects in the permit type and structure type variables. -->
+</section>
 </section>
 <section id="building-permits-issued" class="level2">
 <h2 class="anchored" data-anchor-id="building-permits-issued">Building Permits Issued</h2>
-<p>The analysis so far uses the date a permit was completed, which limits us to the four cities that record one. All seven cities record the date a permit was issued, so <a href="#tbl-permits-issued" class="quarto-xref">Table&nbsp;2</a> counts the permits each city issued over the same window (January 2021 to April 2022), alongside the permits completed in that window where a completed date exists.</p>
+<p>The analysis so far uses the date a permit was completed, which limits us to the four cities that record one. All seven cities record the date a permit was issued, so <a href="#tbl-permits-issued" class="quarto-xref">Table&nbsp;4</a> counts the permits each city issued over the same window (January 2021 to April 2022), alongside the permits completed in that window where a completed date exists.</p>
 <div class="cell">
 <div id="tbl-permits-issued" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-permits-issued-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;2: Building permits issued and completed, January 2021 to April 2022
+Table&nbsp;4: Building permits issued and completed, January 2021 to April 2022
 </figcaption>
 <div aria-describedby="tbl-permits-issued-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -1054,881 +660,255 @@ Table&nbsp;2: Building permits issued and completed, January 2021 to April 2022
 <li><strong>Ottawa:</strong> a permit covering several addresses (e.g., a block of townhouses) appears once per address, with the permit’s total units repeated on each row, so the table counts each permit and its units once. Large Ottawa apartment projects are also often split into a foundation-only permit and a later permit for the rest of the building, so some units may be counted on more than one permit.</li>
 <li><strong>Issued is not built:</strong> some issued permits are later cancelled or never completed, so counts based on issue date overstate the work that actually happened on the ground.</li>
 </ul>
-</section>
-<section id="densification-flow-chart" class="level2">
-<h2 class="anchored" data-anchor-id="densification-flow-chart">Densification flow chart</h2>
-<div class="cell" data-layout-align="default">
-<div class="cell-output-display">
-<div>
-<p></p><figure class="figure"><p></p>
-<div>
-<pre class="mermaid mermaid-js">flowchart TD
-  A["Completed permit&lt;br/&gt;Jan 2021 to Apr 2022"] --&gt; M{"Q1: Does the city record&lt;br/&gt;dwelling units created?"}
-  M -- "Yes: Toronto,&lt;br/&gt;Mississauga, Kitchener" --&gt; B{"Q2: Units created at the address&lt;br/&gt;(units_created_at_address,&lt;br/&gt;excluding demolitions)"}
-  M -- "No: Hamilton" --&gt; HA{"Q8: What kind of work?&lt;br/&gt;(permit_type = WORKCLASS)"}
-  HA -- "Convert Single to Multiple,&lt;br/&gt;Convert Multiple to Multiple,&lt;br/&gt;Convert NR to Res." --&gt; Y4["DENSIFICATION&lt;br/&gt;units added by converting&lt;br/&gt;an existing building"]
-  HA -- "Residential&lt;br/&gt;New Construction" --&gt; HF{"Q9: Demolition permit&lt;br/&gt;at the same address?"}
-  HA -- "Anything else&lt;br/&gt;(alteration, addition, deck,&lt;br/&gt;demolition, services,&lt;br/&gt;non-residential construction)" --&gt; X5["No evidence of new units:&lt;br/&gt;not counted"]
-  HF -- "Yes" --&gt; HG{"Q10: structure_type (PERMITCLAS)&lt;br/&gt;holds more than one unit?&lt;br/&gt;(two or three family, semi-detached,&lt;br/&gt;townhouses, multiple dwelling, apartments)"}
-  HG -- "Yes" --&gt; Y3
-  HG -- "No: Single Family Dwelling" --&gt; X4
-  HF -- "No" --&gt; H
-  B -- "0" --&gt; X1["No new units:&lt;br/&gt;not densification"]
-  B -- "more than 6" --&gt; X2["Larger project:&lt;br/&gt;outside mild densification"]
-  B -- "1 to 6" --&gt; C{"Q3: Does this permit create units?&lt;br/&gt;(dwelling_units_created &gt; 0,&lt;br/&gt;demolition permits excluded)"}
-  C -- "No" --&gt; X3["Supporting permit&lt;br/&gt;(plumbing, mechanical, drains, decks):&lt;br/&gt;describes the project, not counted"]
-  C -- "Yes" --&gt; D{"Q4: structure_type is a&lt;br/&gt;multi-unit or added-suite form?"}
-  D -- "Yes" --&gt; Y1["DENSIFICATION&lt;br/&gt;secondary suite, conversion,&lt;br/&gt;laneway or garden suite, multiplex"]
-  D -- "No" --&gt; E{"Q5: permit_type alters or adds to&lt;br/&gt;an existing building?"}
-  E -- "Yes" --&gt; Y2["DENSIFICATION&lt;br/&gt;unit added to an existing dwelling"]
-  E -- "No: new construction" --&gt; F{"Q6: Demolition permit&lt;br/&gt;at the same address?"}
-  F -- "Yes" --&gt; G{"Q7: Does the address gain more units&lt;br/&gt;than the demolition removed?&lt;br/&gt;(units_created_at_address&lt;br/&gt;minus units lost)"}
-  G -- "Yes" --&gt; Y3["DENSIFICATION&lt;br/&gt;teardown replaced by more units"]
-  G -- "No" --&gt; X4["Replacement:&lt;br/&gt;no net gain in units"]
-  F -- "No" --&gt; H["UNCLEAR&lt;br/&gt;new subdivision or infill?&lt;br/&gt;needs a location check"]
-</pre>
-</div>
-<p></p></figure><p></p>
-</div>
-</div>
-</div>
-<p>The table below goes through the flow chart decision by decision and shows which variables each decision uses and what it decides.</p>
-<div style="font-size: 85%;">
-<table class="caption-top table">
-<colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Decision</th>
-<th>Question</th>
-<th>Variable(s) used</th>
-<th>What it decides</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Q1</td>
-<td>Does the city record dwelling units created?</td>
-<td><code>municipality</code></td>
-<td>Toronto, Mississauga and Kitchener go to Q2; Hamilton goes to Q8.</td>
-</tr>
-<tr class="even">
-<td>Q2</td>
-<td>Units created at the address</td>
-<td><code>units_created_at_address</code> (sum of <code>dwelling_units_created</code> over all non-demolition permits at the same <code>street_address</code>)</td>
-<td>0: no new units. More than 6: larger project. 1 to 6: go to Q3.</td>
-</tr>
-<tr class="odd">
-<td>Q3</td>
-<td>Does this permit create units?</td>
-<td><code>dwelling_units_created</code>, <code>permit_type</code></td>
-<td>Permits that create no units, and demolition permits, are supporting permits and not counted. Permits creating at least one unit go to Q4.</td>
-</tr>
-<tr class="even">
-<td>Q4</td>
-<td>Is it a multi-unit or added-suite structure? Note: I checked and Toronto, Kitchener and Hamilton uses this variable to record what a building will become after the project. Mississauga secondary suites are caught in the next question using <code>permit_type</code></td>
-<td><code>structure_type</code></td>
-<td>Yes: densification (secondary suite, conversion, laneway or garden suite, multiplex). No: go to Q5.</td>
-</tr>
-<tr class="odd">
-<td>Q5</td>
-<td>Does the permit alter or add to an existing building?</td>
-<td><code>permit_type</code></td>
-<td>Yes: densification (unit added to an existing dwelling). No (new construction): go to Q6.</td>
-</tr>
-<tr class="even">
-<td>Q6</td>
-<td>Is there a demolition permit at the same address?</td>
-<td><code>permit_type</code>, <code>street_address</code> (searched across the full municipal file, any date)</td>
-<td>Yes: go to Q7. No: unclear, needs a location check.</td>
-</tr>
-<tr class="odd">
-<td>Q7</td>
-<td>Does the address gain more units than the demolition removed? This is an address-level test of the net change in units: <code>units_created_at_address</code> minus the units lost on the demolition permit. It is done at the address rather than the permit because a city may split one project across several permits (e.g., a new house plus a separate laneway-suite permit, or a semi pair on two permits). Toronto (<code>DWELLING_UNITS_LOST</code>) and Kitchener (<code>Units Lost</code>) record units lost on demolition permits; Mississauga does not, so we assume one unit was lost. We also assume at least one unit was lost everywhere, and take the largest value at the address so that revisions of the same demolition are not double counted.</td>
-<td><code>units_created_at_address</code>, <code>units_lost_at_address</code> (from the demolition permits at the same <code>street_address</code>)</td>
-<td>Net gain above 0: densification (teardown replaced by more units). Net gain of 0 or less: replacement with no net gain in units.</td>
-</tr>
-<tr class="even">
-<td>Q8</td>
-<td>What kind of work? (Hamilton)</td>
-<td><code>permit_type</code> (Hamilton’s <code>WORKCLASS</code>), <code>structure_type</code> (Hamilton’s <code>PERMITCLAS</code>)</td>
-<td>Conversions (Convert Single to Multiple, Convert Multiple to Multiple, Convert NR to Res.): densification (units added by converting an existing building). New Construction of a residential building (Single Family Dwelling or a multi-unit class): go to Q9. Anything else, including non-residential new construction: no evidence of new units.</td>
-</tr>
-<tr class="odd">
-<td>Q9</td>
-<td>Is there a demolition permit at the same address? (Hamilton)</td>
-<td><code>permit_type</code> (Full Demolition, Demolish Sgle. Fam., Demolish Multiple Family, Demolition Control; partial, accessory and non-residential demolitions are left out), <code>street_address</code></td>
-<td>Yes: go to Q10. No: unclear, needs a location check.</td>
-</tr>
-<tr class="even">
-<td>Q10</td>
-<td>Does the new building hold more than one unit? (Hamilton)</td>
-<td><code>structure_type</code> (Hamilton’s <code>PERMITCLAS</code>)</td>
-<td>Yes: densification (teardown replaced by more units). Single Family Dwelling: one-for-one replacement.</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>The next table lists, for each city, the specific <code>structure_type</code> and <code>permit_type</code> values that count as a “yes” at Q3–Q6.</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Decision</th>
-<th>Toronto</th>
-<th>Mississauga</th>
-<th>Kitchener</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Multi-unit or added-suite <code>structure_type</code></td>
-<td>2 Unit - Detached / Semi-detached / Townhouse; 3+ Unit - Detached / Semi-detached / Townhouse; Laneway / Rear Yard Suite; Converted House; Duplex; Triplex/Semi-Detached; Multiple Unit Building; Apartment Building</td>
-<td>DUPLEX, 3, 4, 5 0R 6PLEX; APARTMENT (&gt; 6 UNITS)</td>
-<td>Duplex Dwelling (2 dwelling units); Duplex Dwelling - Condo; Semi-Duplex Dwelling; Rowhouse Duplex; Garden Suite; Apartment</td>
-</tr>
-<tr class="even">
-<td><code>permit_type</code> alters or adds to an existing building</td>
-<td>Small Residential Projects; Building Additions/Alterations</td>
-<td>ALTERATION TO EXISTING BLDG; ADDITION AND ALTERATION; ADDITION TO EXISTING BLDG</td>
-<td>none (every unit-creating permit is Residential Building (House) or (Multi))</td>
-</tr>
-<tr class="odd">
-<td>New construction <code>permit_type</code></td>
-<td>New Houses; New Building; Residential Building Permit</td>
-<td>NEW BUILDING</td>
-<td>Residential Building (House); Residential Building (Multi)</td>
-</tr>
-<tr class="even">
-<td>Demolition <code>permit_type</code></td>
-<td>Demolition Folder (DM)</td>
-<td>DEMOLITION</td>
-<td>Residential Demolition</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="diagnostic-sample-of-mild-densification-projects" class="level2 page-columns page-full">
-<h2 class="anchored" data-anchor-id="diagnostic-sample-of-mild-densification-projects">Diagnostic: Sample of Mild Densification Projects</h2>
-<p>This applies the flow chart above to each completed permit, then draws a random sample of 10 projects (addresses) per municipality that end in one of the three DENSIFICATION boxes. Every permit at a sampled address that counts as densification is shown, with the branch of the flow chart it came through.</p>
-<div class="cell">
-<div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small">
-<colgroup>
-<col style="width: 16%">
-<col style="width: 76%">
-<col style="width: 7%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">municipality</th>
-<th style="text-align: left;">densification</th>
-<th style="text-align: right;">n</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Hamilton</td>
-<td style="text-align: left;">DENSIFICATION: teardown replaced by more units</td>
-<td style="text-align: right;">14</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Hamilton</td>
-<td style="text-align: left;">DENSIFICATION: units added by converting an existing building</td>
-<td style="text-align: right;">236</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Hamilton</td>
-<td style="text-align: left;">No evidence of new units</td>
-<td style="text-align: right;">6721</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Hamilton</td>
-<td style="text-align: left;">Replacement: no net gain</td>
-<td style="text-align: right;">112</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Hamilton</td>
-<td style="text-align: left;">Unclear: needs location check</td>
-<td style="text-align: right;">768</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">DENSIFICATION: multi-unit or added-suite structure</td>
-<td style="text-align: right;">393</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">DENSIFICATION: teardown replaced by more units</td>
-<td style="text-align: right;">1</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">Larger project</td>
-<td style="text-align: right;">76</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">No new units</td>
-<td style="text-align: right;">1779</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">Replacement: no net gain</td>
-<td style="text-align: right;">21</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">Supporting permit</td>
-<td style="text-align: right;">130</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">Unclear: needs location check</td>
-<td style="text-align: right;">1038</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">DENSIFICATION: multi-unit or added-suite structure</td>
-<td style="text-align: right;">5</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">DENSIFICATION: teardown replaced by more units</td>
-<td style="text-align: right;">8</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">DENSIFICATION: unit added to existing dwelling</td>
-<td style="text-align: right;">532</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">Larger project</td>
-<td style="text-align: right;">18</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">No new units</td>
-<td style="text-align: right;">3493</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">Replacement: no net gain</td>
-<td style="text-align: right;">22</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">Supporting permit</td>
-<td style="text-align: right;">69</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">Unclear: needs location check</td>
-<td style="text-align: right;">124</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">DENSIFICATION: multi-unit or added-suite structure</td>
-<td style="text-align: right;">809</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">DENSIFICATION: teardown replaced by more units</td>
-<td style="text-align: right;">180</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">DENSIFICATION: unit added to existing dwelling</td>
-<td style="text-align: right;">76</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">Larger project</td>
-<td style="text-align: right;">1357</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">No new units</td>
-<td style="text-align: right;">33709</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">Replacement: no net gain</td>
-<td style="text-align: right;">832</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">Supporting permit</td>
-<td style="text-align: right;">4936</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">Unclear: needs location check</td>
-<td style="text-align: right;">269</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="column-page" style="font-size: 75%;">
-<div class="cell">
-<div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small">
-<colgroup>
-<col style="width: 6%">
-<col style="width: 14%">
-<col style="width: 5%">
-<col style="width: 15%">
-<col style="width: 19%">
-<col style="width: 3%">
-<col style="width: 9%">
-<col style="width: 25%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">City</th>
-<th style="text-align: left;">Address</th>
-<th style="text-align: left;">Completed</th>
-<th style="text-align: left;">Permit type</th>
-<th style="text-align: left;">Structure</th>
-<th style="text-align: right;">Units</th>
-<th style="text-align: right;">Units at address</th>
-<th style="text-align: left;">Branch</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Hamilton</td>
-<td style="text-align: left;">110 MALTA</td>
-<td style="text-align: left;">2022-04-06</td>
-<td style="text-align: left;">Convert Single to Multiple</td>
-<td style="text-align: left;">Two Family Dwelling</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: left;">units added by converting an existing building</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Hamilton</td>
-<td style="text-align: left;">152 DELMAR</td>
-<td style="text-align: left;">2022-01-12</td>
-<td style="text-align: left;">Convert Single to Multiple</td>
-<td style="text-align: left;">Two Family Dwelling</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: left;">units added by converting an existing building</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Hamilton</td>
-<td style="text-align: left;">177 ALLENBY</td>
-<td style="text-align: left;">2021-02-26</td>
-<td style="text-align: left;">Convert Single to Multiple</td>
-<td style="text-align: left;">Two Family Dwelling</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: left;">units added by converting an existing building</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Hamilton</td>
-<td style="text-align: left;">242 WEST 17TH</td>
-<td style="text-align: left;">2022-01-24</td>
-<td style="text-align: left;">Convert Single to Multiple</td>
-<td style="text-align: left;">Two Family Dwelling</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: left;">units added by converting an existing building</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Hamilton</td>
-<td style="text-align: left;">35 MAGILL</td>
-<td style="text-align: left;">2021-09-15</td>
-<td style="text-align: left;">Convert Single to Multiple</td>
-<td style="text-align: left;">Single Family Dwelling</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: left;">units added by converting an existing building</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Hamilton</td>
-<td style="text-align: left;">40 HARVEY</td>
-<td style="text-align: left;">2021-11-08</td>
-<td style="text-align: left;">Convert Single to Multiple</td>
-<td style="text-align: left;">Two Family Dwelling</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: left;">units added by converting an existing building</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Hamilton</td>
-<td style="text-align: left;">5 DODSON</td>
-<td style="text-align: left;">2021-12-03</td>
-<td style="text-align: left;">Convert Single to Multiple</td>
-<td style="text-align: left;">Two Family Dwelling</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: left;">units added by converting an existing building</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Hamilton</td>
-<td style="text-align: left;">74 GEORGE</td>
-<td style="text-align: left;">2021-05-21</td>
-<td style="text-align: left;">Convert NR to Res.</td>
-<td style="text-align: left;">Apartments</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: left;">units added by converting an existing building</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Hamilton</td>
-<td style="text-align: left;">783 QUEENSDALE E</td>
-<td style="text-align: left;">2022-02-02</td>
-<td style="text-align: left;">Convert Single to Multiple</td>
-<td style="text-align: left;">Two Family Dwelling</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: left;">units added by converting an existing building</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Hamilton</td>
-<td style="text-align: left;">821 MOHAWK E</td>
-<td style="text-align: left;">2021-02-04</td>
-<td style="text-align: left;">Convert Single to Multiple</td>
-<td style="text-align: left;">Two Family Dwelling</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: left;">units added by converting an existing building</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">151 EDEN OAK TRAIL</td>
-<td style="text-align: left;">2021-11-27</td>
-<td style="text-align: left;">Residential Building (Multi)</td>
-<td style="text-align: left;">Rowhouse Duplex</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">18 ETON DR</td>
-<td style="text-align: left;">2022-04-30</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: left;">Duplex Dwelling (2 dwelling units)</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">219 SOUTHWOOD DR</td>
-<td style="text-align: left;">2021-03-08</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: left;">Duplex Dwelling (2 dwelling units)</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">239 SIMS ESTATE DR</td>
-<td style="text-align: left;">2022-03-05</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: left;">Duplex Dwelling (2 dwelling units)</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">243 GREENWATER PL</td>
-<td style="text-align: left;">2022-01-15</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: left;">Duplex Dwelling (2 dwelling units)</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">455 FOREST HILL DR</td>
-<td style="text-align: left;">2021-02-13</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: left;">Duplex Dwelling (2 dwelling units)</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">62 DUNCAIRN AVE</td>
-<td style="text-align: left;">2021-02-13</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: left;">Duplex Dwelling (2 dwelling units)</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">677 THOMAS SLEE DR</td>
-<td style="text-align: left;">2022-01-04</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: left;">Duplex Dwelling (2 dwelling units)</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">75 WATERMILL ST</td>
-<td style="text-align: left;">2022-01-29</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: left;">Duplex Dwelling (2 dwelling units)</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: left;">91 SOPHIA CRES</td>
-<td style="text-align: left;">2021-08-14</td>
-<td style="text-align: left;">Residential Building (House)</td>
-<td style="text-align: left;">Duplex Dwelling (2 dwelling units)</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">1476 SPRING GARDEN CRT</td>
-<td style="text-align: left;">2022-02-02</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: left;">SEMI-DETACHED DWELLING</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">unit added to existing dwelling</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">1482 HOLLYWELL AVE</td>
-<td style="text-align: left;">2022-04-08</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: left;">DETACHED DWELLING</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">unit added to existing dwelling</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">3225 MAGWOOD RD</td>
-<td style="text-align: left;">2022-03-23</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: left;">DETACHED DWELLING</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">unit added to existing dwelling</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">3234 ANDERSON CRES</td>
-<td style="text-align: left;">2022-04-05</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: left;">DETACHED DWELLING</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">unit added to existing dwelling</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">3594 BRANDON GATE DR</td>
-<td style="text-align: left;">2022-03-08</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: left;">DETACHED DWELLING</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">unit added to existing dwelling</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">5249 HERITAGE HILLS BLVD</td>
-<td style="text-align: left;">2021-11-04</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: left;">DETACHED DWELLING</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">unit added to existing dwelling</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">5989 AQUARIUS CRT</td>
-<td style="text-align: left;">2022-01-26</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: left;">DETACHED DWELLING</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">unit added to existing dwelling</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">619 DECKHOUSE CRT</td>
-<td style="text-align: left;">2022-04-26</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: left;">DETACHED DWELLING</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">unit added to existing dwelling</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">6643 SKIPPER WAY</td>
-<td style="text-align: left;">2022-03-01</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: left;">SEMI-DETACHED DWELLING</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">unit added to existing dwelling</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: left;">6929 GOODERHAM ESTATE BLVD</td>
-<td style="text-align: left;">2021-02-11</td>
-<td style="text-align: left;">ALTERATION TO EXISTING BLDG</td>
-<td style="text-align: left;">DETACHED DWELLING</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">unit added to existing dwelling</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">14 HOOVER CRES</td>
-<td style="text-align: left;">2021-07-15</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: left;">SFD - Semi-Detached</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">unit added to existing dwelling</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">14 TWENTY FIFTH ST</td>
-<td style="text-align: left;">2022-04-28</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: left;">2 Unit - Detached</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">29 HADRIAN DR</td>
-<td style="text-align: left;">2021-10-20</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: left;">Duplex</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: left;">teardown replaced by more units</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">29 HADRIAN DR</td>
-<td style="text-align: left;">2021-12-15</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: left;">3+ Unit - Detached</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">3 OSLER ST</td>
-<td style="text-align: left;">2022-03-17</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: left;">2 Unit - Semi-detached</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">362 GREENFIELD AVE</td>
-<td style="text-align: left;">2022-01-07</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: left;">SFD - Detached</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: left;">teardown replaced by more units</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">362 GREENFIELD AVE</td>
-<td style="text-align: left;">2022-01-07</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: left;">SFD - Detached</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: left;">teardown replaced by more units</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">48 KING LOUIS CRES</td>
-<td style="text-align: left;">2021-02-19</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: left;">2 Unit - Detached</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">50 TREEVIEW DR</td>
-<td style="text-align: left;">2021-07-09</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: left;">SFD - Detached</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: left;">teardown replaced by more units</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">50 TREEVIEW DR</td>
-<td style="text-align: left;">2021-07-12</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: left;">SFD - Detached</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: left;">teardown replaced by more units</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">54 BEARBURY DR</td>
-<td style="text-align: left;">2022-03-29</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: left;">2 Unit - Detached</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">622 GREENWOOD AVE</td>
-<td style="text-align: left;">2021-07-21</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: left;">Laneway / Rear Yard Suite</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">88 ROWNTREE MILL RD</td>
-<td style="text-align: left;">2021-03-10</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: left;">SFD - Detached</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">3</td>
-<td style="text-align: left;">teardown replaced by more units</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">88 ROWNTREE MILL RD</td>
-<td style="text-align: left;">2021-03-10</td>
-<td style="text-align: left;">New Houses</td>
-<td style="text-align: left;">SFD - Detached</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">3</td>
-<td style="text-align: left;">teardown replaced by more units</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: left;">88 ROWNTREE MILL RD</td>
-<td style="text-align: left;">2021-12-24</td>
-<td style="text-align: left;">Small Residential Projects</td>
-<td style="text-align: left;">2 Unit - Detached</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">3</td>
-<td style="text-align: left;">multi-unit or added-suite structure</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-</section>
-<section id="maps-of-densification-projects" class="level2">
-<h2 class="anchored" data-anchor-id="maps-of-densification-projects">Maps of Densification Projects</h2>
-<p>These maps show every densification project (address) in Toronto, Mississauga and Kitchener. Mississauga and Kitchener permits come with their own point locations. Toronto permits do not, so they are matched to the City of Toronto address points by street address. Hamilton is left out for now because its permit shapefile has no locations.</p>
-<div class="cell">
-<div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small">
-<thead>
-<tr class="header">
-<th style="text-align: left;">municipality</th>
-<th style="text-align: right;">projects</th>
-<th style="text-align: right;">mapped</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Kitchener</td>
-<td style="text-align: right;">387</td>
-<td style="text-align: right;">387</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Mississauga</td>
-<td style="text-align: right;">545</td>
-<td style="text-align: right;">545</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Toronto</td>
-<td style="text-align: right;">933</td>
-<td style="text-align: right;">902</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "/Users/skiss/Library/CloudStorage/OneDrive-WilfridLaurierUniversity/LISPOP/Surveys/Ontario_Housing_GitHub/Data/cancensus_cache_statscan_data"</code></pre>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="building_permit_data_summary_files/figure-html/map-densification-1.png" class="img-fluid figure-img" width="1056"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="filtering-respondents" class="level2">
-<h2 class="anchored" data-anchor-id="filtering-respondents">Filtering Respondents</h2>
-<p>We restrict the analysis to respondents living in dissemination areas (DAs) with no dwellings in apartment buildings of five or more storeys, using 2021 Census DA data. Our interest is in how residents of low-density neighbourhoods respond to densification, since they are the main source of local opposition to new housing supply. Residents of areas that already contain mid- and high-rise buildings live with a fundamentally different baseline: a small infill project or a proposed mid-rise building is a marginal change to their surroundings, not a change in neighbourhood character. These residents are also likely to differ systematically from low-density residents in tenure, age and housing preferences, partly because they chose to live in denser areas. Restricting the sample to low-density DAs keeps both our measure of exposure to nearby densification and our experimental treatments meaningful for the respondents analyzed, at some cost to generalizability.</p>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="building_permit_data_summary_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="building_permit_data_summary_files/figure-html/tower-share-binned-1.png" class="img-fluid figure-img" width="960"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>Grouping the same measure into ten-point bins shows that respondents’ neighbourhoods are sharply divided rather than spread evenly across the range. Of the 820 respondents in the seven cities with census data for their DA, 54% live in a DA where less than 10% of dwellings are in buildings of five or more storeys, and most of these (420 respondents, or 51% of the total) live in a DA with no such dwellings at all. At the other end, 19% live in a DA where 90% or more of dwellings are in 5+ storey buildings, which typically means the DA consists largely of one or more apartment towers. Relatively few respondents fall in between. Toronto is the clear exception to the low-density pattern: only 39% of Toronto respondents live in a DA with no 5+ storey dwellings, and 29% live in a DA that is at least 90% towers. In the other six cities, between 60% (Hamilton) and 89% (Burlington) of respondents live in DAs with no 5+ storey dwellings. Because the filter keeps only respondents in DAs with no 5+ storey dwellings, it removes a much larger share of the Toronto sample than of the other cities. A further 51 respondents in these cities could not be placed in a bin because their DA has no tower-share value.</p>
+<!-- ## Densification flow chart -->
+<!-- ```{mermaid} -->
+<!-- flowchart TD -->
+<!--   A["Completed permit<br/>Jan 2021 to Apr 2022"] -->
+<p>M{“Q1: Does the city record<br>dwelling units created?”} –&gt; <!--   M -- "Yes: Toronto,<br/>Mississauga, Kitchener" --> B{“Q2: Units created at the address<br>(units_created_at_address,<br>excluding demolitions)”} –&gt; <!--   M -- "No: Hamilton" --> HA{“Q8: What kind of work?<br>(permit_type = WORKCLASS)”} –&gt; <!--   HA -- "Convert Single to Multiple,<br/>Convert Multiple to Multiple,<br/>Convert NR to Res." --> Y4[“DENSIFICATION<br>units added by converting<br>an existing building”] –&gt; <!--   HA -- "Residential<br/>New Construction" --> HF{“Q9: Demolition permit<br>at the same address?”} –&gt; <!--   HA -- "Anything else<br/>(alteration, addition, deck,<br/>demolition, services,<br/>non-residential construction)" --> X5[“No evidence of new units:<br>not counted”] –&gt; <!--   HF -- "Yes" --> HG{“Q10: structure_type (PERMITCLAS)<br>holds more than one unit?<br>(two or three family, semi-detached,<br>townhouses, multiple dwelling, apartments)”} –&gt; <!--   HG -- "Yes" --> Y3 –&gt; <!--   HG -- "No: Single Family Dwelling" --> X4 –&gt; <!--   HF -- "No" --> H –&gt; <!--   B -- "0" --> X1[“No new units:<br>not densification”] –&gt; <!--   B -- "more than 6" --> X2[“Larger project:<br>outside mild densification”] –&gt; <!--   B -- "1 to 6" --> C{“Q3: Does this permit create units?<br>(dwelling_units_created &gt; 0,<br>demolition permits excluded)”} –&gt; <!--   C -- "No" --> X3[“Supporting permit<br>(plumbing, mechanical, drains, decks):<br>describes the project, not counted”] –&gt; <!--   C -- "Yes" --> D{“Q4: structure_type is a<br>multi-unit or added-suite form?”} –&gt; <!--   D -- "Yes" --> Y1[“DENSIFICATION<br>secondary suite, conversion,<br>laneway or garden suite, multiplex”] –&gt; <!--   D -- "No" --> E{“Q5: permit_type alters or adds to<br>an existing building?”} –&gt; <!--   E -- "Yes" --> Y2[“DENSIFICATION<br>unit added to an existing dwelling”] –&gt; <!--   E -- "No: new construction" --> F{“Q6: Demolition permit<br>at the same address?”} –&gt; <!--   F -- "Yes" --> G{“Q7: Does the address gain more units<br>than the demolition removed?<br>(units_created_at_address<br>minus units lost)”} –&gt; <!--   G -- "Yes" --> Y3[“DENSIFICATION<br>teardown replaced by more units”] –&gt; <!--   G -- "No" --> X4[“Replacement:<br>no net gain in units”] –&gt; <!--   F -- "No" --> H[“UNCLEAR<br>new subdivision or infill?<br>needs a location check”] –&gt; <!-- ``` --></p>
+<!-- The table below goes through the flow chart decision by decision and shows which variables each decision uses and what it decides. -->
+<!-- ::: {style="font-size: 85%;"} -->
+<!-- | Decision | Question | Variable(s) used | What it decides | -->
+<!-- |------------------|------------------|------------------|------------------| -->
+<!-- | Q1 | Does the city record dwelling units created? | `municipality` | Toronto, Mississauga and Kitchener go to Q2; Hamilton goes to Q8. | -->
+<!-- | Q2 | Units created at the address | `units_created_at_address` (sum of `dwelling_units_created` over all non-demolition permits at the same `street_address`) | 0: no new units. More than 6: larger project. 1 to 6: go to Q3. | -->
+<!-- | Q3 | Does this permit create units? | `dwelling_units_created`, `permit_type` | Permits that create no units, and demolition permits, are supporting permits and not counted. Permits creating at least one unit go to Q4. | -->
+<!-- | Q4 | Is it a multi-unit or added-suite structure? Note: I checked and Toronto, Kitchener and Hamilton uses this variable to record what a building will become after the project. Mississauga secondary suites are caught in the next question using `permit_type` | `structure_type` | Yes: densification (secondary suite, conversion, laneway or garden suite, multiplex). No: go to Q5. | -->
+<!-- | Q5 | Does the permit alter or add to an existing building? | `permit_type` | Yes: densification (unit added to an existing dwelling). No (new construction): go to Q6. | -->
+<!-- | Q6 | Is there a demolition permit at the same address? | `permit_type`, `street_address` (searched across the full municipal file, any date) | Yes: go to Q7. No: unclear, needs a location check. | -->
+<!-- | Q7 | Does the address gain more units than the demolition removed? This is an address-level test of the net change in units: `units_created_at_address` minus the units lost on the demolition permit. It is done at the address rather than the permit because a city may split one project across several permits (e.g., a new house plus a separate laneway-suite permit, or a semi pair on two permits). Toronto (`DWELLING_UNITS_LOST`) and Kitchener (`Units Lost`) record units lost on demolition permits; Mississauga does not, so we assume one unit was lost. We also assume at least one unit was lost everywhere, and take the largest value at the address so that revisions of the same demolition are not double counted. | `units_created_at_address`, `units_lost_at_address` (from the demolition permits at the same `street_address`) | Net gain above 0: densification (teardown replaced by more units). Net gain of 0 or less: replacement with no net gain in units. | -->
+<!-- | Q8 | What kind of work? (Hamilton) | `permit_type` (Hamilton's `WORKCLASS`), `structure_type` (Hamilton's `PERMITCLAS`) | Conversions (Convert Single to Multiple, Convert Multiple to Multiple, Convert NR to Res.): densification (units added by converting an existing building). New Construction of a residential building (Single Family Dwelling or a multi-unit class): go to Q9. Anything else, including non-residential new construction: no evidence of new units. | -->
+<!-- | Q9 | Is there a demolition permit at the same address? (Hamilton) | `permit_type` (Full Demolition, Demolish Sgle. Fam., Demolish Multiple Family, Demolition Control; partial, accessory and non-residential demolitions are left out), `street_address` | Yes: go to Q10. No: unclear, needs a location check. | -->
+<!-- | Q10 | Does the new building hold more than one unit? (Hamilton) | `structure_type` (Hamilton's `PERMITCLAS`) | Yes: densification (teardown replaced by more units). Single Family Dwelling: one-for-one replacement. | -->
+<!-- ::: -->
+<!-- The next table lists, for each city, the specific `structure_type` and `permit_type` values that count as a "yes" at Q3–Q6. -->
+<!-- | Decision | Toronto | Mississauga | Kitchener | -->
+<!-- |------------------|------------------|------------------|------------------| -->
+<!-- | Multi-unit or added-suite `structure_type` | 2 Unit - Detached / Semi-detached / Townhouse; 3+ Unit - Detached / Semi-detached / Townhouse; Laneway / Rear Yard Suite; Converted House; Duplex; Triplex/Semi-Detached; Multiple Unit Building; Apartment Building | DUPLEX, 3, 4, 5 0R 6PLEX; APARTMENT (\> 6 UNITS) | Duplex Dwelling (2 dwelling units); Duplex Dwelling - Condo; Semi-Duplex Dwelling; Rowhouse Duplex; Garden Suite; Apartment | -->
+<!-- | `permit_type` alters or adds to an existing building | Small Residential Projects; Building Additions/Alterations | ALTERATION TO EXISTING BLDG; ADDITION AND ALTERATION; ADDITION TO EXISTING BLDG | none (every unit-creating permit is Residential Building (House) or (Multi)) | -->
+<!-- | New construction `permit_type` | New Houses; New Building; Residential Building Permit | NEW BUILDING | Residential Building (House); Residential Building (Multi) | -->
+<!-- | Demolition `permit_type` | Demolition Folder (DM) | DEMOLITION | Residential Demolition | -->
+<!-- ## Diagnostic: Sample of Mild Densification Projects -->
+<!-- This applies the flow chart above to each completed permit, then draws a random sample of 10 projects (addresses) per municipality that end in one of the three DENSIFICATION boxes. Every permit at a sampled address that counts as densification is shown, with the branch of the flow chart it came through. -->
+<!-- ```{r} -->
+<!-- #| label: classify-densification -->
+<!-- multi_unit_structures<-c( -->
+<!--   # Toronto -->
+<!--   "2 Unit - Detached", "2 Unit - Semi-detached", "2 Unit - Townhouse", -->
+<!--   "3+ Unit - Detached", "3+ Unit - Semi-detached", "3+ Unit - Townhouse", -->
+<!--   "Laneway / Rear Yard Suite", "Converted House", "Duplex", "Triplex/Semi-Detached", -->
+<!--   "Multiple Unit Building", "Apartment Building", -->
+<!--   # Mississauga -->
+<!--   "DUPLEX, 3, 4, 5 0R 6PLEX", "APARTMENT (> 6 UNITS)", -->
+<!--   # Kitchener -->
+<!--   "Duplex Dwelling (2 dwelling units)", "Duplex Dwelling - Condo", "Semi-Duplex Dwelling", -->
+<!--   "Rowhouse Duplex", "Garden Suite", "Apartment") -->
+<!-- alteration_permits<-c( -->
+<!--   # Toronto -->
+<!--   "Small Residential Projects", "Building Additions/Alterations", -->
+<!--   # Mississauga -->
+<!--   "ALTERATION TO EXISTING BLDG", "ADDITION AND ALTERATION", "ADDITION TO EXISTING BLDG") -->
+<!-- # demolition_permits is defined in the units-per-address-variable chunk -->
+<!-- # Hamilton (Q8 to Q10): permit_type is WORKCLASS and structure_type is PERMITCLAS -->
+<!-- hamilton_conversions<-c("Convert Single to Multiple", "Convert Multiple to Multiple", "Convert NR to Res.") -->
+<!-- # Demolitions that remove a whole building (partial, accessory and -->
+<!-- # non-residential demolitions are left out) -->
+<!-- hamilton_demolition_permits<-c("Full Demolition", "Demolish Sgle. Fam.", "Demolish Multiple Family", "Demolition Control") -->
+<!-- hamilton_multi_unit_structures<-c("Two Family Dwelling", "Three Family Dwelling", "Semi-Detached Dwelling", -->
+<!--                                   "Townhouses", "Townhouse", "Row Dwelling", "Multiple Dwelling", "Apartments") -->
+<!-- # Addresses with a demolition permit at any date in the full municipal file, -->
+<!-- # with the number of units the demolition removed. Toronto and Kitchener record -->
+<!-- # units lost on demolition permits; Mississauga and Hamilton do not. We assume -->
+<!-- # at least one unit was lost, and take the largest value at the address rather -->
+<!-- # than the sum so that revisions of the same demolition permit are not double -->
+<!-- # counted. -->
+<!-- units_lost_variable<-c("Toronto"="dwelling_units_lost", "Kitchener"="units_lost") -->
+<!-- city.list[c("Toronto", "Mississauga", "Kitchener", "Hamilton")] |> -->
+<!--   imap(\(x, city) { -->
+<!--     lost_values<-if (city %in% names(units_lost_variable)) as.numeric(x[[units_lost_variable[[city]]]]) else NA_real_ -->
+<!--     x |> -->
+<!--       mutate(units_lost=lost_values) |> -->
+<!--       filter(permit_type %in% c(demolition_permits, hamilton_demolition_permits)) |> -->
+<!--       group_by(street_address) |> -->
+<!--       summarize(units_lost_at_address=max(c(1, units_lost), na.rm=TRUE)) -->
+<!--   }) |> -->
+<!--   bind_rows(.id="municipality") |> -->
+<!--   mutate(demolition_at_address=TRUE)->demolition_addresses -->
+<!-- completed |> -->
+<!--   left_join(demolition_addresses, by=c("municipality", "street_address")) |> -->
+<!--   mutate(demolition_at_address=coalesce(demolition_at_address, FALSE), -->
+<!--          # Net change in units at the address (used for Q7) -->
+<!--          net_units_at_address=units_created_at_address-units_lost_at_address, -->
+<!--          densification=case_when( -->
+<!--            # Hamilton branch (Q8 to Q10); Hamilton does not record units created -->
+<!--            municipality=="Hamilton" & permit_type %in% hamilton_conversions ~ "DENSIFICATION: units added by converting an existing building", -->
+<!--            municipality=="Hamilton" & permit_type=="New Construction" & !structure_type %in% c("Single Family Dwelling", hamilton_multi_unit_structures) ~ "No evidence of new units", -->
+<!--            municipality=="Hamilton" & permit_type=="New Construction" & demolition_at_address & structure_type %in% hamilton_multi_unit_structures ~ "DENSIFICATION: teardown replaced by more units", -->
+<!--            municipality=="Hamilton" & permit_type=="New Construction" & demolition_at_address ~ "Replacement: no net gain", -->
+<!--            municipality=="Hamilton" & permit_type=="New Construction" ~ "Unclear: needs location check", -->
+<!--            municipality=="Hamilton" ~ "No evidence of new units", -->
+<!--            # Toronto, Mississauga and Kitchener (Q2 to Q7) -->
+<!--            units_created_at_address==0 ~ "No new units", -->
+<!--            units_created_at_address>6 ~ "Larger project", -->
+<!--            permit_type %in% demolition_permits | !(dwelling_units_created>0) | is.na(dwelling_units_created) ~ "Supporting permit", -->
+<!--            structure_type %in% multi_unit_structures ~ "DENSIFICATION: multi-unit or added-suite structure", -->
+<!--            permit_type %in% alteration_permits ~ "DENSIFICATION: unit added to existing dwelling", -->
+<!--            demolition_at_address & net_units_at_address>0 ~ "DENSIFICATION: teardown replaced by more units", -->
+<!--            demolition_at_address ~ "Replacement: no net gain", -->
+<!--            TRUE ~ "Unclear: needs location check"))->completed -->
+<!-- completed |> -->
+<!--   count(municipality, densification) |> -->
+<!--   knitr::kable() -->
+<!-- ``` -->
+<!-- ::: {.column-page style="font-size: 75%;"} -->
+<!-- ```{r} -->
+<!-- #| label: sample-densification-projects -->
+<!-- set.seed(1) -->
+<!-- completed |> -->
+<!--   filter(str_detect(densification, "^DENSIFICATION")) |> -->
+<!--   distinct(municipality, street_address) |> -->
+<!--   group_by(municipality) |> -->
+<!--   slice_sample(n=10) |> -->
+<!--   ungroup()->densification_sample -->
+<!-- completed |> -->
+<!--   filter(str_detect(densification, "^DENSIFICATION")) |> -->
+<!--   semi_join(densification_sample, by=c("municipality", "street_address")) |> -->
+<!--   arrange(municipality, street_address, completed_date) |> -->
+<!--   # Every row here is densification, so drop the prefix and keep only the branch -->
+<!--   mutate(densification=str_remove(densification, "^DENSIFICATION: ")) |> -->
+<!--   select(City=municipality, Address=street_address, Completed=completed_date, -->
+<!--          `Permit type`=permit_type, Structure=structure_type, -->
+<!--          Units=dwelling_units_created, `Units at address`=units_created_at_address, -->
+<!--          Branch=densification) |> -->
+<!--   knitr::kable() -->
+<!-- ``` -->
+<!-- ::: -->
+<!-- ## Maps of Densification Projects -->
+<!-- These maps show every densification project (address) in Toronto, Mississauga and Kitchener. Mississauga and Kitchener permits come with their own point locations. Toronto permits do not, so they are matched to the City of Toronto address points by street address. Hamilton is left out for now because its permit shapefile has no locations. -->
+<!-- ```{r} -->
+<!-- #| label: import-toronto-address-points -->
+<!-- #| cache: true -->
+<!-- # Download Toronto's address points straight from Toronto Open Data -->
+<!-- # (https://open.toronto.ca/dataset/address-points-municipal-toronto-one-address-repository/). -->
+<!-- # Only the full address and the point are requested, which keeps the download to ~50 MB. -->
+<!-- # The geometry column is GeoJSON text, e.g. {"type": "Point", "coordinates": [-79.5, 43.6]} -->
+<!-- toronto_address_url<-"https://ckan0.cf.opendata.inter.prod-toronto.ca/datastore/dump/0b3756af-9caf-4f0f-ac28-9c6617adede4?fields=ADDRESS_FULL,geometry&format=csv" -->
+<!-- toronto_addresses<-read_csv(toronto_address_url, col_types="cc") |> -->
+<!--   mutate(lon=as.numeric(str_extract(geometry, "(?<=\\[)-?[0-9.]+")), -->
+<!--          lat=as.numeric(str_extract(geometry, "-?[0-9.]+(?=\\])"))) |> -->
+<!--   filter(!is.na(lon), !is.na(lat)) |> -->
+<!--   select(-geometry) |> -->
+<!--   st_as_sf(coords=c("lon", "lat"), crs=4326) |> -->
+<!--   mutate(street_address=str_to_upper(str_squish(ADDRESS_FULL))) |> -->
+<!--   distinct(street_address, .keep_all=TRUE) |> -->
+<!--   select(street_address) -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- #| label: map-densification -->
+<!-- #| eval: !expr nzchar(Sys.getenv("CM_API_KEY")) -->
+<!-- #| fig-width: 11 -->
+<!-- #| fig-height: 5 -->
+<!-- library(patchwork) -->
+<!-- library(cancensus) -->
+<!-- map_cities<-c("Toronto", "Mississauga", "Kitchener") -->
+<!-- # One point per project (address). An address with permits on more than one -->
+<!-- # densification branch is shown under the first branch in this order. -->
+<!-- branch_order<-c("teardown replaced by more units", "multi-unit or added-suite structure", "unit added to existing dwelling") -->
+<!-- completed |> -->
+<!--   filter(municipality %in% map_cities, str_detect(densification, "^DENSIFICATION")) |> -->
+<!--   mutate(branch=factor(str_remove(densification, "^DENSIFICATION: "), levels=branch_order)) |> -->
+<!--   arrange(municipality, street_address, branch) |> -->
+<!--   distinct(municipality, street_address, .keep_all=TRUE) |> -->
+<!--   select(municipality, street_address, branch)->densification_projects -->
+<!-- # Toronto: match to the address points. Permits write address ranges -->
+<!-- # ("1553-1557 BLOOR ST W"), letter suffixes with a space ("718 R OSSINGTON AVE") -->
+<!-- # and split "MC" names ("MC CAUL"); the address points use "1553", "718R" and "MCCAUL" -->
+<!-- densification_projects |> -->
+<!--   filter(municipality=="Toronto") |> -->
+<!--   mutate(match_address=street_address |> -->
+<!--            str_replace("^(\\d+)-\\d+ ", "\\1 ") |> -->
+<!--            str_replace("^(\\d+) ([A-Z]) ", "\\1\\2 ") |> -->
+<!--            str_replace(" MC ", " MC")) |> -->
+<!--   inner_join(toronto_addresses, by=c("match_address"="street_address")) |> -->
+<!--   st_as_sf() |> -->
+<!--   select(municipality, street_address, branch)->toronto_points -->
+<!-- # Mississauga and Kitchener: one point per address from the permit shapefiles -->
+<!-- mississauga_sf |> -->
+<!--   distinct(ADDRESS, .keep_all=TRUE) |> -->
+<!--   inner_join(filter(densification_projects, municipality=="Mississauga"), by=c("ADDRESS"="street_address")) |> -->
+<!--   select(municipality, street_address=ADDRESS, branch)->mississauga_points -->
+<!-- kitchener_sf |> -->
+<!--   distinct(FOLDERNAME, .keep_all=TRUE) |> -->
+<!--   inner_join(filter(densification_projects, municipality=="Kitchener"), by=c("FOLDERNAME"="street_address")) |> -->
+<!--   select(municipality, street_address=FOLDERNAME, branch)->kitchener_points -->
+<!-- list(toronto_points, mississauga_points, kitchener_points) |> -->
+<!--   map(\(x) { -->
+<!--     x<-st_transform(x, 4326) -->
+<!--     st_geometry(x)<-"geometry" -->
+<!--     x -->
+<!--   }) |> -->
+<!--   bind_rows()->project_points -->
+<!-- # How many projects could be placed on the map -->
+<!-- densification_projects |> -->
+<!--   count(municipality, name="projects") |> -->
+<!--   left_join(project_points |> st_drop_geometry() |> count(municipality, name="mapped"), by="municipality") |> -->
+<!--   knitr::kable() -->
+<!-- # City boundaries from the 2021 census -->
+<!-- set_cancensus_cache_path(here("Data/cancensus_cache_statscan_data")) -->
+<!-- get_census(dataset="CA21", regions=list(CSD=c("3520005", "3521005", "3530013")), -->
+<!--            level="CSD", geo_format="sf", quiet=TRUE) |> -->
+<!--   mutate(municipality=recode(GeoUID, "3520005"="Toronto", "3521005"="Mississauga", "3530013"="Kitchener"))->city_boundaries -->
+<!-- branch_colours<-c("teardown replaced by more units"="#eb6834", -->
+<!--                   "multi-unit or added-suite structure"="#2a78d6", -->
+<!--                   "unit added to existing dwelling"="#1baf7a") -->
+<!-- map_city<-function(city, show_legend=FALSE) { -->
+<!--   points<-filter(project_points, municipality==city) -->
+<!--   ggplot()+ -->
+<!--     geom_sf(data=filter(city_boundaries, municipality==city), fill="grey96", colour="grey60", linewidth=0.3)+ -->
+<!--     geom_sf(data=points, aes(colour=branch), size=0.6, alpha=0.8, show.legend=show_legend)+ -->
+<!--     scale_colour_manual(values=branch_colours, drop=FALSE)+ -->
+<!--     guides(colour=guide_legend(override.aes=list(size=3, alpha=1)))+ -->
+<!--     labs(title=paste0(city, " (", scales::comma(nrow(points)), " projects)"), colour=NULL)+ -->
+<!--     theme_void() -->
+<!-- } -->
+<!-- # The legend is drawn once, from the Toronto map, and placed under all three -->
+<!-- wrap_plots(map(map_cities, \(city) map_city(city, show_legend=city=="Toronto")), nrow=1)+ -->
+<!--   plot_layout(guides="collect")& -->
+<!--   theme(legend.position="bottom") -->
+<!-- ``` -->
+<!-- ## Filtering Respondents -->
+<!-- We restrict the analysis to respondents living in dissemination areas (DAs) with no dwellings in apartment buildings of five or more storeys, using 2021 Census DA data. Our interest is in how residents of low-density neighbourhoods respond to densification, since they are the main source of local opposition to new housing supply. Residents of areas that already contain mid- and high-rise buildings live with a fundamentally different baseline: a small infill project or a proposed mid-rise building is a marginal change to their surroundings, not a change in neighbourhood character. These residents are also likely to differ systematically from low-density residents in tenure, age and housing preferences, partly because they chose to live in denser areas. Restricting the sample to low-density DAs keeps both our measure of exposure to nearby densification and our experimental treatments meaningful for the respondents analyzed, at some cost to generalizability. -->
+<!-- ```{r} -->
+<!-- cities <- c("Toronto", "Ottawa", "Mississauga", "Kitchener", -->
+<!--             "St. Catharines", "Hamilton", "Burlington") -->
+<!-- on22 %>% -->
+<!--   filter(CSDNAME2021 %in% cities) %>% -->
+<!--   ggplot(aes(x = apartment_in_building_plus_5_pct_da)) + -->
+<!--   geom_histogram(bins = 30) + -->
+<!--   scale_x_continuous(labels = scales::percent) + -->
+<!--   facet_wrap(~ CSDNAME2021, scales = "free_y", axes = "all_x") + -->
+<!--   labs(x = "Percentage of 5+ storey buildings in DA", -->
+<!--        y = "Respondents") -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- #| label: tower-share-binned -->
+<!-- #| fig-width: 10 -->
+<!-- #| fig-height: 7 -->
+<!-- # Same data grouped into 10-point bins: [0%, 10%), [10%, 20%), ..., [90%, 100%] -->
+<!-- on22 %>% -->
+<!--   filter(CSDNAME2021 %in% cities, !is.na(apartment_in_building_plus_5_pct_da)) %>% -->
+<!--   mutate(tower_share_bin = cut(apartment_in_building_plus_5_pct_da, -->
+<!--                                breaks = seq(0, 1, by = 0.1), -->
+<!--                                labels = paste0(seq(0, 90, by = 10), "-", seq(10, 100, by = 10), "%"), -->
+<!--                                right = FALSE, include.lowest = TRUE)) %>% -->
+<!--   ggplot(aes(x = tower_share_bin)) + -->
+<!--   geom_bar() + -->
+<!--   scale_x_discrete(drop = FALSE) + -->
+<!--   facet_wrap(~ CSDNAME2021, scales = "free_y", axes = "all_x") + -->
+<!--   labs(x = "Percentage of dwellings in 5+ storey buildings in DA", -->
+<!--        y = "Respondents") + -->
+<!--   theme(axis.text.x = element_text(angle = 45, hjust = 1)) -->
+<!-- ``` -->
+<!-- Grouping the same measure into ten-point bins shows that respondents' neighbourhoods are sharply divided rather than spread evenly across the range. Of the 820 respondents in the seven cities with census data for their DA, 54% live in a DA where less than 10% of dwellings are in buildings of five or more storeys, and most of these (420 respondents, or 51% of the total) live in a DA with no such dwellings at all. At the other end, 19% live in a DA where 90% or more of dwellings are in 5+ storey buildings, which typically means the DA consists largely of one or more apartment towers. Relatively few respondents fall in between. Toronto is the clear exception to the low-density pattern: only 39% of Toronto respondents live in a DA with no 5+ storey dwellings, and 29% live in a DA that is at least 90% towers. In the other six cities, between 60% (Hamilton) and 89% (Burlington) of respondents live in DAs with no 5+ storey dwellings. Because the filter keeps only respondents in DAs with no 5+ storey dwellings, it removes a much larger share of the Toronto sample than of the other cities. A further 51 respondents in these cities could not be placed in a bin because their DA has no tower-share value. -->
 </section>
 <section id="structure-type-explained" class="level2">
 <h2 class="anchored" data-anchor-id="structure-type-explained">Structure Type Explained</h2>

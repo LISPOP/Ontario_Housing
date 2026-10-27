@@ -22,9 +22,9 @@ library(sf)
 
 The general idea was to see if we can use published building permits to identify local projects of densification to see if respondents in our Ontario 2022 survey who have experienced densification in their neighbourhood differ in their attitudes to housing policy than those who have not.
 
-## Backgrounds
 
-Rafael found several municipalities that publishe different types of building permits. The thing is, we need to link the building permits to residents in our survey, so it only makes sense to find building permits for municipalities that are represented in our survey. Here are the most represented municipalities in our data.
+The starting point is our own survey, which has respondents across certain municipalities in Ontario. This is the count of respondents that we have by municipality. 
+
 
 ```{r}
 #| label: respondent-counts-by-municipality
@@ -48,12 +48,26 @@ on22 |>
 ```{r}
 #| label: count-respondents
 #| echo: false
+#| output: 'hide'
 on22 |> 
   filter(CSDNAME2021 %in% c("Toronto", "Ottawa", "Mississauga", "Hamilton", "Burlington", "St. Catharines", "Kitchener")) ->on22_building_permit_subset
-nrow(on22_building_permit_subset)
+#nrow(on22_building_permit_subset)
 ```
 
-Of these municipalities, we found good building permit data for Toronto, Ottawa, Mississauga, Hamilton, Burlington, St. Catharine's and Kitchener. If we took those municipalities, we would have `r nrow(on22_building_permit_subset)` cases, essentially stretching across the GTHA plus Kitchener.
+
+
+We looked for building permit data down to St. Catharine's and found good data for Toronto, Ottawa, Mississauga, Hamilton, Burlington, St. Catharine's and Kitchener. If we took those municipalities, we would have `r nrow(on22_building_permit_subset)` cases, essentially stretching across the GTHA plus Kitchener. We found good building permit data for Toronto, Ottawa, Mississauga, Hamilton, Burlington, St. Catharine's and Kitchener. If we took those municipalities, we would have `r nrow(on22_building_permit_subset)` cases, essentially stretching across the GTHA plus Kitchener. 
+
+However, it's more complicated. There are four major decisions to make. Lurking behind all of these are sample size questions, because we only have so many building permits from so many municipalities and we only have so many respondents and they have to match up. 
+
+
+
+## Which municipalities to we use?  
+
+The municipalities do not always collect the same data. For example, some municipalities track the number of units a development adds, others do not. We have to map similar variables to similar variables. This is not a super challenge, the questions below are more pressing and complicated. 
+
+
+
 
 ```{r}
 #| label: import-files
@@ -177,25 +191,114 @@ city.list[["Kitchener"]] |> rename(street_address=foldername)->city.list[["Kitch
 city.list[["Burlington"]] |> rename(street_address=address)->city.list[["Burlington"]]
 ```
 
-## Dates
 
-All municipalities include an "issued date" variable, but only four municipalities (Toronto, Mississauga, Hamilton and Kitchener) have a "completed date". There are advantages and disadvantages to using both.
 
-on the one hand, going with the "issue date" variable will give us a larger sample size. Plus, having building permits issued might actually spur some NIMBY opposition. I feel like it's not unfrequent for neighbours to keep an eye on what is happening. But, building permits being issued might not actually mean that the project was actually completed. My own view is that we should start with the completed date variable and see how well we do. That would give us Toronto, Mississauga, Hamilton and Kitchener. There are `r on22 |> filter(CSDNAME2021 %in% c("Toronto", "Mississauga", "Hamilton", "Kitchener")) |> nrow()` respondents in those cities.
+## Decision 1. Do we use building permit issue date or building permit data?  
 
-We may end up throwing some of those away as I think it's going to make the most sense to restrict the analysis to respondents who are only in low-density neighbourhoods. We don't really care what tower-dwellers think of densification. The problem revolves around how to get people in low-density neighbourhoods to accept densification.
+Some municipalities track the former, fewer track both. Advantages of using building issue date are that we have more municipalities and it might meaningfully spur NIMBY-ism. Disadvantages include that not all building permits are ever completed, and they may not be noticed in the neighbourhood and thus may not spur any kind of attitude change. 
 
-Some municipalities have building permits that go back to 2017, I don't think we want to include those. The logic would be that utlimately people would become acclimatized to densification, or more respondents than not will have chosen to move into that neighbourhood. I suggest restricting projects to those that were completed in 2021 or 2022, prior to the campaign.
+## Decision 2. How do we measure densification? 
 
-## Residential Units Created
+Some city variables have a variable that measures units created, but not all (e.g. Hamilton does not). PLus, municipalities have other variables that differently capture what the building permit is meant to do. How do we combine these to come up with some kind of measure of projects that can be called densification. 
 
-Three of the four cities here (Hamilton excepted) have a variable that encapsulates the number of dwelling units created.
+## Decision 3 Do we define densification in a relative way, relative to the repsondent's dissemination area?
+
+Related to questio two, we have at our hand the density of each respondent's built environment (e.g. percent of the respondent's dissemination area that is buildings larger than five stories). So, some of our respondents live in single-family home DAs, some live in areas that are almost all towers. Do we care about public opinion about a tower dweller living in a neighbourhood when another tower goes up? Do we care about a person living in a moderately dense neighbourhood feels about densification when a tower goes up? My thought was that it might make sense to take the clean case of a respondent who lives in a zero-tower neighbourhood and then has a moderate densification project (1 to 6 units). Then, by definition, you have respondents who are facing more densification than previously. Plus, this is clearly a public policy concern as that is where densification has to happen the most and where it meets the most objections. It basically sets the tower question aside, but this does come at the cost of sample size. 
+ 
+The building permit data includes information on everything from decks, to small conversions adding suites to large towers. 
+
+
+## Decision 4 Which time frame do we use? 
+
+If we are interested in the causal effect of some kind of densification project in a respondent's neighbourhood, how closely does the project have to be prior to the survey to have some kind of effect? Six months? 1 year? The longer the time frame, the more building permits we will have, but might the causal effect of a building permit be lost, the longer we extend the time frame?
+
+## Summary of trade-offs
+
+This section summarizes what the data say about each of the four questions. The numbers come from the analysis in the sections below. They are typed in rather than calculated here, so they need updating if the data or the flow chart change. Unless stated otherwise, permits are those issued or completed between January 2021 and April 2022, and the survey was in the field from May 18 to 27, 2022. A "zero-tower" respondent lives in a DA where no dwellings are in buildings of five or more storeys.
+
+| City | Respondents | Zero-tower respondents | Completed date | Units created | Permits issued | Permits completed |
+|------------|-----------:|-----------:|:----------:|:----------:|-----------:|-----------:|
+| Toronto | 481 | 172 | Yes | Yes | 35,647 | 42,168 |
+| Ottawa | 133 | 84 | No | Yes | 13,552 | — |
+| Mississauga | 100 | 61 | Yes | Yes | 5,321 | 4,271 |
+| Hamilton | 69 | 39 | Yes | No | 10,062 | 7,851 |
+| Kitchener | 34 | 21 | Yes | Yes | 4,400 | 3,438 |
+| Burlington | 27 | 23 | No | Yes | 0 | — |
+| St. Catharines | 27 | 20 | No | No | 1,672 | — |
+| **Total** | **871** | **420** | | | | |
+
+: Respondents and building permit data by city {#tbl-tradeoff-overview}
+
+### 1. Issue date or completed date
+
+- **Completed date:** four cities (Toronto, Mississauga, Hamilton and Kitchener), with 684 respondents, 293 of them zero-tower.
+- **Issue date:** six cities have permits issued in the window, with 844 respondents, 397 of them zero-tower. Nearly all of the gain is Ottawa (133 respondents, 84 zero-tower). St. Catharines adds 27 (20 zero-tower), but it records neither units created nor structure type. Burlington adds nothing either way, because its file starts in June 2022, after the survey.
+- **Not every issued permit is finished.** Of the permits issued in the window, 91% in Mississauga and 82% in Kitchener had been completed by the time the files were downloaded. In Hamilton, whose completion dates only run to January 2024, the figure is 66%. Toronto's rate is unknown because its file only includes permits that have been closed.
+- **"Completed" does not always mean built.** In Toronto, the completed date is the date the permit was closed, and that includes cancelled permits. Of the 2,567 Toronto permits creating at least one unit that closed in the window, 407 (16%) were cancelled. The flow chart does not currently drop them.
+- **The two dates pick up different stages of a project.** For permits adding 1 to 6 units that were completed in the window, the median time from issue to completion was about 8 months in Mississauga (254 days), 21 months in Toronto (635 days, closed permits only) and 23 months in Kitchener (693 days). Most were issued before 2021: 1,694 of 2,108 in Toronto, 443 of 761 in Mississauga and 1,317 of 1,517 in Kitchener. So a project completed shortly before the survey has usually been under construction, and visible to neighbours, for a year or more. A project issued shortly before the survey was mostly still under construction, or not yet started, when respondents took the survey.
+
+**The trade-off:** the issue date adds Ottawa, about 160 respondents in total, and captures the moment neighbours may first react. The completed date marks a project that has actually changed the neighbourhood, but in Toronto it needs cancelled permits removed, and it limits us to four cities.
+
+### 2. Measuring densification
+
+- **Units created are recorded** in Toronto, Ottawa, Mississauga and Kitchener (and Burlington, which has no permits in the window). Hamilton and St. Catharines do not record them, so their projects can only be classified from the permit category and the work description.
+- **Densification projects found by the flow chart** (addresses, completed in the window): Toronto 933, Mississauga 545, Kitchener 387 and Hamilton 250.
+- **Each city reaches "densification" through a different variable.** In Mississauga, 532 of the 545 projects come from the permit type (a unit added to an existing building). In Toronto and Kitchener, most come from the structure type (a multi-unit or added-suite building). Hamilton's projects are almost all conversions (236 of 250), and because Hamilton has no unit counts, the 1-to-6-unit limit cannot be applied there. "Convert Multiple to Multiple" may include large projects.
+- **Many projects are unclassified.** New construction with no demolition at the same address is marked "Unclear". These may be new subdivisions on vacant land rather than infill: Kitchener has 1,033 such addresses (more than its 387 densification projects), Hamilton 756, Toronto 261 and Mississauga 124. How they are treated changes the Kitchener and Hamilton counts a lot.
+- **Projects with more than 6 units are rare:** 69 in Toronto, 28 in Kitchener and 11 in Mississauga.
+- The flow chart has only been applied to completed permits. Using the issue date would mean extending it to Ottawa (which has unit counts) and St. Catharines (which would rely on its permit categories).
+
+**The trade-off:** a rule based on units created is consistent and easy to defend, but it drops Hamilton and St. Catharines. A rule based on permit and structure categories covers every city, but each city needs its own mapping, so the measure means something slightly different from city to city.
+
+### 3. Densification and neighbourhood density
+
+- **Restricting to zero-tower respondents keeps 420 of 871 (48%)** in the seven cities, and 293 of 684 (43%) in the four completed-date cities. Another 51 respondents have no tower-share value for their DA.
+- **The restriction falls hardest on Toronto:** 172 of 481 Toronto respondents (36%) are zero-tower, compared with 60% to 89% in the other cities. After the restriction, Toronto drops from 55% of the sample to 41%, even though most densification projects are in Toronto.
+- **The exact cut-off barely matters.** Relaxing "zero" to "less than 10%" adds only 24 respondents (444 instead of 420), because respondents mostly live either in DAs with no towers or in DAs that are mostly towers.
+- **Still unknown:** how many zero-tower respondents have a 1-to-6-unit project in their neighbourhood. That depends on linking permit locations to respondents' DAs, which has not been done yet. It is the number that sets the size of the "treated" group. Hamilton's permit file has no locations, and Toronto permits have to be matched to address points.
+
+**The trade-off:** the zero-tower restriction gives a clean case (every nearby project is new density for these respondents) that matches where densification meets the most opposition. It costs about half the sample and most of Toronto, and it means we can say nothing about how residents of denser neighbourhoods react to new projects.
+
+### 4. Time frame
+
+Densification projects (addresses) by how long before the survey their last permit was completed:
+
+| City | 6 months (Nov 2021 to Apr 2022) | 12 months (May 2021 to Apr 2022) | 16 months (Jan 2021 to Apr 2022) |
+|------------|-----------:|-----------:|-----------:|
+| Toronto | 344 | 701 | 933 |
+| Mississauga | 204 | 408 | 545 |
+| Kitchener | 160 | 304 | 387 |
+| Hamilton | 92 | 190 | 250 |
+| **Total** | **800** | **1,603** | **2,115** |
+
+: Densification projects by time before the survey {#tbl-tradeoff-window}
+
+- **The count grows roughly in proportion to the window:** six months gives half as many projects as twelve.
+- **The window interacts with the choice of date.** Because a typical project takes 8 to 23 months from issue to completion, a "6 months before the survey, completed date" project was usually under construction for a year or more before that. A short completion window does not mean a short exposure.
+- **Sixteen months is the longest window the current code loads.** The Toronto and Hamilton files go back to 2017, so longer windows are possible for the completed-date cities. Only Ottawa's 2021 and 2022 files are loaded (the 2020 file is commented out), so a longer issue-date window would need that file.
+
+**The trade-off:** a longer window gives more projects and so more treated respondents. But it also includes projects whose effect may have faded, and respondents who moved in after a project was built and so never experienced it as a change.
+
+
+<!-- ## Dates -->
+
+<!-- All municipalities include an "issued date" variable, but only four municipalities (Toronto, Mississauga, Hamilton and Kitchener) have a "completed date". There are advantages and disadvantages to using both. -->
+
+<!-- on the one hand, going with the "issue date" variable will give us a larger sample size. Plus, having building permits issued might actually spur some NIMBY opposition. I feel like it's not unfrequent for neighbours to keep an eye on what is happening. But, building permits being issued might not actually mean that the project was actually completed. My own view is that we should start with the completed date variable and see how well we do. That would give us Toronto, Mississauga, Hamilton and Kitchener. There are `r on22 |> filter(CSDNAME2021 %in% c("Toronto", "Mississauga", "Hamilton", "Kitchener")) |> nrow()` respondents in those cities. -->
+
+
+
+<!-- ## Residential Units Created -->
+
+<!-- Three of the four cities here (Hamilton excepted) have a variable that encapsulates the number of dwelling units created. -->
 
 ```{r}
 #| label: make-completed-dataset
 #| eval: true
 #| include: false
-
+# This chunk and units-per-address-variable stay live even though the text
+# around them is commented out: the Building Permits Issued section needs
+# completed, demolition_permits and Hamilton's empty dwelling_units_created column.
 
 library(ggplot2)
 # Keep one row per permit so units are not counted twice.
@@ -230,66 +333,66 @@ city.list[c("Toronto", "Mississauga", "Kitchener", "Hamilton")] |>
 
 ```
 
-Many of these building permits are in fact permits alterations to structures (think a deck or an interior renovation), but we can't just throw these away as there are variables in these data sets that describe demolitions as well. And we need to make use of that to find densification projects because, a single family dwelling that is torn down and has a building permit to build a new SFD is *not* densification. But an existing SFD that is renovated to add a unit *is* densification. However, just to get a sense of these data, I am going to temporarily exclude any building permits that do not create any units and show some basic summary statistics of what is left.
+<!-- Many of these building permits are in fact permits alterations to structures (think a deck or an interior renovation), but we can't just throw these away as there are variables in these data sets that describe demolitions as well. And we need to make use of that to find densification projects because, a single family dwelling that is torn down and has a building permit to build a new SFD is *not* densification. But an existing SFD that is renovated to add a unit *is* densification. However, just to get a sense of these data, I am going to temporarily exclude any building permits that do not create any units and show some basic summary statistics of what is left. -->
 
-The scales are really wonky in the distribution because the vast majority of these building permits are for 1 unit, but they do also include permits for a few towers.
+<!-- The scales are really wonky in the distribution because the vast majority of these building permits are for 1 unit, but they do also include permits for a few towers. -->
 
-```{r}
-#| label: units-created-summary
-#| echo: false
-completed |>
-  group_by(municipality) |>
-  filter(dwelling_units_created>0) |> 
-  summarize(n=n(),
-            missing=sum(is.na(dwelling_units_created)),
-            min=min(dwelling_units_created, na.rm=TRUE),
-            q1=quantile(dwelling_units_created, 0.25, na.rm=TRUE),
-            median=median(dwelling_units_created, na.rm=TRUE),
-            mean=mean(dwelling_units_created, na.rm=TRUE),
-            q3=quantile(dwelling_units_created, 0.75, na.rm=TRUE),
-            max=max(dwelling_units_created, na.rm=TRUE),
-            sd=sd(dwelling_units_created, na.rm=TRUE))
+<!-- ```{r} -->
+<!-- #| label: units-created-summary -->
+<!-- #| echo: false -->
+<!-- completed |> -->
+<!--   group_by(municipality) |> -->
+<!--   filter(dwelling_units_created>0) |>  -->
+<!--   summarize(n=n(), -->
+<!--             missing=sum(is.na(dwelling_units_created)), -->
+<!--             min=min(dwelling_units_created, na.rm=TRUE), -->
+<!--             q1=quantile(dwelling_units_created, 0.25, na.rm=TRUE), -->
+<!--             median=median(dwelling_units_created, na.rm=TRUE), -->
+<!--             mean=mean(dwelling_units_created, na.rm=TRUE), -->
+<!--             q3=quantile(dwelling_units_created, 0.75, na.rm=TRUE), -->
+<!--             max=max(dwelling_units_created, na.rm=TRUE), -->
+<!--             sd=sd(dwelling_units_created, na.rm=TRUE)) -->
 
 
-```
+<!-- ``` -->
 
-This is a visualization.
+<!-- This is a visualization. -->
 
-```{r}
-#| label: units-created-binned-bars
-#| echo: false
-#| fig-width: 9
-#| fig-height: 4
-library(tidyr)
-unit_bins<-c("1", "2", "3–6", "7–10", "11–50", "51–100", "Over 100")
-completed |>
-  filter(dwelling_units_created>0) |>
-  mutate(units_bin=cut(dwelling_units_created,
-                       breaks=c(0, 1, 2, 6, 10, 50, 100, Inf),
-                       labels=unit_bins)) |>
-  count(municipality, units_bin) |>
-  # Keep empty bins so every panel shows the same categories
-  complete(municipality, units_bin, fill=list(n=0)) |>
-  ggplot(aes(x=units_bin, y=n))+
-  geom_col(width=0.7, fill="#2a78d6")+
-  geom_text(aes(label=scales::comma(n)), vjust=-0.4, size=3, colour="#52514e")+
-  facet_wrap(~municipality)+
-  # Pseudo-log scale so the 1-unit bar does not flatten every other bar; a
-  # count of 0 sits on the baseline
-  scale_y_continuous(trans=scales::pseudo_log_trans(base=10),
-                     breaks=c(1, 10, 100, 1000),
-                     labels=scales::comma,
-                     expand=expansion(mult=c(0, 0.12)))+
-  labs(x="Dwelling units created by the permit", y="Number of permits (log scale)",
-       caption="Permits completed Jan 2021 to Apr 2022 that create at least one unit.")+
-  theme_minimal()+
-  theme(panel.grid.major.x=element_blank(),
-        panel.grid.minor=element_blank(),
-        axis.text.x=element_text(angle=45, hjust=1))
-ggsave(here("Plots/units_created_distribution.png"), width=9, height=4)
-```
+<!-- ```{r} -->
+<!-- #| label: units-created-binned-bars -->
+<!-- #| echo: false -->
+<!-- #| fig-width: 9 -->
+<!-- #| fig-height: 4 -->
+<!-- library(tidyr) -->
+<!-- unit_bins<-c("1", "2", "3–6", "7–10", "11–50", "51–100", "Over 100") -->
+<!-- completed |> -->
+<!--   filter(dwelling_units_created>0) |> -->
+<!--   mutate(units_bin=cut(dwelling_units_created, -->
+<!--                        breaks=c(0, 1, 2, 6, 10, 50, 100, Inf), -->
+<!--                        labels=unit_bins)) |> -->
+<!--   count(municipality, units_bin) |> -->
+<!--   # Keep empty bins so every panel shows the same categories -->
+<!--   complete(municipality, units_bin, fill=list(n=0)) |> -->
+<!--   ggplot(aes(x=units_bin, y=n))+ -->
+<!--   geom_col(width=0.7, fill="#2a78d6")+ -->
+<!--   geom_text(aes(label=scales::comma(n)), vjust=-0.4, size=3, colour="#52514e")+ -->
+<!--   facet_wrap(~municipality)+ -->
+<!--   # Pseudo-log scale so the 1-unit bar does not flatten every other bar; a -->
+<!--   # count of 0 sits on the baseline -->
+<!--   scale_y_continuous(trans=scales::pseudo_log_trans(base=10), -->
+<!--                      breaks=c(1, 10, 100, 1000), -->
+<!--                      labels=scales::comma, -->
+<!--                      expand=expansion(mult=c(0, 0.12)))+ -->
+<!--   labs(x="Dwelling units created by the permit", y="Number of permits (log scale)", -->
+<!--        caption="Permits completed Jan 2021 to Apr 2022 that create at least one unit.")+ -->
+<!--   theme_minimal()+ -->
+<!--   theme(panel.grid.major.x=element_blank(), -->
+<!--         panel.grid.minor=element_blank(), -->
+<!--         axis.text.x=element_text(angle=45, hjust=1)) -->
+<!-- ggsave(here("Plots/units_created_distribution.png"), width=9, height=4) -->
+<!-- ``` -->
 
-One problem in the data-set is that there are sometimes more than one building permit issued for for developments that include multiple dwellings at the same address; think a new duplex on a block. So, we need to calculate how many new units are created at unique addresses.
+<!-- One problem in the data-set is that there are sometimes more than one building permit issued for for developments that include multiple dwellings at the same address; think a new duplex on a block. So, we need to calculate how many new units are created at unique addresses. -->
 
 ```{r}
 #| label: units-per-address-variable
@@ -305,76 +408,24 @@ completed |>
   mutate(units_created_at_address=if_else(municipality=="Hamilton", NA_real_, units_created_at_address))->completed
 ```
 
-Then we can filter out building permits that are for larger towers and that actually don't create any new dwellings at an address. I'm going to define mild densification as building permits that add between 1 and 6 units at the same address.
+<!-- Then we can filter out building permits that are for larger towers and that actually don't create any new dwellings at an address. I'm going to define mild densification as building permits that add between 1 and 6 units at the same address. -->
 
-These are 100 random samples in the Toronto, Mississauga and Kitchener datasets showing these projects.
-
-```{r}
-#| label: units-by-address-permit-type
-#| echo: false
-completed |>
-  group_by(municipality, street_address, permit_type) |>
-  summarize(dwelling_units_created=sum(dwelling_units_created, na.rm=TRUE), .groups="drop")->units_by_address_permit_type
-units_by_address_permit_type |> 
-  filter(dwelling_units_created>0&dwelling_units_created<6) |> 
-  slice_sample(n=100) |> knitr::kable()
-```
+<!-- These are 100 random samples in the Toronto, Mississauga and Kitchener datasets showing these projects. -->
 
 <!-- ```{r} -->
-
-<!-- #| label: types-at-1-to-6-unit-addresses -->
-
+<!-- #| label: units-by-address-permit-type -->
+<!-- #| echo: false -->
 <!-- completed |> -->
-
-<!--   filter(between(units_created_at_address, 1, 6))->mild_densification -->
-
-<!-- mild_densification |> -->
-
-<!--   count(municipality, permit_type) |> -->
-
-<!--   arrange(municipality, desc(n)) |> -->
-
-<!--   knitr::kable() -->
-
-<!-- mild_densification |> -->
-
-<!--   count(municipality, structure_type) |> -->
-
-<!--   arrange(municipality, desc(n)) |> -->
-
-<!--   knitr::kable() -->
-
+<!--   group_by(municipality, street_address, permit_type) |> -->
+<!--   summarize(dwelling_units_created=sum(dwelling_units_created, na.rm=TRUE), .groups="drop")->units_by_address_permit_type -->
+<!-- units_by_address_permit_type |>  -->
+<!--   filter(dwelling_units_created>0&dwelling_units_created<6) |>  -->
+<!--   slice_sample(n=100) |> knitr::kable() -->
 <!-- ``` -->
 
-<!-- ```{r} -->
+<!-- So you can see that in these cities, there are some building permits for new houses; we're going to have to be more particular about identifying densification. -->
 
-<!-- #| label: types-at-1-to-6-unit-addresses-new-units -->
-
-<!-- mild_densification |> -->
-
-<!--   filter(dwelling_units_created>0)->mild_densification_new_units -->
-
-<!-- mild_densification_new_units |> -->
-
-<!--   count(municipality, permit_type) |> -->
-
-<!--   arrange(municipality, desc(n)) |> -->
-
-<!--   knitr::kable() -->
-
-<!-- mild_densification_new_units |> -->
-
-<!--   count(municipality, structure_type) |> -->
-
-<!--   arrange(municipality, desc(n)) |> -->
-
-<!--   knitr::kable() -->
-
-<!-- ``` -->
-
-So you can see that in these cities, there are some building permits for new houses; we're going to have to be more particular about identifying densification.
-
-Plus, we have this problem that Hamilton does not actually have these dwelling units created, so we need to rely on qualitative descriptions of projects in the permit type and structure type variables.
+<!-- Plus, we have this problem that Hamilton does not actually have these dwelling units created, so we need to rely on qualitative descriptions of projects in the permit type and structure type variables. -->
 
 ## Building Permits Issued
 
@@ -445,303 +496,303 @@ There are several caveats to counting permits by issue date:
 - **Ottawa:** a permit covering several addresses (e.g., a block of townhouses) appears once per address, with the permit's total units repeated on each row, so the table counts each permit and its units once. Large Ottawa apartment projects are also often split into a foundation-only permit and a later permit for the rest of the building, so some units may be counted on more than one permit.
 - **Issued is not built:** some issued permits are later cancelled or never completed, so counts based on issue date overstate the work that actually happened on the ground.
 
-## Densification flow chart
+<!-- ## Densification flow chart -->
 
-```{mermaid}
-flowchart TD
-  A["Completed permit<br/>Jan 2021 to Apr 2022"] --> M{"Q1: Does the city record<br/>dwelling units created?"}
-  M -- "Yes: Toronto,<br/>Mississauga, Kitchener" --> B{"Q2: Units created at the address<br/>(units_created_at_address,<br/>excluding demolitions)"}
-  M -- "No: Hamilton" --> HA{"Q8: What kind of work?<br/>(permit_type = WORKCLASS)"}
-  HA -- "Convert Single to Multiple,<br/>Convert Multiple to Multiple,<br/>Convert NR to Res." --> Y4["DENSIFICATION<br/>units added by converting<br/>an existing building"]
-  HA -- "Residential<br/>New Construction" --> HF{"Q9: Demolition permit<br/>at the same address?"}
-  HA -- "Anything else<br/>(alteration, addition, deck,<br/>demolition, services,<br/>non-residential construction)" --> X5["No evidence of new units:<br/>not counted"]
-  HF -- "Yes" --> HG{"Q10: structure_type (PERMITCLAS)<br/>holds more than one unit?<br/>(two or three family, semi-detached,<br/>townhouses, multiple dwelling, apartments)"}
-  HG -- "Yes" --> Y3
-  HG -- "No: Single Family Dwelling" --> X4
-  HF -- "No" --> H
-  B -- "0" --> X1["No new units:<br/>not densification"]
-  B -- "more than 6" --> X2["Larger project:<br/>outside mild densification"]
-  B -- "1 to 6" --> C{"Q3: Does this permit create units?<br/>(dwelling_units_created > 0,<br/>demolition permits excluded)"}
-  C -- "No" --> X3["Supporting permit<br/>(plumbing, mechanical, drains, decks):<br/>describes the project, not counted"]
-  C -- "Yes" --> D{"Q4: structure_type is a<br/>multi-unit or added-suite form?"}
-  D -- "Yes" --> Y1["DENSIFICATION<br/>secondary suite, conversion,<br/>laneway or garden suite, multiplex"]
-  D -- "No" --> E{"Q5: permit_type alters or adds to<br/>an existing building?"}
-  E -- "Yes" --> Y2["DENSIFICATION<br/>unit added to an existing dwelling"]
-  E -- "No: new construction" --> F{"Q6: Demolition permit<br/>at the same address?"}
-  F -- "Yes" --> G{"Q7: Does the address gain more units<br/>than the demolition removed?<br/>(units_created_at_address<br/>minus units lost)"}
-  G -- "Yes" --> Y3["DENSIFICATION<br/>teardown replaced by more units"]
-  G -- "No" --> X4["Replacement:<br/>no net gain in units"]
-  F -- "No" --> H["UNCLEAR<br/>new subdivision or infill?<br/>needs a location check"]
-```
+<!-- ```{mermaid} -->
+<!-- flowchart TD -->
+<!--   A["Completed permit<br/>Jan 2021 to Apr 2022"] --> M{"Q1: Does the city record<br/>dwelling units created?"} -->
+<!--   M -- "Yes: Toronto,<br/>Mississauga, Kitchener" --> B{"Q2: Units created at the address<br/>(units_created_at_address,<br/>excluding demolitions)"} -->
+<!--   M -- "No: Hamilton" --> HA{"Q8: What kind of work?<br/>(permit_type = WORKCLASS)"} -->
+<!--   HA -- "Convert Single to Multiple,<br/>Convert Multiple to Multiple,<br/>Convert NR to Res." --> Y4["DENSIFICATION<br/>units added by converting<br/>an existing building"] -->
+<!--   HA -- "Residential<br/>New Construction" --> HF{"Q9: Demolition permit<br/>at the same address?"} -->
+<!--   HA -- "Anything else<br/>(alteration, addition, deck,<br/>demolition, services,<br/>non-residential construction)" --> X5["No evidence of new units:<br/>not counted"] -->
+<!--   HF -- "Yes" --> HG{"Q10: structure_type (PERMITCLAS)<br/>holds more than one unit?<br/>(two or three family, semi-detached,<br/>townhouses, multiple dwelling, apartments)"} -->
+<!--   HG -- "Yes" --> Y3 -->
+<!--   HG -- "No: Single Family Dwelling" --> X4 -->
+<!--   HF -- "No" --> H -->
+<!--   B -- "0" --> X1["No new units:<br/>not densification"] -->
+<!--   B -- "more than 6" --> X2["Larger project:<br/>outside mild densification"] -->
+<!--   B -- "1 to 6" --> C{"Q3: Does this permit create units?<br/>(dwelling_units_created > 0,<br/>demolition permits excluded)"} -->
+<!--   C -- "No" --> X3["Supporting permit<br/>(plumbing, mechanical, drains, decks):<br/>describes the project, not counted"] -->
+<!--   C -- "Yes" --> D{"Q4: structure_type is a<br/>multi-unit or added-suite form?"} -->
+<!--   D -- "Yes" --> Y1["DENSIFICATION<br/>secondary suite, conversion,<br/>laneway or garden suite, multiplex"] -->
+<!--   D -- "No" --> E{"Q5: permit_type alters or adds to<br/>an existing building?"} -->
+<!--   E -- "Yes" --> Y2["DENSIFICATION<br/>unit added to an existing dwelling"] -->
+<!--   E -- "No: new construction" --> F{"Q6: Demolition permit<br/>at the same address?"} -->
+<!--   F -- "Yes" --> G{"Q7: Does the address gain more units<br/>than the demolition removed?<br/>(units_created_at_address<br/>minus units lost)"} -->
+<!--   G -- "Yes" --> Y3["DENSIFICATION<br/>teardown replaced by more units"] -->
+<!--   G -- "No" --> X4["Replacement:<br/>no net gain in units"] -->
+<!--   F -- "No" --> H["UNCLEAR<br/>new subdivision or infill?<br/>needs a location check"] -->
+<!-- ``` -->
 
-The table below goes through the flow chart decision by decision and shows which variables each decision uses and what it decides.
+<!-- The table below goes through the flow chart decision by decision and shows which variables each decision uses and what it decides. -->
 
-::: {style="font-size: 85%;"}
-| Decision | Question | Variable(s) used | What it decides |
-|------------------|------------------|------------------|------------------|
-| Q1 | Does the city record dwelling units created? | `municipality` | Toronto, Mississauga and Kitchener go to Q2; Hamilton goes to Q8. |
-| Q2 | Units created at the address | `units_created_at_address` (sum of `dwelling_units_created` over all non-demolition permits at the same `street_address`) | 0: no new units. More than 6: larger project. 1 to 6: go to Q3. |
-| Q3 | Does this permit create units? | `dwelling_units_created`, `permit_type` | Permits that create no units, and demolition permits, are supporting permits and not counted. Permits creating at least one unit go to Q4. |
-| Q4 | Is it a multi-unit or added-suite structure? Note: I checked and Toronto, Kitchener and Hamilton uses this variable to record what a building will become after the project. Mississauga secondary suites are caught in the next question using `permit_type` | `structure_type` | Yes: densification (secondary suite, conversion, laneway or garden suite, multiplex). No: go to Q5. |
-| Q5 | Does the permit alter or add to an existing building? | `permit_type` | Yes: densification (unit added to an existing dwelling). No (new construction): go to Q6. |
-| Q6 | Is there a demolition permit at the same address? | `permit_type`, `street_address` (searched across the full municipal file, any date) | Yes: go to Q7. No: unclear, needs a location check. |
-| Q7 | Does the address gain more units than the demolition removed? This is an address-level test of the net change in units: `units_created_at_address` minus the units lost on the demolition permit. It is done at the address rather than the permit because a city may split one project across several permits (e.g., a new house plus a separate laneway-suite permit, or a semi pair on two permits). Toronto (`DWELLING_UNITS_LOST`) and Kitchener (`Units Lost`) record units lost on demolition permits; Mississauga does not, so we assume one unit was lost. We also assume at least one unit was lost everywhere, and take the largest value at the address so that revisions of the same demolition are not double counted. | `units_created_at_address`, `units_lost_at_address` (from the demolition permits at the same `street_address`) | Net gain above 0: densification (teardown replaced by more units). Net gain of 0 or less: replacement with no net gain in units. |
-| Q8 | What kind of work? (Hamilton) | `permit_type` (Hamilton's `WORKCLASS`), `structure_type` (Hamilton's `PERMITCLAS`) | Conversions (Convert Single to Multiple, Convert Multiple to Multiple, Convert NR to Res.): densification (units added by converting an existing building). New Construction of a residential building (Single Family Dwelling or a multi-unit class): go to Q9. Anything else, including non-residential new construction: no evidence of new units. |
-| Q9 | Is there a demolition permit at the same address? (Hamilton) | `permit_type` (Full Demolition, Demolish Sgle. Fam., Demolish Multiple Family, Demolition Control; partial, accessory and non-residential demolitions are left out), `street_address` | Yes: go to Q10. No: unclear, needs a location check. |
-| Q10 | Does the new building hold more than one unit? (Hamilton) | `structure_type` (Hamilton's `PERMITCLAS`) | Yes: densification (teardown replaced by more units). Single Family Dwelling: one-for-one replacement. |
-:::
+<!-- ::: {style="font-size: 85%;"} -->
+<!-- | Decision | Question | Variable(s) used | What it decides | -->
+<!-- |------------------|------------------|------------------|------------------| -->
+<!-- | Q1 | Does the city record dwelling units created? | `municipality` | Toronto, Mississauga and Kitchener go to Q2; Hamilton goes to Q8. | -->
+<!-- | Q2 | Units created at the address | `units_created_at_address` (sum of `dwelling_units_created` over all non-demolition permits at the same `street_address`) | 0: no new units. More than 6: larger project. 1 to 6: go to Q3. | -->
+<!-- | Q3 | Does this permit create units? | `dwelling_units_created`, `permit_type` | Permits that create no units, and demolition permits, are supporting permits and not counted. Permits creating at least one unit go to Q4. | -->
+<!-- | Q4 | Is it a multi-unit or added-suite structure? Note: I checked and Toronto, Kitchener and Hamilton uses this variable to record what a building will become after the project. Mississauga secondary suites are caught in the next question using `permit_type` | `structure_type` | Yes: densification (secondary suite, conversion, laneway or garden suite, multiplex). No: go to Q5. | -->
+<!-- | Q5 | Does the permit alter or add to an existing building? | `permit_type` | Yes: densification (unit added to an existing dwelling). No (new construction): go to Q6. | -->
+<!-- | Q6 | Is there a demolition permit at the same address? | `permit_type`, `street_address` (searched across the full municipal file, any date) | Yes: go to Q7. No: unclear, needs a location check. | -->
+<!-- | Q7 | Does the address gain more units than the demolition removed? This is an address-level test of the net change in units: `units_created_at_address` minus the units lost on the demolition permit. It is done at the address rather than the permit because a city may split one project across several permits (e.g., a new house plus a separate laneway-suite permit, or a semi pair on two permits). Toronto (`DWELLING_UNITS_LOST`) and Kitchener (`Units Lost`) record units lost on demolition permits; Mississauga does not, so we assume one unit was lost. We also assume at least one unit was lost everywhere, and take the largest value at the address so that revisions of the same demolition are not double counted. | `units_created_at_address`, `units_lost_at_address` (from the demolition permits at the same `street_address`) | Net gain above 0: densification (teardown replaced by more units). Net gain of 0 or less: replacement with no net gain in units. | -->
+<!-- | Q8 | What kind of work? (Hamilton) | `permit_type` (Hamilton's `WORKCLASS`), `structure_type` (Hamilton's `PERMITCLAS`) | Conversions (Convert Single to Multiple, Convert Multiple to Multiple, Convert NR to Res.): densification (units added by converting an existing building). New Construction of a residential building (Single Family Dwelling or a multi-unit class): go to Q9. Anything else, including non-residential new construction: no evidence of new units. | -->
+<!-- | Q9 | Is there a demolition permit at the same address? (Hamilton) | `permit_type` (Full Demolition, Demolish Sgle. Fam., Demolish Multiple Family, Demolition Control; partial, accessory and non-residential demolitions are left out), `street_address` | Yes: go to Q10. No: unclear, needs a location check. | -->
+<!-- | Q10 | Does the new building hold more than one unit? (Hamilton) | `structure_type` (Hamilton's `PERMITCLAS`) | Yes: densification (teardown replaced by more units). Single Family Dwelling: one-for-one replacement. | -->
+<!-- ::: -->
 
-The next table lists, for each city, the specific `structure_type` and `permit_type` values that count as a "yes" at Q3–Q6.
+<!-- The next table lists, for each city, the specific `structure_type` and `permit_type` values that count as a "yes" at Q3–Q6. -->
 
-| Decision | Toronto | Mississauga | Kitchener |
-|------------------|------------------|------------------|------------------|
-| Multi-unit or added-suite `structure_type` | 2 Unit - Detached / Semi-detached / Townhouse; 3+ Unit - Detached / Semi-detached / Townhouse; Laneway / Rear Yard Suite; Converted House; Duplex; Triplex/Semi-Detached; Multiple Unit Building; Apartment Building | DUPLEX, 3, 4, 5 0R 6PLEX; APARTMENT (\> 6 UNITS) | Duplex Dwelling (2 dwelling units); Duplex Dwelling - Condo; Semi-Duplex Dwelling; Rowhouse Duplex; Garden Suite; Apartment |
-| `permit_type` alters or adds to an existing building | Small Residential Projects; Building Additions/Alterations | ALTERATION TO EXISTING BLDG; ADDITION AND ALTERATION; ADDITION TO EXISTING BLDG | none (every unit-creating permit is Residential Building (House) or (Multi)) |
-| New construction `permit_type` | New Houses; New Building; Residential Building Permit | NEW BUILDING | Residential Building (House); Residential Building (Multi) |
-| Demolition `permit_type` | Demolition Folder (DM) | DEMOLITION | Residential Demolition |
+<!-- | Decision | Toronto | Mississauga | Kitchener | -->
+<!-- |------------------|------------------|------------------|------------------| -->
+<!-- | Multi-unit or added-suite `structure_type` | 2 Unit - Detached / Semi-detached / Townhouse; 3+ Unit - Detached / Semi-detached / Townhouse; Laneway / Rear Yard Suite; Converted House; Duplex; Triplex/Semi-Detached; Multiple Unit Building; Apartment Building | DUPLEX, 3, 4, 5 0R 6PLEX; APARTMENT (\> 6 UNITS) | Duplex Dwelling (2 dwelling units); Duplex Dwelling - Condo; Semi-Duplex Dwelling; Rowhouse Duplex; Garden Suite; Apartment | -->
+<!-- | `permit_type` alters or adds to an existing building | Small Residential Projects; Building Additions/Alterations | ALTERATION TO EXISTING BLDG; ADDITION AND ALTERATION; ADDITION TO EXISTING BLDG | none (every unit-creating permit is Residential Building (House) or (Multi)) | -->
+<!-- | New construction `permit_type` | New Houses; New Building; Residential Building Permit | NEW BUILDING | Residential Building (House); Residential Building (Multi) | -->
+<!-- | Demolition `permit_type` | Demolition Folder (DM) | DEMOLITION | Residential Demolition | -->
 
-## Diagnostic: Sample of Mild Densification Projects
+<!-- ## Diagnostic: Sample of Mild Densification Projects -->
 
-This applies the flow chart above to each completed permit, then draws a random sample of 10 projects (addresses) per municipality that end in one of the three DENSIFICATION boxes. Every permit at a sampled address that counts as densification is shown, with the branch of the flow chart it came through.
+<!-- This applies the flow chart above to each completed permit, then draws a random sample of 10 projects (addresses) per municipality that end in one of the three DENSIFICATION boxes. Every permit at a sampled address that counts as densification is shown, with the branch of the flow chart it came through. -->
 
-```{r}
-#| label: classify-densification
-multi_unit_structures<-c(
-  # Toronto
-  "2 Unit - Detached", "2 Unit - Semi-detached", "2 Unit - Townhouse",
-  "3+ Unit - Detached", "3+ Unit - Semi-detached", "3+ Unit - Townhouse",
-  "Laneway / Rear Yard Suite", "Converted House", "Duplex", "Triplex/Semi-Detached",
-  "Multiple Unit Building", "Apartment Building",
-  # Mississauga
-  "DUPLEX, 3, 4, 5 0R 6PLEX", "APARTMENT (> 6 UNITS)",
-  # Kitchener
-  "Duplex Dwelling (2 dwelling units)", "Duplex Dwelling - Condo", "Semi-Duplex Dwelling",
-  "Rowhouse Duplex", "Garden Suite", "Apartment")
-alteration_permits<-c(
-  # Toronto
-  "Small Residential Projects", "Building Additions/Alterations",
-  # Mississauga
-  "ALTERATION TO EXISTING BLDG", "ADDITION AND ALTERATION", "ADDITION TO EXISTING BLDG")
-# demolition_permits is defined in the units-per-address-variable chunk
+<!-- ```{r} -->
+<!-- #| label: classify-densification -->
+<!-- multi_unit_structures<-c( -->
+<!--   # Toronto -->
+<!--   "2 Unit - Detached", "2 Unit - Semi-detached", "2 Unit - Townhouse", -->
+<!--   "3+ Unit - Detached", "3+ Unit - Semi-detached", "3+ Unit - Townhouse", -->
+<!--   "Laneway / Rear Yard Suite", "Converted House", "Duplex", "Triplex/Semi-Detached", -->
+<!--   "Multiple Unit Building", "Apartment Building", -->
+<!--   # Mississauga -->
+<!--   "DUPLEX, 3, 4, 5 0R 6PLEX", "APARTMENT (> 6 UNITS)", -->
+<!--   # Kitchener -->
+<!--   "Duplex Dwelling (2 dwelling units)", "Duplex Dwelling - Condo", "Semi-Duplex Dwelling", -->
+<!--   "Rowhouse Duplex", "Garden Suite", "Apartment") -->
+<!-- alteration_permits<-c( -->
+<!--   # Toronto -->
+<!--   "Small Residential Projects", "Building Additions/Alterations", -->
+<!--   # Mississauga -->
+<!--   "ALTERATION TO EXISTING BLDG", "ADDITION AND ALTERATION", "ADDITION TO EXISTING BLDG") -->
+<!-- # demolition_permits is defined in the units-per-address-variable chunk -->
 
-# Hamilton (Q8 to Q10): permit_type is WORKCLASS and structure_type is PERMITCLAS
-hamilton_conversions<-c("Convert Single to Multiple", "Convert Multiple to Multiple", "Convert NR to Res.")
-# Demolitions that remove a whole building (partial, accessory and
-# non-residential demolitions are left out)
-hamilton_demolition_permits<-c("Full Demolition", "Demolish Sgle. Fam.", "Demolish Multiple Family", "Demolition Control")
-hamilton_multi_unit_structures<-c("Two Family Dwelling", "Three Family Dwelling", "Semi-Detached Dwelling",
-                                  "Townhouses", "Townhouse", "Row Dwelling", "Multiple Dwelling", "Apartments")
+<!-- # Hamilton (Q8 to Q10): permit_type is WORKCLASS and structure_type is PERMITCLAS -->
+<!-- hamilton_conversions<-c("Convert Single to Multiple", "Convert Multiple to Multiple", "Convert NR to Res.") -->
+<!-- # Demolitions that remove a whole building (partial, accessory and -->
+<!-- # non-residential demolitions are left out) -->
+<!-- hamilton_demolition_permits<-c("Full Demolition", "Demolish Sgle. Fam.", "Demolish Multiple Family", "Demolition Control") -->
+<!-- hamilton_multi_unit_structures<-c("Two Family Dwelling", "Three Family Dwelling", "Semi-Detached Dwelling", -->
+<!--                                   "Townhouses", "Townhouse", "Row Dwelling", "Multiple Dwelling", "Apartments") -->
 
-# Addresses with a demolition permit at any date in the full municipal file,
-# with the number of units the demolition removed. Toronto and Kitchener record
-# units lost on demolition permits; Mississauga and Hamilton do not. We assume
-# at least one unit was lost, and take the largest value at the address rather
-# than the sum so that revisions of the same demolition permit are not double
-# counted.
-units_lost_variable<-c("Toronto"="dwelling_units_lost", "Kitchener"="units_lost")
-city.list[c("Toronto", "Mississauga", "Kitchener", "Hamilton")] |>
-  imap(\(x, city) {
-    lost_values<-if (city %in% names(units_lost_variable)) as.numeric(x[[units_lost_variable[[city]]]]) else NA_real_
-    x |>
-      mutate(units_lost=lost_values) |>
-      filter(permit_type %in% c(demolition_permits, hamilton_demolition_permits)) |>
-      group_by(street_address) |>
-      summarize(units_lost_at_address=max(c(1, units_lost), na.rm=TRUE))
-  }) |>
-  bind_rows(.id="municipality") |>
-  mutate(demolition_at_address=TRUE)->demolition_addresses
+<!-- # Addresses with a demolition permit at any date in the full municipal file, -->
+<!-- # with the number of units the demolition removed. Toronto and Kitchener record -->
+<!-- # units lost on demolition permits; Mississauga and Hamilton do not. We assume -->
+<!-- # at least one unit was lost, and take the largest value at the address rather -->
+<!-- # than the sum so that revisions of the same demolition permit are not double -->
+<!-- # counted. -->
+<!-- units_lost_variable<-c("Toronto"="dwelling_units_lost", "Kitchener"="units_lost") -->
+<!-- city.list[c("Toronto", "Mississauga", "Kitchener", "Hamilton")] |> -->
+<!--   imap(\(x, city) { -->
+<!--     lost_values<-if (city %in% names(units_lost_variable)) as.numeric(x[[units_lost_variable[[city]]]]) else NA_real_ -->
+<!--     x |> -->
+<!--       mutate(units_lost=lost_values) |> -->
+<!--       filter(permit_type %in% c(demolition_permits, hamilton_demolition_permits)) |> -->
+<!--       group_by(street_address) |> -->
+<!--       summarize(units_lost_at_address=max(c(1, units_lost), na.rm=TRUE)) -->
+<!--   }) |> -->
+<!--   bind_rows(.id="municipality") |> -->
+<!--   mutate(demolition_at_address=TRUE)->demolition_addresses -->
 
-completed |>
-  left_join(demolition_addresses, by=c("municipality", "street_address")) |>
-  mutate(demolition_at_address=coalesce(demolition_at_address, FALSE),
-         # Net change in units at the address (used for Q7)
-         net_units_at_address=units_created_at_address-units_lost_at_address,
-         densification=case_when(
-           # Hamilton branch (Q8 to Q10); Hamilton does not record units created
-           municipality=="Hamilton" & permit_type %in% hamilton_conversions ~ "DENSIFICATION: units added by converting an existing building",
-           municipality=="Hamilton" & permit_type=="New Construction" & !structure_type %in% c("Single Family Dwelling", hamilton_multi_unit_structures) ~ "No evidence of new units",
-           municipality=="Hamilton" & permit_type=="New Construction" & demolition_at_address & structure_type %in% hamilton_multi_unit_structures ~ "DENSIFICATION: teardown replaced by more units",
-           municipality=="Hamilton" & permit_type=="New Construction" & demolition_at_address ~ "Replacement: no net gain",
-           municipality=="Hamilton" & permit_type=="New Construction" ~ "Unclear: needs location check",
-           municipality=="Hamilton" ~ "No evidence of new units",
-           # Toronto, Mississauga and Kitchener (Q2 to Q7)
-           units_created_at_address==0 ~ "No new units",
-           units_created_at_address>6 ~ "Larger project",
-           permit_type %in% demolition_permits | !(dwelling_units_created>0) | is.na(dwelling_units_created) ~ "Supporting permit",
-           structure_type %in% multi_unit_structures ~ "DENSIFICATION: multi-unit or added-suite structure",
-           permit_type %in% alteration_permits ~ "DENSIFICATION: unit added to existing dwelling",
-           demolition_at_address & net_units_at_address>0 ~ "DENSIFICATION: teardown replaced by more units",
-           demolition_at_address ~ "Replacement: no net gain",
-           TRUE ~ "Unclear: needs location check"))->completed
+<!-- completed |> -->
+<!--   left_join(demolition_addresses, by=c("municipality", "street_address")) |> -->
+<!--   mutate(demolition_at_address=coalesce(demolition_at_address, FALSE), -->
+<!--          # Net change in units at the address (used for Q7) -->
+<!--          net_units_at_address=units_created_at_address-units_lost_at_address, -->
+<!--          densification=case_when( -->
+<!--            # Hamilton branch (Q8 to Q10); Hamilton does not record units created -->
+<!--            municipality=="Hamilton" & permit_type %in% hamilton_conversions ~ "DENSIFICATION: units added by converting an existing building", -->
+<!--            municipality=="Hamilton" & permit_type=="New Construction" & !structure_type %in% c("Single Family Dwelling", hamilton_multi_unit_structures) ~ "No evidence of new units", -->
+<!--            municipality=="Hamilton" & permit_type=="New Construction" & demolition_at_address & structure_type %in% hamilton_multi_unit_structures ~ "DENSIFICATION: teardown replaced by more units", -->
+<!--            municipality=="Hamilton" & permit_type=="New Construction" & demolition_at_address ~ "Replacement: no net gain", -->
+<!--            municipality=="Hamilton" & permit_type=="New Construction" ~ "Unclear: needs location check", -->
+<!--            municipality=="Hamilton" ~ "No evidence of new units", -->
+<!--            # Toronto, Mississauga and Kitchener (Q2 to Q7) -->
+<!--            units_created_at_address==0 ~ "No new units", -->
+<!--            units_created_at_address>6 ~ "Larger project", -->
+<!--            permit_type %in% demolition_permits | !(dwelling_units_created>0) | is.na(dwelling_units_created) ~ "Supporting permit", -->
+<!--            structure_type %in% multi_unit_structures ~ "DENSIFICATION: multi-unit or added-suite structure", -->
+<!--            permit_type %in% alteration_permits ~ "DENSIFICATION: unit added to existing dwelling", -->
+<!--            demolition_at_address & net_units_at_address>0 ~ "DENSIFICATION: teardown replaced by more units", -->
+<!--            demolition_at_address ~ "Replacement: no net gain", -->
+<!--            TRUE ~ "Unclear: needs location check"))->completed -->
 
-completed |>
-  count(municipality, densification) |>
-  knitr::kable()
-```
+<!-- completed |> -->
+<!--   count(municipality, densification) |> -->
+<!--   knitr::kable() -->
+<!-- ``` -->
 
-::: {.column-page style="font-size: 75%;"}
-```{r}
-#| label: sample-densification-projects
-set.seed(1)
-completed |>
-  filter(str_detect(densification, "^DENSIFICATION")) |>
-  distinct(municipality, street_address) |>
-  group_by(municipality) |>
-  slice_sample(n=10) |>
-  ungroup()->densification_sample
-completed |>
-  filter(str_detect(densification, "^DENSIFICATION")) |>
-  semi_join(densification_sample, by=c("municipality", "street_address")) |>
-  arrange(municipality, street_address, completed_date) |>
-  # Every row here is densification, so drop the prefix and keep only the branch
-  mutate(densification=str_remove(densification, "^DENSIFICATION: ")) |>
-  select(City=municipality, Address=street_address, Completed=completed_date,
-         `Permit type`=permit_type, Structure=structure_type,
-         Units=dwelling_units_created, `Units at address`=units_created_at_address,
-         Branch=densification) |>
-  knitr::kable()
-```
-:::
+<!-- ::: {.column-page style="font-size: 75%;"} -->
+<!-- ```{r} -->
+<!-- #| label: sample-densification-projects -->
+<!-- set.seed(1) -->
+<!-- completed |> -->
+<!--   filter(str_detect(densification, "^DENSIFICATION")) |> -->
+<!--   distinct(municipality, street_address) |> -->
+<!--   group_by(municipality) |> -->
+<!--   slice_sample(n=10) |> -->
+<!--   ungroup()->densification_sample -->
+<!-- completed |> -->
+<!--   filter(str_detect(densification, "^DENSIFICATION")) |> -->
+<!--   semi_join(densification_sample, by=c("municipality", "street_address")) |> -->
+<!--   arrange(municipality, street_address, completed_date) |> -->
+<!--   # Every row here is densification, so drop the prefix and keep only the branch -->
+<!--   mutate(densification=str_remove(densification, "^DENSIFICATION: ")) |> -->
+<!--   select(City=municipality, Address=street_address, Completed=completed_date, -->
+<!--          `Permit type`=permit_type, Structure=structure_type, -->
+<!--          Units=dwelling_units_created, `Units at address`=units_created_at_address, -->
+<!--          Branch=densification) |> -->
+<!--   knitr::kable() -->
+<!-- ``` -->
+<!-- ::: -->
 
-## Maps of Densification Projects
+<!-- ## Maps of Densification Projects -->
 
-These maps show every densification project (address) in Toronto, Mississauga and Kitchener. Mississauga and Kitchener permits come with their own point locations. Toronto permits do not, so they are matched to the City of Toronto address points by street address. Hamilton is left out for now because its permit shapefile has no locations.
+<!-- These maps show every densification project (address) in Toronto, Mississauga and Kitchener. Mississauga and Kitchener permits come with their own point locations. Toronto permits do not, so they are matched to the City of Toronto address points by street address. Hamilton is left out for now because its permit shapefile has no locations. -->
 
-```{r}
-#| label: import-toronto-address-points
-#| cache: true
-# Download Toronto's address points straight from Toronto Open Data
-# (https://open.toronto.ca/dataset/address-points-municipal-toronto-one-address-repository/).
-# Only the full address and the point are requested, which keeps the download to ~50 MB.
-# The geometry column is GeoJSON text, e.g. {"type": "Point", "coordinates": [-79.5, 43.6]}
-toronto_address_url<-"https://ckan0.cf.opendata.inter.prod-toronto.ca/datastore/dump/0b3756af-9caf-4f0f-ac28-9c6617adede4?fields=ADDRESS_FULL,geometry&format=csv"
-toronto_addresses<-read_csv(toronto_address_url, col_types="cc") |>
-  mutate(lon=as.numeric(str_extract(geometry, "(?<=\\[)-?[0-9.]+")),
-         lat=as.numeric(str_extract(geometry, "-?[0-9.]+(?=\\])"))) |>
-  filter(!is.na(lon), !is.na(lat)) |>
-  select(-geometry) |>
-  st_as_sf(coords=c("lon", "lat"), crs=4326) |>
-  mutate(street_address=str_to_upper(str_squish(ADDRESS_FULL))) |>
-  distinct(street_address, .keep_all=TRUE) |>
-  select(street_address)
-```
+<!-- ```{r} -->
+<!-- #| label: import-toronto-address-points -->
+<!-- #| cache: true -->
+<!-- # Download Toronto's address points straight from Toronto Open Data -->
+<!-- # (https://open.toronto.ca/dataset/address-points-municipal-toronto-one-address-repository/). -->
+<!-- # Only the full address and the point are requested, which keeps the download to ~50 MB. -->
+<!-- # The geometry column is GeoJSON text, e.g. {"type": "Point", "coordinates": [-79.5, 43.6]} -->
+<!-- toronto_address_url<-"https://ckan0.cf.opendata.inter.prod-toronto.ca/datastore/dump/0b3756af-9caf-4f0f-ac28-9c6617adede4?fields=ADDRESS_FULL,geometry&format=csv" -->
+<!-- toronto_addresses<-read_csv(toronto_address_url, col_types="cc") |> -->
+<!--   mutate(lon=as.numeric(str_extract(geometry, "(?<=\\[)-?[0-9.]+")), -->
+<!--          lat=as.numeric(str_extract(geometry, "-?[0-9.]+(?=\\])"))) |> -->
+<!--   filter(!is.na(lon), !is.na(lat)) |> -->
+<!--   select(-geometry) |> -->
+<!--   st_as_sf(coords=c("lon", "lat"), crs=4326) |> -->
+<!--   mutate(street_address=str_to_upper(str_squish(ADDRESS_FULL))) |> -->
+<!--   distinct(street_address, .keep_all=TRUE) |> -->
+<!--   select(street_address) -->
+<!-- ``` -->
 
-```{r}
-#| label: map-densification
-#| eval: !expr nzchar(Sys.getenv("CM_API_KEY"))
-#| fig-width: 11
-#| fig-height: 5
-library(patchwork)
-library(cancensus)
-map_cities<-c("Toronto", "Mississauga", "Kitchener")
-# One point per project (address). An address with permits on more than one
-# densification branch is shown under the first branch in this order.
-branch_order<-c("teardown replaced by more units", "multi-unit or added-suite structure", "unit added to existing dwelling")
-completed |>
-  filter(municipality %in% map_cities, str_detect(densification, "^DENSIFICATION")) |>
-  mutate(branch=factor(str_remove(densification, "^DENSIFICATION: "), levels=branch_order)) |>
-  arrange(municipality, street_address, branch) |>
-  distinct(municipality, street_address, .keep_all=TRUE) |>
-  select(municipality, street_address, branch)->densification_projects
+<!-- ```{r} -->
+<!-- #| label: map-densification -->
+<!-- #| eval: !expr nzchar(Sys.getenv("CM_API_KEY")) -->
+<!-- #| fig-width: 11 -->
+<!-- #| fig-height: 5 -->
+<!-- library(patchwork) -->
+<!-- library(cancensus) -->
+<!-- map_cities<-c("Toronto", "Mississauga", "Kitchener") -->
+<!-- # One point per project (address). An address with permits on more than one -->
+<!-- # densification branch is shown under the first branch in this order. -->
+<!-- branch_order<-c("teardown replaced by more units", "multi-unit or added-suite structure", "unit added to existing dwelling") -->
+<!-- completed |> -->
+<!--   filter(municipality %in% map_cities, str_detect(densification, "^DENSIFICATION")) |> -->
+<!--   mutate(branch=factor(str_remove(densification, "^DENSIFICATION: "), levels=branch_order)) |> -->
+<!--   arrange(municipality, street_address, branch) |> -->
+<!--   distinct(municipality, street_address, .keep_all=TRUE) |> -->
+<!--   select(municipality, street_address, branch)->densification_projects -->
 
-# Toronto: match to the address points. Permits write address ranges
-# ("1553-1557 BLOOR ST W"), letter suffixes with a space ("718 R OSSINGTON AVE")
-# and split "MC" names ("MC CAUL"); the address points use "1553", "718R" and "MCCAUL"
-densification_projects |>
-  filter(municipality=="Toronto") |>
-  mutate(match_address=street_address |>
-           str_replace("^(\\d+)-\\d+ ", "\\1 ") |>
-           str_replace("^(\\d+) ([A-Z]) ", "\\1\\2 ") |>
-           str_replace(" MC ", " MC")) |>
-  inner_join(toronto_addresses, by=c("match_address"="street_address")) |>
-  st_as_sf() |>
-  select(municipality, street_address, branch)->toronto_points
-# Mississauga and Kitchener: one point per address from the permit shapefiles
-mississauga_sf |>
-  distinct(ADDRESS, .keep_all=TRUE) |>
-  inner_join(filter(densification_projects, municipality=="Mississauga"), by=c("ADDRESS"="street_address")) |>
-  select(municipality, street_address=ADDRESS, branch)->mississauga_points
-kitchener_sf |>
-  distinct(FOLDERNAME, .keep_all=TRUE) |>
-  inner_join(filter(densification_projects, municipality=="Kitchener"), by=c("FOLDERNAME"="street_address")) |>
-  select(municipality, street_address=FOLDERNAME, branch)->kitchener_points
-list(toronto_points, mississauga_points, kitchener_points) |>
-  map(\(x) {
-    x<-st_transform(x, 4326)
-    st_geometry(x)<-"geometry"
-    x
-  }) |>
-  bind_rows()->project_points
+<!-- # Toronto: match to the address points. Permits write address ranges -->
+<!-- # ("1553-1557 BLOOR ST W"), letter suffixes with a space ("718 R OSSINGTON AVE") -->
+<!-- # and split "MC" names ("MC CAUL"); the address points use "1553", "718R" and "MCCAUL" -->
+<!-- densification_projects |> -->
+<!--   filter(municipality=="Toronto") |> -->
+<!--   mutate(match_address=street_address |> -->
+<!--            str_replace("^(\\d+)-\\d+ ", "\\1 ") |> -->
+<!--            str_replace("^(\\d+) ([A-Z]) ", "\\1\\2 ") |> -->
+<!--            str_replace(" MC ", " MC")) |> -->
+<!--   inner_join(toronto_addresses, by=c("match_address"="street_address")) |> -->
+<!--   st_as_sf() |> -->
+<!--   select(municipality, street_address, branch)->toronto_points -->
+<!-- # Mississauga and Kitchener: one point per address from the permit shapefiles -->
+<!-- mississauga_sf |> -->
+<!--   distinct(ADDRESS, .keep_all=TRUE) |> -->
+<!--   inner_join(filter(densification_projects, municipality=="Mississauga"), by=c("ADDRESS"="street_address")) |> -->
+<!--   select(municipality, street_address=ADDRESS, branch)->mississauga_points -->
+<!-- kitchener_sf |> -->
+<!--   distinct(FOLDERNAME, .keep_all=TRUE) |> -->
+<!--   inner_join(filter(densification_projects, municipality=="Kitchener"), by=c("FOLDERNAME"="street_address")) |> -->
+<!--   select(municipality, street_address=FOLDERNAME, branch)->kitchener_points -->
+<!-- list(toronto_points, mississauga_points, kitchener_points) |> -->
+<!--   map(\(x) { -->
+<!--     x<-st_transform(x, 4326) -->
+<!--     st_geometry(x)<-"geometry" -->
+<!--     x -->
+<!--   }) |> -->
+<!--   bind_rows()->project_points -->
 
-# How many projects could be placed on the map
-densification_projects |>
-  count(municipality, name="projects") |>
-  left_join(project_points |> st_drop_geometry() |> count(municipality, name="mapped"), by="municipality") |>
-  knitr::kable()
+<!-- # How many projects could be placed on the map -->
+<!-- densification_projects |> -->
+<!--   count(municipality, name="projects") |> -->
+<!--   left_join(project_points |> st_drop_geometry() |> count(municipality, name="mapped"), by="municipality") |> -->
+<!--   knitr::kable() -->
 
-# City boundaries from the 2021 census
-set_cancensus_cache_path(here("Data/cancensus_cache_statscan_data"))
-get_census(dataset="CA21", regions=list(CSD=c("3520005", "3521005", "3530013")),
-           level="CSD", geo_format="sf", quiet=TRUE) |>
-  mutate(municipality=recode(GeoUID, "3520005"="Toronto", "3521005"="Mississauga", "3530013"="Kitchener"))->city_boundaries
+<!-- # City boundaries from the 2021 census -->
+<!-- set_cancensus_cache_path(here("Data/cancensus_cache_statscan_data")) -->
+<!-- get_census(dataset="CA21", regions=list(CSD=c("3520005", "3521005", "3530013")), -->
+<!--            level="CSD", geo_format="sf", quiet=TRUE) |> -->
+<!--   mutate(municipality=recode(GeoUID, "3520005"="Toronto", "3521005"="Mississauga", "3530013"="Kitchener"))->city_boundaries -->
 
-branch_colours<-c("teardown replaced by more units"="#eb6834",
-                  "multi-unit or added-suite structure"="#2a78d6",
-                  "unit added to existing dwelling"="#1baf7a")
-map_city<-function(city, show_legend=FALSE) {
-  points<-filter(project_points, municipality==city)
-  ggplot()+
-    geom_sf(data=filter(city_boundaries, municipality==city), fill="grey96", colour="grey60", linewidth=0.3)+
-    geom_sf(data=points, aes(colour=branch), size=0.6, alpha=0.8, show.legend=show_legend)+
-    scale_colour_manual(values=branch_colours, drop=FALSE)+
-    guides(colour=guide_legend(override.aes=list(size=3, alpha=1)))+
-    labs(title=paste0(city, " (", scales::comma(nrow(points)), " projects)"), colour=NULL)+
-    theme_void()
-}
-# The legend is drawn once, from the Toronto map, and placed under all three
-wrap_plots(map(map_cities, \(city) map_city(city, show_legend=city=="Toronto")), nrow=1)+
-  plot_layout(guides="collect")&
-  theme(legend.position="bottom")
-```
+<!-- branch_colours<-c("teardown replaced by more units"="#eb6834", -->
+<!--                   "multi-unit or added-suite structure"="#2a78d6", -->
+<!--                   "unit added to existing dwelling"="#1baf7a") -->
+<!-- map_city<-function(city, show_legend=FALSE) { -->
+<!--   points<-filter(project_points, municipality==city) -->
+<!--   ggplot()+ -->
+<!--     geom_sf(data=filter(city_boundaries, municipality==city), fill="grey96", colour="grey60", linewidth=0.3)+ -->
+<!--     geom_sf(data=points, aes(colour=branch), size=0.6, alpha=0.8, show.legend=show_legend)+ -->
+<!--     scale_colour_manual(values=branch_colours, drop=FALSE)+ -->
+<!--     guides(colour=guide_legend(override.aes=list(size=3, alpha=1)))+ -->
+<!--     labs(title=paste0(city, " (", scales::comma(nrow(points)), " projects)"), colour=NULL)+ -->
+<!--     theme_void() -->
+<!-- } -->
+<!-- # The legend is drawn once, from the Toronto map, and placed under all three -->
+<!-- wrap_plots(map(map_cities, \(city) map_city(city, show_legend=city=="Toronto")), nrow=1)+ -->
+<!--   plot_layout(guides="collect")& -->
+<!--   theme(legend.position="bottom") -->
+<!-- ``` -->
 
-## Filtering Respondents
+<!-- ## Filtering Respondents -->
 
-We restrict the analysis to respondents living in dissemination areas (DAs) with no dwellings in apartment buildings of five or more storeys, using 2021 Census DA data. Our interest is in how residents of low-density neighbourhoods respond to densification, since they are the main source of local opposition to new housing supply. Residents of areas that already contain mid- and high-rise buildings live with a fundamentally different baseline: a small infill project or a proposed mid-rise building is a marginal change to their surroundings, not a change in neighbourhood character. These residents are also likely to differ systematically from low-density residents in tenure, age and housing preferences, partly because they chose to live in denser areas. Restricting the sample to low-density DAs keeps both our measure of exposure to nearby densification and our experimental treatments meaningful for the respondents analyzed, at some cost to generalizability.
+<!-- We restrict the analysis to respondents living in dissemination areas (DAs) with no dwellings in apartment buildings of five or more storeys, using 2021 Census DA data. Our interest is in how residents of low-density neighbourhoods respond to densification, since they are the main source of local opposition to new housing supply. Residents of areas that already contain mid- and high-rise buildings live with a fundamentally different baseline: a small infill project or a proposed mid-rise building is a marginal change to their surroundings, not a change in neighbourhood character. These residents are also likely to differ systematically from low-density residents in tenure, age and housing preferences, partly because they chose to live in denser areas. Restricting the sample to low-density DAs keeps both our measure of exposure to nearby densification and our experimental treatments meaningful for the respondents analyzed, at some cost to generalizability. -->
 
-```{r}
-cities <- c("Toronto", "Ottawa", "Mississauga", "Kitchener",
-            "St. Catharines", "Hamilton", "Burlington")
-on22 %>%
-  filter(CSDNAME2021 %in% cities) %>%
-  ggplot(aes(x = apartment_in_building_plus_5_pct_da)) +
-  geom_histogram(bins = 30) +
-  scale_x_continuous(labels = scales::percent) +
-  facet_wrap(~ CSDNAME2021, scales = "free_y", axes = "all_x") +
-  labs(x = "Percentage of 5+ storey buildings in DA",
-       y = "Respondents")
-```
+<!-- ```{r} -->
+<!-- cities <- c("Toronto", "Ottawa", "Mississauga", "Kitchener", -->
+<!--             "St. Catharines", "Hamilton", "Burlington") -->
+<!-- on22 %>% -->
+<!--   filter(CSDNAME2021 %in% cities) %>% -->
+<!--   ggplot(aes(x = apartment_in_building_plus_5_pct_da)) + -->
+<!--   geom_histogram(bins = 30) + -->
+<!--   scale_x_continuous(labels = scales::percent) + -->
+<!--   facet_wrap(~ CSDNAME2021, scales = "free_y", axes = "all_x") + -->
+<!--   labs(x = "Percentage of 5+ storey buildings in DA", -->
+<!--        y = "Respondents") -->
+<!-- ``` -->
 
-```{r}
-#| label: tower-share-binned
-#| fig-width: 10
-#| fig-height: 7
-# Same data grouped into 10-point bins: [0%, 10%), [10%, 20%), ..., [90%, 100%]
-on22 %>%
-  filter(CSDNAME2021 %in% cities, !is.na(apartment_in_building_plus_5_pct_da)) %>%
-  mutate(tower_share_bin = cut(apartment_in_building_plus_5_pct_da,
-                               breaks = seq(0, 1, by = 0.1),
-                               labels = paste0(seq(0, 90, by = 10), "-", seq(10, 100, by = 10), "%"),
-                               right = FALSE, include.lowest = TRUE)) %>%
-  ggplot(aes(x = tower_share_bin)) +
-  geom_bar() +
-  scale_x_discrete(drop = FALSE) +
-  facet_wrap(~ CSDNAME2021, scales = "free_y", axes = "all_x") +
-  labs(x = "Percentage of dwellings in 5+ storey buildings in DA",
-       y = "Respondents") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-```
+<!-- ```{r} -->
+<!-- #| label: tower-share-binned -->
+<!-- #| fig-width: 10 -->
+<!-- #| fig-height: 7 -->
+<!-- # Same data grouped into 10-point bins: [0%, 10%), [10%, 20%), ..., [90%, 100%] -->
+<!-- on22 %>% -->
+<!--   filter(CSDNAME2021 %in% cities, !is.na(apartment_in_building_plus_5_pct_da)) %>% -->
+<!--   mutate(tower_share_bin = cut(apartment_in_building_plus_5_pct_da, -->
+<!--                                breaks = seq(0, 1, by = 0.1), -->
+<!--                                labels = paste0(seq(0, 90, by = 10), "-", seq(10, 100, by = 10), "%"), -->
+<!--                                right = FALSE, include.lowest = TRUE)) %>% -->
+<!--   ggplot(aes(x = tower_share_bin)) + -->
+<!--   geom_bar() + -->
+<!--   scale_x_discrete(drop = FALSE) + -->
+<!--   facet_wrap(~ CSDNAME2021, scales = "free_y", axes = "all_x") + -->
+<!--   labs(x = "Percentage of dwellings in 5+ storey buildings in DA", -->
+<!--        y = "Respondents") + -->
+<!--   theme(axis.text.x = element_text(angle = 45, hjust = 1)) -->
+<!-- ``` -->
 
-Grouping the same measure into ten-point bins shows that respondents' neighbourhoods are sharply divided rather than spread evenly across the range. Of the 820 respondents in the seven cities with census data for their DA, 54% live in a DA where less than 10% of dwellings are in buildings of five or more storeys, and most of these (420 respondents, or 51% of the total) live in a DA with no such dwellings at all. At the other end, 19% live in a DA where 90% or more of dwellings are in 5+ storey buildings, which typically means the DA consists largely of one or more apartment towers. Relatively few respondents fall in between. Toronto is the clear exception to the low-density pattern: only 39% of Toronto respondents live in a DA with no 5+ storey dwellings, and 29% live in a DA that is at least 90% towers. In the other six cities, between 60% (Hamilton) and 89% (Burlington) of respondents live in DAs with no 5+ storey dwellings. Because the filter keeps only respondents in DAs with no 5+ storey dwellings, it removes a much larger share of the Toronto sample than of the other cities. A further 51 respondents in these cities could not be placed in a bin because their DA has no tower-share value.
+<!-- Grouping the same measure into ten-point bins shows that respondents' neighbourhoods are sharply divided rather than spread evenly across the range. Of the 820 respondents in the seven cities with census data for their DA, 54% live in a DA where less than 10% of dwellings are in buildings of five or more storeys, and most of these (420 respondents, or 51% of the total) live in a DA with no such dwellings at all. At the other end, 19% live in a DA where 90% or more of dwellings are in 5+ storey buildings, which typically means the DA consists largely of one or more apartment towers. Relatively few respondents fall in between. Toronto is the clear exception to the low-density pattern: only 39% of Toronto respondents live in a DA with no 5+ storey dwellings, and 29% live in a DA that is at least 90% towers. In the other six cities, between 60% (Hamilton) and 89% (Burlington) of respondents live in DAs with no 5+ storey dwellings. Because the filter keeps only respondents in DAs with no 5+ storey dwellings, it removes a much larger share of the Toronto sample than of the other cities. A further 51 respondents in these cities could not be placed in a bin because their DA has no tower-share value. -->
 
 ## Structure Type Explained
 
